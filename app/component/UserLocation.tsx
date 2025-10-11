@@ -1,7 +1,8 @@
 import { Marker, Popup } from "react-leaflet";
 import { useState } from "react";
+import L from "leaflet";
 
-export default function UserLocation(props: { icon: any }) {
+export default function UserLocation(props: { icon: L.Icon }) {
     const [position, setPosition] = useState<[number, number]>([0, 0]);
 
     if (navigator.geolocation) {

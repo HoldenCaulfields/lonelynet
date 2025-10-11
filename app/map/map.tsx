@@ -2,6 +2,7 @@
 
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
+import Image from "next/image";
 
 //custom icon
 const redIcon = new L.Icon({
@@ -31,7 +32,7 @@ export default function MapComponent() {
 
                 <Marker position={[10.7769, 106.7009]} icon={redIcon}>
                     <Popup>Xin chào từ TP. Hồ Chí Minh 🇻🇳
-                        <img src="https://asiapata.com/vn/wp-content/uploads/2024/08/meme-con-meo-1.jpg" alt="icon" />
+                        <Image src="https://asiapata.com/vn/wp-content/uploads/2024/08/meme-con-meo-1.jpg" alt="icon" />
                     </Popup>
                 </Marker>
 

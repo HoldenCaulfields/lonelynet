@@ -14,20 +14,3 @@
     --foreground: #ededed;
   }
 }
-
-h1 {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-
-i {
-  color: red;
-}
-
-h2 {
-  font-size: 1.5rem;
-  font-weight: semi-bold;
-  margin-bottom: 0.75rem;
-  color: rgb(27, 0, 150);
-}

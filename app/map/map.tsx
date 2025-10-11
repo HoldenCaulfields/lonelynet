@@ -10,12 +10,18 @@ import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
 // Fix leaflet's default icon paths
+type ImageImport = string | { src: string };
+
+function getImageSrc(img: ImageImport): string {
+  return typeof img === "string" ? img : img.src;
+}
+
 L.Icon.Default.mergeOptions({
-    iconRetinaUrl: (markerIcon2x as any).src ?? markerIcon2x,
-    iconUrl: (markerIcon as any).src ?? markerIcon,
-    shadowUrl: (markerShadow as any).src ?? markerShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
+  iconRetinaUrl: getImageSrc(markerIcon2x),
+  iconUrl: getImageSrc(markerIcon),
+  shadowUrl: getImageSrc(markerShadow),
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
 });
 
 //custom icon

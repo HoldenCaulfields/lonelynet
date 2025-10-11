@@ -1,28 +1,7 @@
 "use client";
 
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-
-// Import images correctly
-import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
-import markerIcon from "leaflet/dist/images/marker-icon.png";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
-
-// Fix leaflet's default icon paths
-type ImageImport = string | { src: string };
-
-function getImageSrc(img: ImageImport): string {
-  return typeof img === "string" ? img : img.src;
-}
-
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: getImageSrc(markerIcon2x),
-  iconUrl: getImageSrc(markerIcon),
-  shadowUrl: getImageSrc(markerShadow),
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
 
 //custom icon
 const redIcon = new L.Icon({
@@ -33,9 +12,13 @@ const redIcon = new L.Icon({
   popupAnchor: [1, -34],
 });
 
+//user location
+import UserLocation from "../component/UserLocation";
+
+
 export default function MapComponent() {
     return (
-        <div className="h-[500px] w-full">
+        <div className="h-full w-full">
             <MapContainer
                 center={[10.7769, 106.7009]}
                 zoom={13}
@@ -46,13 +29,17 @@ export default function MapComponent() {
                     attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
                 />
 
-                <Marker position={[10.7769, 106.7009]}>
-                    <Popup>Xin chào từ TP. Hồ Chí Minh 🇻🇳</Popup>
+                <Marker position={[10.7769, 106.7009]} icon={redIcon}>
+                    <Popup>Xin chào từ TP. Hồ Chí Minh 🇻🇳
+                        <img src="https://asiapata.com/vn/wp-content/uploads/2024/08/meme-con-meo-1.jpg" alt="icon" />
+                    </Popup>
                 </Marker>
 
                 <Marker position={[21.0245, 105.841]} icon={redIcon}>
                     <Popup>Xin chào từ Hà Nội 🇻🇳</Popup>
                 </Marker>
+
+                <UserLocation icon={redIcon} />
             </MapContainer>
         </div>
     );

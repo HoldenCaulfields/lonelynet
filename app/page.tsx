@@ -8,8 +8,8 @@ const Map = dynamic(() => import("./map/map"), {
 
 export default function HomePage() {
   return (
-    <div>
-      <h1>Alice in Borderland</h1>
+    <div className="h-screen w-full">
+      
       <Map />
     </div>
   );

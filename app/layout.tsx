@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "LonelyNet",
   description: "Where lonely hearts connect",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({

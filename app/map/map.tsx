@@ -3,26 +3,25 @@
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import Image from "next/image";
+//user location
+import UserLocation from "../component/UserLocation";
 
 //custom icon
 const redIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
+    iconUrl: "/marker-icon.png",
+    shadowUrl: "/marker-shadow.png",
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
 });
-
-//user location
-import UserLocation from "../component/UserLocation";
 
 
 export default function MapComponent() {
     return (
         <div className="h-full w-full">
             <MapContainer
-                center={[10.7769, 106.7009]}
-                zoom={13}
+                center={[16.45568, 107.59315]}
+                zoom={6}
                 style={{ height: "100%", width: "100%" }}
             >
                 <TileLayer
@@ -32,13 +31,21 @@ export default function MapComponent() {
 
                 <Marker position={[10.7769, 106.7009]} icon={redIcon}>
                     <Popup>Xin chào từ TP. Hồ Chí Minh 🇻🇳
-                        <Image src="https://asiapata.com/vn/wp-content/uploads/2024/08/meme-con-meo-1.jpg" alt="icon" />
+                        <Image width={200} height={100} src="/meo.jpg" alt="icon" />
                     </Popup>
                 </Marker>
 
                 <Marker position={[21.0245, 105.841]} icon={redIcon}>
                     <Popup>Xin chào từ Hà Nội 🇻🇳</Popup>
                 </Marker>
+
+                {/* <Marker position={[16.83494, 112.33855]} icon={redIcon}>
+                    <Popup>Hoàng Sa (Viet Nam)</Popup>
+                </Marker>
+
+                <Marker position={[8.644541, 111.920321]} icon={redIcon}>
+                    <Popup>Trường Sa (Viet Nam)</Popup>
+                </Marker> */}
 
                 <UserLocation icon={redIcon} />
             </MapContainer>

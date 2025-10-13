@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Navbar() {
   const categories = ["All", "Music", "Movies", "Books", "Tech", "Games", "News"];
@@ -11,14 +12,14 @@ export default function Navbar() {
         {/* Logo + Search */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full md:w-auto">
           {/* Logo */}
-          <a
+          <Link
             href="/"
             className="flex items-center gap-2 text-white font-extrabold text-2xl tracking-tight cursor-pointer justify-center sm:justify-start hover:text-gray-300 transition-colors duration-300"
             aria-label="LonelyNet Home"
           >
             <Image src="/logo.png" width={50} height={70} className="rounded-full" alt="logo" />
             LonelyNet
-          </a>
+          </Link>
 
           {/* Search box */}
           <div className="flex items-center w-full sm:w-72 md:w-96 bg-white/10 backdrop-blur-md rounded-full px-4 py-2 shadow-md focus-within:ring-2 focus-within:ring-gray-400 transition-all duration-300 mx-auto sm:mx-0 border border-gray-600/50">

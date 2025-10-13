@@ -1,21 +1,28 @@
-import { Marker, Popup } from "react-leaflet";
 import { useState } from "react";
-import L from "leaflet";
+import { Marker, Popup, useMapEvents } from "react-leaflet";
+import { redIcon } from "./Icon";
 
-export default function UserLocation(props: { icon: L.Icon }) {
-    const [position, setPosition] = useState<[number, number]>([0, 0]);
+type Latlng = {
+    lat: number;
+    lng: number;
+};
 
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-            setPosition([position.coords.latitude, position.coords.longitude]);
-        });
-    } else {
-        console.error("Geolocation is not supported by this browser.");
-    }
-
-    return (
-        <Marker position={[position[0], position[1]]} icon={props.icon}>
-            <Popup>Xin chào </Popup>
-        </Marker>
+export default function UserLocation() {
+    const [position, setPosition] = useState<Latlng | null>(null);
+    const map = useMapEvents({
+        click() {
+            map.locate();
+        },
+        locationfound(e) {
+            setPosition(e.latlng);
+            map.flyTo(e.latlng, map.getZoom());
+        },
+    })
+    return position === null ? null : (
+        <>
+            <Marker position={position} icon={redIcon}>
+                <Popup>You are here</Popup>
+            </Marker>
+        </>
     );
 }

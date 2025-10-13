@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Marker, Popup, useMapEvents } from "react-leaflet";
-import { redIcon } from "./Icon";
+import { Marker, Popup, Tooltip, useMapEvents } from "react-leaflet";
+import { userIcon } from "./Icon";
 
 type Latlng = {
     lat: number;
@@ -17,12 +17,21 @@ export default function UserLocation() {
             setPosition(e.latlng);
             map.flyTo(e.latlng, map.getZoom());
         },
-    })
+    });
+
     return position === null ? null : (
         <>
-            <Marker position={position} icon={redIcon}>
-                <Popup>You are here</Popup>
+            <Marker position={position} icon={userIcon}>
+                <Tooltip direction="top" offset={[2, -38]} permanent >
+                    You are here
+                </Tooltip>
+                <Popup>
+                    {/* //add input, image here */}
+                    <input type="text" className="border-amber-200" />
+                    <button type="submit" >Send</button>
+                </Popup>
             </Marker>
+            
         </>
     );
 }

@@ -19,8 +19,9 @@ export default function MapComponent() {
                 />
 
                 <MarkerContainer />
-
+    
                 <UserLocation />
+
             </MapContainer>
         </div>
     );

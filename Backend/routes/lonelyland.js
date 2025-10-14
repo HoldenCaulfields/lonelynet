@@ -1,21 +1,35 @@
-const express = require('express');
+import express from 'express';
+import Soul from '../models/Soul.js';
+import { upload } from '../config/cloudinary.js';
+
 const router = express.Router();
 
-//Routes
-router.get('/', (req, res) => {
-    res.send('Welcome to LonelyLand API!');
+//Create Soul (post):
+router.post('/', upload.single('image'), async (req, res) => {
+    try {
+        const { text, tags, userAddress } = req.body;
+        const newSoul = new Soul({
+            text,
+            tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
+            userAddress,
+            imageUrl: req.file ? req.file.path : null,
+        });
+        await newSoul.save();
+        res.status(201).json(newSoul);
+    } catch (error) {
+        res.status(500).json({error: error.message});
+    }
 });
 
-router.post('/', (req, res) => {
-    res.send('POST request to the LonelyLand API');
+//Get all Souls
+router.get('/', async (req, res) => {
+    try {
+        const souls = await Soul.find().sort({createdAt: -1});
+        res.json(souls);
+    } catch (error) {
+        res.status(500).json({error: error.message});
+    }
 });
 
-router.get('/:id', (req, res) => {
-    res.send(`You requested data for ID: ${req.params.id}`);
-});
 
-router.put('/:id', (req, res) => {
-    res.send(`Update request for ID: ${req.params.id}`);
-});
-
-module.exports = router;
+export default router;

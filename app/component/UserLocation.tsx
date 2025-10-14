@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Marker, Popup, Tooltip, useMapEvents } from "react-leaflet";
 import { userIcon } from "./Icon";
+import PostForm from "./PostForm";
 
 type Latlng = {
     lat: number;
@@ -22,16 +23,21 @@ export default function UserLocation() {
     return position === null ? null : (
         <>
             <Marker position={position} icon={userIcon}>
-                <Tooltip direction="top" offset={[2, -38]} permanent >
+                <Tooltip direction="top" offset={[2, -38]} permanent>
                     You are here
                 </Tooltip>
+
                 <Popup>
-                    {/* //add input, image here */}
-                    <input type="text" className="border-amber-200" />
-                    <button type="submit" >Send</button>
+                    <div className="w-64">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                            ✏️ Create Post
+                        </h3>
+                        <PostForm />
+                    </div>
                 </Popup>
             </Marker>
-            
+
+
         </>
     );
 }

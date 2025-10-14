@@ -28,11 +28,11 @@ export default function UserLocation() {
                 </Tooltip>
 
                 <Popup>
-                    <div className="w-64">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                            ✏️ Create Post
+                    <div className="w-64 md:w-80">
+                        <h3 className="text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                            ✏️ Someone out there will find you
                         </h3>
-                        <PostForm />
+                        <PostForm address={position} />
                     </div>
                 </Popup>
             </Marker>

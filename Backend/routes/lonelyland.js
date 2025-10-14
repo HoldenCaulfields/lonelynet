@@ -7,11 +7,11 @@ const router = express.Router();
 //Create Soul (post):
 router.post('/', upload.single('image'), async (req, res) => {
     try {
-        const { text, tags, userAddress } = req.body;
+        const { text, tags, position } = req.body;
         const newSoul = new Soul({
             text,
             tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
-            userAddress,
+            position,
             imageUrl: req.file ? req.file.path : null,
         });
         await newSoul.save();

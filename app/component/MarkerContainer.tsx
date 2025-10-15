@@ -9,6 +9,7 @@ interface MarkerData {
     position: [number, number];
     text?: string;
     imageUrl?: string;
+    tags?: [string];
 }
 
 export default function MarkerContainer() {
@@ -17,7 +18,7 @@ export default function MarkerContainer() {
     useEffect(() => {
         //call backend API:
         axios.get("http://localhost:5000/api/lonelyland")
-            .then((res) => { setMarkers(res.data)})
+            .then((res) => { setMarkers(res.data) })
             .catch((err) => console.error("Error fetching markers: ", err));
     }, []);
 
@@ -32,6 +33,15 @@ export default function MarkerContainer() {
                                 <Image src={marker.imageUrl} width={200} height={100} alt="popup-img" />
                             </div>
                         )}
+                        {marker.tags?.map((item, key) => (
+                            <span
+                                key={key}
+                                className="inline-block px-3 py-1 mr-2 mb-2 text-xs font-bold tracking-wide uppercase bg-black text-white rounded-full shadow-md hover:bg-white hover:text-black border border-black transition-colors duration-300 cursor-pointer"
+                            >
+                                #{item}
+                            </span>
+                        ))}
+
                     </Popup>
                 </Marker>
             ))}

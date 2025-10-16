@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Marker, Popup, Tooltip, useMapEvents } from "react-leaflet";
 import { userIcon } from "./Icon";
-import PostForm from "./PostForm";
+import PostForm from "./postform/PostForm";
 
 type Latlng = {
     lat: number;

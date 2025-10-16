@@ -44,14 +44,13 @@ export default function Navbar() {
           {categories.map((cat) => (
             <button
               key={cat}
-              className={`whitespace-nowrap text-sm px-5 py-2 rounded-full border border-gray-600/50 bg-white/5 text-gray-200 hover:bg-gray-700 hover:text-white transition-all duration-300 shadow-md transform hover:scale-105 ${
-                selectedCategory === cat ? "bg-gray-700 text-white shadow-inner" : ""
-              }`}
-              aria-selected={selectedCategory === cat}
               onClick={() => setSelectedCategory(cat)}
+              className={`whitespace-nowrap text-sm px-5 py-2 rounded-full border border-gray-600/50 bg-white/5 text-gray-200 hover:bg-gray-700 hover:text-white transition-all duration-300 shadow-md transform hover:scale-105 ${selectedCategory === cat ? "bg-gray-700 text-white shadow-inner" : ""
+                }`}
             >
               {cat}
             </button>
+
           ))}
         </div>
       </div>

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const soulSchema = new mongoose.Schema({
     text: {type: String},
-    imageUrl: {type: String},
+    imageUrl: { type: String },  // store multiple images
     tags: {type: [String], default: []},
     position: {type: [Number, Number], required: true},
 }, {timestamps: true});

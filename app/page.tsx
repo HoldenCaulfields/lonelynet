@@ -1,7 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
 import Navbar from "./component/NavBar";
-import PostForm from "./component/PostForm";
 
 // Dynamically import MapComponent (disable SSR)
 const Map = dynamic(() => import("./map/MapComponent"), {

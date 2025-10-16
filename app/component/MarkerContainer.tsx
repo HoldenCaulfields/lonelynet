@@ -30,7 +30,8 @@ export default function MarkerContainer() {
                         {marker.text}
                         {marker.imageUrl && (
                             <div className="mt-2">
-                                <Image src={marker.imageUrl} width={200} height={100} alt="popup-img" />
+                                <Image src={marker.imageUrl} width={200} height={100}
+                                    className="w-46 h-30 object-cover rounded-xl shadow-sm" alt="popup-img" />
                             </div>
                         )}
                         {marker.tags?.map((item, key) => (

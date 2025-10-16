@@ -17,7 +17,7 @@ export default function MarkerContainer() {
 
     useEffect(() => {
         //call backend API:
-        axios.get("http://localhost:5000/api/lonelyland")
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/lonelyland`)
             .then((res) => { setMarkers(res.data) })
             .catch((err) => console.error("Error fetching markers: ", err));
     }, []);

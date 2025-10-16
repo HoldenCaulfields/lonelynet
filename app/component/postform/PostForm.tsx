@@ -28,7 +28,7 @@ export default function PostForm({ address }: { address: Address }) {
       if (image) formData.append("image", image);
 
       const { data } = await axios.post(
-        "http://localhost:5000/api/lonelyland",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/lonelyland`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

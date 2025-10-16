@@ -49,13 +49,23 @@ router.post("/", upload.single("image"), async (req, res) => {
 
 //Get all Souls
 router.get('/', async (req, res) => {
-    try {
-        const souls = await Soul.find().sort({createdAt: -1});
-        res.json(souls);
-    } catch (error) {
-        res.status(500).json({error: error.message});
+  try {
+    const { tag } = req.query; // Get tag from query
+    
+    if (tag) {
+      // ✅ ONLY return Souls with THIS tag
+      const souls = await Soul.find({ 
+        tags: tag  // Exact match in tags array
+      }).sort({createdAt: -1});
+      return res.json(souls);
     }
+    
+    // No tag = return ALL
+    const souls = await Soul.find().sort({createdAt: -1});
+    res.json(souls);
+  } catch (error) {
+    res.status(500).json({error: error.message});
+  }
 });
-
 
 export default router;

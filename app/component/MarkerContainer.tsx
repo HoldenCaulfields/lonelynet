@@ -1,58 +1,113 @@
 import { Marker, Popup } from "react-leaflet";
 import Image from "next/image";
-import { redIcon } from "./Icon"; //custom icon
+import { redIcon } from "./Icon";
 import axios from "axios";
 import { useState, useEffect } from "react";
 
 interface MarkerData {
-    _id: string;
-    position: [number, number];
-    text?: string;
-    imageUrl?: string;
-    tags?: [string];
+  _id: string;
+  position: [number, number];
+  text?: string;
+  imageUrl?: string;
+  tags?: string[];
 }
 
+const API_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://lonelynet.onrender.com"
+    : "http://localhost:5000";
+
 export default function MarkerContainer() {
-    const [markers, setMarkers] = useState<MarkerData[]>([]);
+  const [markers, setMarkers] = useState<MarkerData[]>([]);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        //call backend API:
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/lonelyland`)
-            .then((res) => { setMarkers(res.data) })
-            .catch((err) => console.error("Error fetching markers: ", err));
-    }, []);
+  // ✅ LOAD ALL on start
+  useEffect(() => {
+    fetchAllMarkers();
+  }, []);
 
-    return (
-        <>
-            {markers.map((marker) => (
-                <Marker key={marker._id} position={marker.position} icon={redIcon}>
-                    <Popup>
-                        {marker.text}
-                        {marker.imageUrl && (
-                            <div className="mt-2">
-                                <Image src={marker.imageUrl} width={200} height={100}
-                                    className="w-46 h-30 object-cover rounded-xl shadow-sm" alt="popup-img" />
-                            </div>
-                        )}
-                        {marker.tags?.map((item, key) => (
-                            <span
-                                key={key}
-                                className="inline-block px-3 py-1 mr-2 mb-2 text-xs font-bold tracking-wide uppercase bg-black text-white rounded-full shadow-md hover:bg-white hover:text-black border border-black transition-colors duration-300 cursor-pointer"
-                            >
-                                #{item}
-                            </span>
-                        ))}
+  const fetchAllMarkers = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API_URL}/api/lonelyland`);
+      setMarkers(res.data);
+    } catch (err) {
+      console.error("Error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                    </Popup>
-                </Marker>
-            ))}
-            {/*<Marker position={[16.83494, 112.33855]} icon={redIcon}>
-                    <Popup>Hoàng Sa (Viet Nam)</Popup>
-                </Marker>
+  // ✅ FILTER BY TAG
+  const fetchMarkersByTag = async (tag: string) => {
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        `${API_URL}/api/lonelyland?tag=${tag}`
+      );
+      setMarkers(res.data); // ONLY this tag!
+      setSelectedTag(tag);
+    } catch (err) {
+      console.error("Error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                <Marker position={[8.644541, 111.920321]} icon={redIcon}>
-                    <Popup>Trường Sa (Viet Nam)</Popup>
-                </Marker> */}
-        </>
-    );
+  const handleTagClick = (tag: string) => {
+    fetchMarkersByTag(tag);
+  };
+
+  return (
+    <>
+      {selectedTag && (
+        <div className="absolute top-4 left-4 z-[1000] bg-white p-3 rounded-lg shadow-lg">
+          <span className="text-sm">#{selectedTag}</span>
+        </div>
+      )}
+
+      {loading && (
+        <div className="absolute top-1/2 left-1/2 z-[1000] bg-white p-3 rounded-lg shadow-lg">
+          Loading...
+        </div>
+      )}
+
+      {markers.map((marker) => (
+        <Marker key={marker._id} position={marker.position} icon={redIcon}>
+          <Popup>
+            <div className="max-w-sm">
+              {marker.text}
+              {marker.imageUrl && (
+                <div className="mt-2">
+                  <Image
+                    src={marker.imageUrl}
+                    width={200}
+                    height={100}
+                    className="w-full h-24 object-cover rounded-xl"
+                    alt="popup"
+                  />
+                </div>
+              )}
+              <div className="flex overflow-x-auto space-x-2 py-2">
+                {marker.tags?.map((item) => (
+                  <span
+                    key={item}
+                    onClick={() => handleTagClick(item)}
+                    className={`flex-shrink-0 px-3 py-1 text-xs font-bold uppercase rounded-full cursor-pointer ${
+                      selectedTag === item
+                        ? "bg-blue-600 text-white"
+                        : "bg-black text-white hover:bg-white hover:text-black"
+                    }`}
+                  >
+                    #{item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </Popup>
+        </Marker>
+      ))}
+    </>
+  );
 }

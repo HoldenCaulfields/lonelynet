@@ -10,9 +10,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 //Middleware
+const allowedOrigins = ['https://lonelynet.vercel.app', 'https://lonelynet.onrender.com', 'http://localhost:3000'];
+
 app.use(cors({
-  origin: ["https://lonelynet.vercel.app/"], // your frontend Render URL
-  credentials: true,
+    origin: allowedOrigins,
 }));
 app.use(express.json());
 

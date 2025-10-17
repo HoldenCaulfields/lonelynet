@@ -1,6 +1,6 @@
 import { Marker, Popup } from "react-leaflet";
 import Image from "next/image";
-import { redIcon } from "./Icon";
+import { redIcon } from "../components/Icon";
 import axios from "axios";
 import { useState, useEffect } from "react";
 

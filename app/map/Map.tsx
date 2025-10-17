@@ -1,10 +1,10 @@
 "use client";
 
 import { MapContainer, TileLayer } from "react-leaflet";
-import UserLocation from "../component/UserLocation"; //user location
-import MarkerContainer from "../component/MarkerContainer";
+import UserLocation from "./UserLocation";
+import MarkerContainer from "./MarkerContainer";
 
-export default function MapComponent() {
+export default function Map() {
 
     return (
         <div className="h-full w-full">

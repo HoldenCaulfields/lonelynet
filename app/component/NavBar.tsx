@@ -17,8 +17,7 @@ export default function Navbar() {
             className="flex items-center gap-2 text-white font-extrabold text-2xl tracking-tight cursor-pointer justify-center sm:justify-start hover:text-gray-300 transition-colors duration-300"
             aria-label="LonelyNet Home"
           >
-            <Image src="/logo.png" width={40} height={40} className="rounded-full" alt="logo" />
-            LonelyNet
+            <Image src="/LonelyNet.png" width={150} height={30} className="rounded-full" alt="logo" />
           </Link>
 
           {/* Search box */}

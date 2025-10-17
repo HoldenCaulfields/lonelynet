@@ -10,7 +10,7 @@ export default function MapComponent() {
         <div className="h-full w-full">
             <MapContainer
                 center={[16.45568, 107.59315]}
-                zoom={6}
+                zoom={8}
                 style={{ height: "100%", width: "100%" }}
             >
                 <TileLayer

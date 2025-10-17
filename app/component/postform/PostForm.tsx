@@ -41,12 +41,17 @@ export default function PostForm({ address }: { address: Address }) {
       setText("");
       setImage(null);
       setSelectedCategories([]);
+
+      // ✅ redirect to homepage
+      window.location.href = "/";
     } catch (error) {
       if (error instanceof Error) {
         console.error("Error posting:", error.message);
       } else {
         console.error("Unknown error:", error);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,8 +81,11 @@ export default function PostForm({ address }: { address: Address }) {
       <button
         type="submit"
         disabled={loading}
-        className={`${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-          } text-white font-semibold py-2 rounded-xl transition-colors shadow-sm`}
+        className={`${
+          loading
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-blue-600 hover:bg-blue-700"
+        } text-white font-semibold py-2 rounded-xl transition-colors shadow-sm`}
       >
         {loading ? "Posting..." : "Post"}
       </button>

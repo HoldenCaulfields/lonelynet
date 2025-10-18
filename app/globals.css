@@ -18,3 +18,17 @@
 body {
   background-color: rgb(19, 18, 18);
 }
+
+
+/* styles/globals.css */
+.leaflet-marker-icon.user-icon-glow {
+  filter: drop-shadow(0 0 6px rgba(0, 200, 255, 0.8))
+          drop-shadow(0 0 12px rgba(0, 200, 255, 0.6));
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}

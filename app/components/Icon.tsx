@@ -1,17 +1,18 @@
 import L from'leaflet';
 
 export const redIcon = new L.Icon({
-    iconUrl: "/marker-icon.png",
+    iconUrl: "/red-icon.png",
     shadowUrl: "/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
+    iconSize: [42, 42],
+    iconAnchor: [20, 50],
+    shadowAnchor: [10, 50],  
+    popupAnchor: [1, -42],
 });
 
 export const userIcon = new L.Icon({
-    iconUrl: "/marker-icon.png",
-    shadowUrl: "/marker-shadow.png",
-    iconSize: [30, 46],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
+    iconUrl: "/user-icon.png",
+    iconSize: [62, 62],
+    iconAnchor: [30, 60],
+    popupAnchor: [1, -42],
+    className: "user-icon-glow",
 });

@@ -1,7 +1,7 @@
 "use client";
 
 import { MapContainer, TileLayer } from "react-leaflet";
-import UserLocation from "./UserLocation";
+import UserLocation from "./userlocation-post/UserLocation";
 import MarkerContainer from "./marker/MarkerContainer";
 
 export default function Map() {

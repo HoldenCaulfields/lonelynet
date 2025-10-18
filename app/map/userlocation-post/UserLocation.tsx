@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Marker, Popup, Tooltip, useMapEvents } from "react-leaflet";
-import { userIcon } from "../components/Icon";
-import PostForm from "../components/postform/PostForm";
+import { userIcon } from "../../components/Icon";
+import PostForm from "./postform/PostForm";
 
 type Latlng = {
   lat: number;
@@ -39,7 +39,7 @@ export default function UserLocation() {
 
   return position === null ? null : (
     <Marker position={position} icon={userIcon}>
-      <Tooltip direction="top" offset={[2, -38]} permanent>
+      <Tooltip direction="top" offset={[2, -58]} permanent>
         You are here
       </Tooltip>
 

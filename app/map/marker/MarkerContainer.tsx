@@ -118,19 +118,30 @@ export default function MarkerContainer() {
         )}
       </AnimatePresence>
 
-      {/* Marker popup card */}
+      {/* Marker popup */}
       {markers.map((marker) => (
         <Marker key={marker._id} position={marker.position} icon={redIcon}>
           <Popup>
             <div className="max-w-sm">
-              {marker.text}
+              {marker.text && (
+                <p
+                  className="text-sm sm:text-base text-gray-800 leading-relaxed mb-3 max-w-full overflow-hidden break-words"
+                  style={{
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
+                    hyphens: 'auto'
+                  }}
+                >
+                  {marker.text}
+                </p>
+              )}
               {marker.imageUrl && (
                 <div className="mt-2">
                   <Image
                     src={marker.imageUrl}
                     width={200}
                     height={100}
-                    className="w-full h-24 object-cover rounded-xl"
+                    className="w-full h-34 object-cover rounded-xl"
                     alt="popup"
                   />
                 </div>

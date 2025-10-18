@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 import Tags from "./Tags";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface MarkerData {
+export interface MarkerData {
   _id: string;
   position: [number, number];
   text?: string;

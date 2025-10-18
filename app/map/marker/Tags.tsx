@@ -1,12 +1,13 @@
 "use client";
 
 import axios from "axios";
+import { MarkerData } from "./MarkerContainer";
 
 interface TagsProps {
   tags: string[];
   selectedTag: string | null;
   onTagSelect: (tag: string | null) => void; // update selectedTag in parent
-  onMarkersUpdate: (markers: any[]) => void; // update markers in parent
+  onMarkersUpdate: (markers: MarkerData[]) => void; // update markers in parent
 }
 
 const API_URL =

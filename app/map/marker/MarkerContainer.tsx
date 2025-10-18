@@ -1,8 +1,12 @@
+"use client";
+
 import { Marker, Popup } from "react-leaflet";
 import Image from "next/image";
-import { redIcon } from "../components/Icon";
+import { redIcon } from "../../components/Icon";
 import axios from "axios";
 import { useState, useEffect } from "react";
+import Tags from "./Tags";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface MarkerData {
   _id: string;
@@ -43,10 +47,8 @@ export default function MarkerContainer() {
   const fetchMarkersByTag = async (tag: string) => {
     setLoading(true);
     try {
-      const res = await axios.get(
-        `${API_URL}/api/lonelyland?tag=${tag}`
-      );
-      setMarkers(res.data); // ONLY this tag!
+      const res = await axios.get(`${API_URL}/api/lonelyland?tag=${tag}`);
+      setMarkers(res.data);
       setSelectedTag(tag);
     } catch (err) {
       console.error("Error:", err);
@@ -55,24 +57,68 @@ export default function MarkerContainer() {
     }
   };
 
-  const handleTagClick = (tag: string) => {
+  const handleTagClick = (tag: string | null) => {
+    if (tag === null) {
+      // clear filter and reload all markers
+      setSelectedTag(null);
+      fetchAllMarkers();
+      return;
+    }
     fetchMarkersByTag(tag);
   };
 
+  // ✅ FILTERED MARKERS
+  const filteredMarkers = selectedTag
+    ? markers.filter((m) => m.tags?.includes(selectedTag))
+    : markers;
+
   return (
     <>
-      {selectedTag && (
-        <div className="absolute top-4 left-4 z-[1000] bg-white p-3 rounded-lg shadow-lg">
-          <span className="text-sm">#{selectedTag}</span>
+      {/* 🌟 POWER BAR - LUXURY BLACK BAR */}
+      <motion.div
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="absolute top-0 left-1/2 -translate-x-1/2 z-[1000]  max-w-2xl w-[95%] sm:w-[80%]"
+      >
+        <div className="mt-2 overflow-x-auto scrollbar-hide">
+          <Tags
+            tags={[...new Set(markers.flatMap((m) => m.tags || []))]}
+            selectedTag={selectedTag}
+            onTagSelect={handleTagClick}
+            onMarkersUpdate={setMarkers}
+          />
         </div>
-      )}
+        <motion.p
+          className="text-red-500 font-mono text-sm mt-3 tracking-wider"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          {filteredMarkers.length} PINS {selectedTag ? `• #${selectedTag}` : ""}
+        </motion.p>
+      </motion.div>
 
-      {loading && (
-        <div className="absolute top-1/2 left-1/2 z-[1000] bg-white p-3 rounded-lg shadow-lg">
-          Loading...
-        </div>
-      )}
+      {/* ⚡ MINIMAL LOADING - FLOATING PIN */}
+      <AnimatePresence>
+        {loading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[1000] flex items-center justify-center pointer-events-none"
+          >
+            <motion.div
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 1, repeat: Infinity }}
+              className="text-center"
+            >
+              <div className="text-6xl mb-2 text-white drop-shadow-lg">📍</div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
+      {/* Marker popup card */}
       {markers.map((marker) => (
         <Marker key={marker._id} position={marker.position} icon={redIcon}>
           <Popup>
@@ -94,11 +140,10 @@ export default function MarkerContainer() {
                   <span
                     key={item}
                     onClick={() => handleTagClick(item)}
-                    className={`flex-shrink-0 px-3 py-1 text-xs font-bold uppercase rounded-full cursor-pointer ${
-                      selectedTag === item
+                    className={`flex-shrink-0 px-3 py-1 text-xs font-bold uppercase rounded-full cursor-pointer ${selectedTag === item
                         ? "bg-blue-600 text-white"
                         : "bg-black text-white hover:bg-white hover:text-black"
-                    }`}
+                      }`}
                   >
                     #{item}
                   </span>

@@ -2,7 +2,7 @@
 
 import { MapContainer, TileLayer } from "react-leaflet";
 import UserLocation from "./UserLocation";
-import MarkerContainer from "./MarkerContainer";
+import MarkerContainer from "./marker/MarkerContainer";
 
 export default function Map() {
 

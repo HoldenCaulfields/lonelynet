@@ -5,6 +5,7 @@ import UserLocation from "./userlocation-post/UserLocation";
 import MarkerContainer from "./marker/MarkerContainer";
 
 export default function Map() {
+    
 
     return (
         <div className="h-full w-full">

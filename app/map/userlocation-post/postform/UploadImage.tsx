@@ -53,7 +53,7 @@ export default function UploadImage({ onImageChange, value }: UploadProps) {
 
   return (
     <motion.div
-      className="flex justify-center w-full" // ✅ FULL WIDTH RESPONSIVE
+      className="flex justify-center w-full"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
@@ -62,49 +62,43 @@ export default function UploadImage({ onImageChange, value }: UploadProps) {
         {preview ? (
           <motion.div
             key="preview"
-            className="relative w-full max-w-[144px] sm:max-w-[160px] md:max-w-[176px] group" // ✅ RESPONSIVE SIZES
+            className="relative w-full max-w-[120px] group"
             initial={{ scale: 0.9, rotate: -5 }}
             animate={{ scale: 1, rotate: 0 }}
             exit={{ scale: 0.9, rotate: 5, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {/* Image Container */}
-            <div className="relative w-full h-[120px] sm:h-[140px] md:h-[160px] rounded-2xl overflow-hidden shadow-2xl border border-white/20 backdrop-blur-md"> {/* ✅ RESPONSIVE HEIGHT */}
-              <Image
-                src={preview}
-                alt="Preview"
-                width={176}
-                height={160}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                unoptimized
-              />
-
+            {/* Image Container with colorful border */}
+            <div className="relative w-full h-[100px] rounded-xl overflow-hidden shadow-xl border-4 border-transparent  p-0.5">
+              <div className="w-full h-full rounded-lg overflow-hidden">
+                <Image
+                  src={preview}
+                  alt="Preview"
+                  width={120}
+                  height={100}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  unoptimized
+                />
+              </div>
             </div>
-            {/* Remove Button */}
+
+            {/* Remove Button with vibrant red gradient */}
             <motion.button
               type="button"
               onClick={removeImage}
               className="
-                absolute -top-2 -right-2 w-8 h-8 sm:w-9 sm:h-9 
-                bg-gradient-to-br from-red-500 to-red-600 text-white rounded-full 
-                shadow-lg shadow-red-500/40 border-2 border-white/30
-                flex items-center justify-center font-bold text-sm sm:text-base
-                hover:from-red-600 hover:to-red-700 hover:shadow-xl
+                absolute -top-2 -right-2 w-7 h-7 
+                bg-gradient-to-br from-red-400 to-red-600 text-white rounded-full 
+                shadow-lg shadow-red-500/50 border border-white/40
+                flex items-center justify-center font-bold text-sm
+                hover:from-red-500 hover:to-red-700 hover:shadow-xl
                 active:scale-95 transition-all duration-200
               "
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.9 }}
             >
               ✕
             </motion.button>
-
-            {/* Success Ring */}
-            <motion.div
-              className="absolute inset-0 rounded-2xl border-2 border-green-400/60"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.4 }}
-            />
           </motion.div>
         ) : (
           <motion.label
@@ -112,37 +106,37 @@ export default function UploadImage({ onImageChange, value }: UploadProps) {
             htmlFor="image-upload"
             className={`
               flex flex-col justify-center items-center 
-              w-full max-w-[144px] sm:max-w-[160px] md:max-w-[160px] /* ✅ RESPONSIVE WIDTH */
-              h-[120px] sm:h-[120px] md:h-[120px] /* ✅ RESPONSIVE HEIGHT */
-              rounded-2xl p-1 sm:p-1  text-center cursor-pointer transition-all duration-300
+              w-full max-w-[120px] 
+              h-[100px] 
+              rounded-xl cursor-pointer transition-all duration-300
               relative overflow-hidden group
-              ${isDragging 
-                ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-xl shadow-blue-500/50 scale-105" 
-                : "bg-white/70 backdrop-blur-md border-2 border-dashed border-gray-300 hover:border-gray-400 shadow-md hover:shadow-lg"
+              ${isDragging
+                ? "bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 text-white shadow-xl scale-105"
+                : "bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 border-2 border-dashed border-blue-400 hover:border-pink-500 shadow-md hover:shadow-lg"
               }
             `}
             onDragEnter={handleDrag}
             onDragOver={handleDrag}
             onDragLeave={handleDrag}
             onDrop={handleDrop}
-            whileHover={{ y: -4 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ y: -3 }}
+            whileTap={{ scale: 0.97 }}
           >
             {/* Animated Icon */}
             <motion.div
-              animate={isDragging ? { rotate: 360, scale: 1.2 } : { rotate: 0, scale: 1 }}
-              transition={{ duration: 0.8, ease: "easeInOut" }}
-              className="mb-1 sm:mb-2 text-2xl sm:text-3xl md:text-4xl" // ✅ RESPONSIVE ICON
+              animate={isDragging ? { rotate: 360, scale: 1.3 } : { rotate: 0, scale: 1 }}
+              transition={{ duration: 0.7, ease: "easeInOut" }}
+              className="text-2xl"
             >
-              {isDragging ? "✨" : "📷"}
+              {isDragging ? "🌈" : "📷"}
             </motion.div>
 
             {/* Text */}
-            <motion.span className="text-xs sm:text-sm md:text-base font-medium text-gray-700 group-hover:text-gray-900 px-1">
-              {isDragging ? "Drop here!" : "Upload Image"}
+            <motion.span className="text-xs font-semibold text-gray-700  px-1">
+              {isDragging ? "Drop it!" : "Upload"}
             </motion.span>
-            <motion.span className="text-xs text-gray-400 mt-0.5 sm:mt-1 px-1">
-              {isDragging ? "PNG, JPG up to 5MB" : "Click or drag"}
+            <motion.span className="text-[10px] text-gray-500 mt-0.5 px-1">
+              PNG / JPG
             </motion.span>
 
             {/* Hidden Input */}
@@ -152,23 +146,6 @@ export default function UploadImage({ onImageChange, value }: UploadProps) {
               accept="image/*"
               hidden
               onChange={handleImageChange}
-            />
-
-            {/* Glow / Shimmer */}
-            <motion.div
-              className="absolute inset-0 rounded-2xl border border-transparent group-hover:border-blue-400/50"
-              animate={{ 
-                boxShadow: isDragging 
-                  ? "0px 0px 20px rgba(59,130,246,0.6)" 
-                  : "0px 0px 0px rgba(0,0,0,0)" 
-              }}
-              transition={{ duration: 0.4 }}
-            />
-
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-              animate={{ x: ["-100%", "100%"] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
             />
           </motion.label>
         )}

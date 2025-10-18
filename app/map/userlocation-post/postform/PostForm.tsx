@@ -48,7 +48,7 @@ export default function PostForm({ address }: { address: Address }) {
       setSelectedCategories([]);
 
       // ✅ smooth client-side navigation
-      router.push("/post");
+      router.push("/posts");
     } catch (error) {
       if (error instanceof Error) {
         console.error("Error posting:", error.message);
@@ -66,8 +66,8 @@ export default function PostForm({ address }: { address: Address }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
       onSubmit={handleSubmit}
-      className="w-full sticky top-6 max-w-xl mx-auto bg-gradient-to-br from-white to-gray-50 
-                 rounded-2xl shadow-lg p-6 flex flex-col gap-5 border border-gray-200"
+      className="w-full sticky top-6 max-w-xl mx-auto bg-gradient-to-br from-white to-gray-100 
+                 rounded-2xl shadow-lg p-3 flex flex-col gap-5 border border-gray-200"
     >
 
 
@@ -95,7 +95,7 @@ export default function PostForm({ address }: { address: Address }) {
       <motion.button
         whileTap={{ scale: 0.95 }}
         disabled={loading}
-        className={`flex items-center justify-center gap-2 py-2.5 rounded-xl 
+        className={`flex items-center justify-center gap-2 py-2 rounded-xl 
           font-semibold text-white shadow-md transition-all 
           ${loading
             ? "bg-gray-400 cursor-not-allowed"

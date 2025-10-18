@@ -37,6 +37,8 @@ export default function UserLocation() {
     }
   }, [map]);
 
+  
+
   return position === null ? null : (
     <Marker position={position} icon={userIcon}>
       <Tooltip direction="top" offset={[2, -58]} permanent>

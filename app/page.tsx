@@ -8,6 +8,7 @@ const Map = dynamic(() => import("./map/Map"), {
 });
 
 export default function HomePage() {
+
   return (
     <div className="flex flex-col h-screen w-full">
       <div className="sticky top-0 z-10">

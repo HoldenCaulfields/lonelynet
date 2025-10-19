@@ -15,7 +15,9 @@
   }
 }
 
-
+body {
+  background-color: #0a0a0a;
+}
 
 /* styles/globals.css */
 .leaflet-marker-icon.user-icon-glow {

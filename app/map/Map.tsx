@@ -8,10 +8,12 @@ import { useState } from "react";
 
 export default function Map() {
     const [searchText, setSearchText] = useState("");
+    const [showForm, setShowForm] = useState(false);
+    const handleCreateSoul = () => setShowForm(true);
 
     return (
-        <div className="h-full w-full">
-            <Navbar searchText={searchText} setSearchText={setSearchText} />
+        <div className="flex flex-col h-screen w-full">
+            <Navbar searchText={searchText} setSearchText={setSearchText} setOnClick={handleCreateSoul}/>
 
             <MapContainer
                 center={[16.45568, 107.59315]} 
@@ -25,7 +27,7 @@ export default function Map() {
 
                 <MarkerContainer searchText={searchText} />
 
-                <UserLocation />
+                <UserLocation showForm={showForm} setShowForm={setShowForm} />
             </MapContainer>
         </div>
     );

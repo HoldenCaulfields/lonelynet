@@ -48,7 +48,7 @@ export default function PostForm({ address }: { address: Address }) {
       setSelectedCategories([]);
 
       // ✅ smooth client-side navigation
-      router.push("/posts");
+      router.push("/lonelyland");
     } catch (error) {
       if (error instanceof Error) {
         console.error("Error posting:", error.message);

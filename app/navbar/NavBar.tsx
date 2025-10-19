@@ -9,12 +9,13 @@ import SearchBox from "./SearchBox"; // import component
 interface NavbarProps {
   searchText: string;
   setSearchText: (text: string) => void;
+  setOnClick: () => void;
 };
 
-export default function Navbar({searchText, setSearchText}: NavbarProps) {
+export default function Navbar({searchText, setSearchText, setOnClick}: NavbarProps) {
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-gradient-to-r from-slate-900 via-black to-slate-900 border-b border-white/10 backdrop-blur-xl px-4 sm:px-6 py-3 shadow-lg">
+    <nav className="sticky top-0 z-1000 w-full bg-gradient-to-r from-slate-900 via-black to-slate-900 border-b border-white/10 backdrop-blur-xl px-4 sm:px-6 py-3 shadow-lg">
       <div className="max-w-7xl mx-auto flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         
         {/* Mobile: Logo + Icons */}
@@ -25,10 +26,10 @@ export default function Navbar({searchText, setSearchText}: NavbarProps) {
           </Link>
 
           <div className="flex items-center gap-5 text-white">
-            <Link href="/posts" className="hover:text-blue-400 transition-colors">
+            <Link href="/lonelyland" className="hover:text-blue-400 transition-colors">
               <Globe size={26} />
             </Link>
-            <span  className="hover:text-red-400 transition-colors">
+            <span  className="hover:text-red-400 transition-colors cursor-pointer" onClick={setOnClick}>
               <PlusCircle size={26} />
             </span>
           </div>
@@ -48,10 +49,10 @@ export default function Navbar({searchText, setSearchText}: NavbarProps) {
 
         {/* Desktop: Right Links */}
         <div className="hidden lg:flex items-center gap-6 text-white font-semibold text-lg">
-          <Link href="/posts" className="hover:text-blue-400 transition-colors">
+          <Link href="/lonelyland" className="hover:text-blue-400 transition-colors">
             LonelyLand
           </Link>
-          <span className="hover:text-red-400 transition-colors" >
+          <span className="hover:text-red-400 bg-blue-800 p-2 rounded-3xl transition-colors cursor-pointer" onClick={setOnClick}>
             Create Soul
           </span>
         </div>

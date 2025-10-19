@@ -1,9 +1,15 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 
-export default function SearchBox() {
+interface SearchBoxProps {
+    searchText: string;
+    setSearchText: (text: string) => void;
+};
+
+export default function SearchBox({ searchText, setSearchText }: SearchBoxProps) {
   const searchRef = useRef<HTMLInputElement>(null);
+  const [inputValue, setInputValue] = useState(searchText);
 
   // ⌘K / Ctrl+K → focus search
   useEffect(() => {
@@ -17,6 +23,13 @@ export default function SearchBox() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      // Update parent searchText only on Enter
+      setSearchText(inputValue);
+    }
+  };
+
   return (
     <div className="flex-1 w-full lg:max-w-xl order-2 lg:order-none">
       <div className="relative group">
@@ -26,6 +39,9 @@ export default function SearchBox() {
         <input
           ref={searchRef}
           type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyPress} // trigger on Enter
           placeholder="What's on your mind..."
           className="w-full pl-12 pr-10 py-2 sm:py-3 bg-white/15 backdrop-blur-xl rounded-full 
                      border border-white/20 text-white placeholder-gray-300 font-medium text-base sm:text-lg 

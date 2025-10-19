@@ -6,7 +6,12 @@ import Router from "next/router";
 import { Globe, PlusCircle } from "lucide-react";
 import SearchBox from "./SearchBox"; // import component
 
-export default function Navbar() {
+interface NavbarProps {
+  searchText: string;
+  setSearchText: (text: string) => void;
+};
+
+export default function Navbar({searchText, setSearchText}: NavbarProps) {
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-gradient-to-r from-slate-900 via-black to-slate-900 border-b border-white/10 backdrop-blur-xl px-4 sm:px-6 py-3 shadow-lg">
@@ -39,7 +44,7 @@ export default function Navbar() {
         </Link>
 
         {/* SearchBox Component */}
-        <SearchBox />
+        <SearchBox searchText={searchText} setSearchText={setSearchText} />
 
         {/* Desktop: Right Links */}
         <div className="hidden lg:flex items-center gap-6 text-white font-semibold text-lg">

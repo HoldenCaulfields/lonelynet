@@ -18,9 +18,21 @@ app.use(cors({
 app.use(express.json());
 
 //Connect to MongoDB
+//Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB connected'))
+    .then(async () => {
+        console.log('MongoDB connected');
+
+        // ✅ Create text index on 'text' field of souls collection
+        try {
+            await mongoose.connection.db.collection('souls').createIndex({ text: "text" });
+            console.log("Text index created on 'souls.text'");
+        } catch (err) {
+            console.error("Index creation error:", err);
+        }
+    })
     .catch(err => console.error(err));
+
 
 //Routes
 app.use('/api/lonelyland', lonelyland); //Mounting the lonelyland routes

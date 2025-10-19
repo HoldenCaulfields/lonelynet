@@ -11,9 +11,9 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col h-screen w-full">
-      <div className="sticky top-0 z-10">
+      {/* <div className="sticky top-0 z-10">
         <Navbar />
-      </div>
+      </div> */}
 
       <div className="flex-1">
         <Map />

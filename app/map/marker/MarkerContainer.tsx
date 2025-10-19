@@ -21,64 +21,48 @@ const API_URL =
     ? "https://lonelynet.onrender.com"
     : "http://localhost:5000";
 
-export default function MarkerContainer() {
+interface MarkerContainerProps {
+  searchText: string;
+}
+
+export default function MarkerContainer({ searchText }: MarkerContainerProps) {
   const [markers, setMarkers] = useState<MarkerData[]>([]);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // ✅ LOAD ALL on start
+  const fetchMarkers = async (search?: string, tag?: string | null) => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API_URL}/api/lonelyland`, {
+        params: {
+          search: search || undefined,
+          tag: tag || undefined,
+        },
+      });
+      setMarkers(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔹 Fetch markers on mount and whenever searchText or selectedTag changes
   useEffect(() => {
-    fetchAllMarkers();
-  }, []);
-
-  const fetchAllMarkers = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(`${API_URL}/api/lonelyland`);
-      setMarkers(res.data);
-    } catch (err) {
-      console.error("Error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ✅ FILTER BY TAG
-  const fetchMarkersByTag = async (tag: string) => {
-    setLoading(true);
-    try {
-      const res = await axios.get(`${API_URL}/api/lonelyland?tag=${tag}`);
-      setMarkers(res.data);
-      setSelectedTag(tag);
-    } catch (err) {
-      console.error("Error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchMarkers(searchText, selectedTag);
+  }, [searchText, selectedTag]);
 
   const handleTagClick = (tag: string | null) => {
-    if (tag === null) {
-      // clear filter and reload all markers
-      setSelectedTag(null);
-      fetchAllMarkers();
-      return;
-    }
-    fetchMarkersByTag(tag);
+    setSelectedTag(tag);
   };
-
-  // ✅ FILTERED MARKERS
-  const filteredMarkers = selectedTag
-    ? markers.filter((m) => m.tags?.includes(selectedTag))
-    : markers;
 
   return (
     <>
-      {/* 🌟 POWER BAR - LUXURY BLACK BAR */}
+      {/* POWER BAR */}
       <motion.div
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="absolute top-0 left-1/2 -translate-x-1/2 z-[1000]  max-w-2xl w-[95%] sm:w-[80%]"
+        className="absolute top-0 left-1/2 -translate-x-1/2 z-[1000] max-w-2xl w-[95%] sm:w-[80%]"
       >
         <div className="mt-2 overflow-x-auto scrollbar-hide">
           <Tags
@@ -94,11 +78,11 @@ export default function MarkerContainer() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
-          {filteredMarkers.length} PINS {selectedTag ? `• #${selectedTag}` : ""}
+          {markers.length} SOULS {selectedTag ? `• #${selectedTag}` : ""}
         </motion.p>
       </motion.div>
 
-      {/* ⚡ MINIMAL LOADING - FLOATING PIN */}
+      {/* LOADING PIN */}
       <AnimatePresence>
         {loading && (
           <motion.div
@@ -118,19 +102,15 @@ export default function MarkerContainer() {
         )}
       </AnimatePresence>
 
-      {/* Marker popup */}
+      {/* MARKERS */}
       {markers.map((marker) => (
         <Marker key={marker._id} position={marker.position} icon={redIcon}>
           <Popup>
             <div className="max-w-sm">
               {marker.text && (
                 <p
-                  className="text-sm sm:text-base text-gray-800 leading-relaxed mb-3 max-w-full overflow-hidden break-words"
-                  style={{
-                    wordBreak: 'break-word',
-                    overflowWrap: 'break-word',
-                    hyphens: 'auto'
-                  }}
+                  className="text-sm sm:text-base text-gray-800 leading-relaxed mb-3 max-w-full break-words"
+                  style={{ wordBreak: "break-word", overflowWrap: "break-word", hyphens: "auto" }}
                 >
                   {marker.text}
                 </p>
@@ -151,10 +131,9 @@ export default function MarkerContainer() {
                   <span
                     key={item}
                     onClick={() => handleTagClick(item)}
-                    className={`flex-shrink-0 px-3 py-1 text-xs font-bold uppercase rounded-full cursor-pointer ${selectedTag === item
-                        ? "bg-blue-600 text-white"
-                        : "bg-black text-white hover:bg-white hover:text-black"
-                      }`}
+                    className={`flex-shrink-0 px-3 py-1 text-xs font-bold uppercase rounded-full cursor-pointer ${
+                      selectedTag === item ? "bg-blue-600 text-white" : "bg-black text-white hover:bg-white hover:text-black"
+                    }`}
                   >
                     #{item}
                   </span>

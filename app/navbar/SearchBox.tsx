@@ -48,7 +48,8 @@ export default function SearchBox({ searchText, setSearchText }: SearchBoxProps)
                      focus:outline-none focus:ring-4 focus:ring-blue-500/30 focus:border-blue-400 
                      transition-all duration-300 shadow-lg hover:shadow-blue-500/20"
         />
-        <div className="absolute inset-y-0 right-0 pr-1.5 py-1.5 sm:flex items-center">
+        <div className="absolute inset-y-0 right-0 pr-1.5 py-1.5 sm:flex items-center cursor-pointer" 
+          onClick={() => setSearchText(inputValue)}>
           <kbd className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm 
                           text-[10px] sm:text-xs px-2 sm:px-3 py-1.5 rounded-full text-blue-300 
                           font-bold border border-blue-500/30">

@@ -15,7 +15,7 @@ interface NavbarProps {
 export default function Navbar({searchText, setSearchText, setOnClick}: NavbarProps) {
 
   return (
-    <nav className="sticky top-0 z-1000 w-full bg-gradient-to-r from-slate-900 via-black to-slate-900 border-b border-white/10 backdrop-blur-xl px-4 sm:px-6 py-3 shadow-lg">
+    <nav className="sticky top-0 z-1100 w-full bg-gradient-to-r from-slate-900 via-black to-slate-900 border-b border-white/10 backdrop-blur-xl px-4 sm:px-6 py-3 shadow-lg">
       <div className="max-w-7xl mx-auto flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         
         {/* Mobile: Logo + Icons */}

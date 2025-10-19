@@ -116,24 +116,24 @@ export default function MarkerContainer({ searchText }: MarkerContainerProps) {
                 </p>
               )}
               {marker.imageUrl && (
-                <div className="mt-2">
+                <div className="w-44 h-44"> {/* 256x256px */}
                   <Image
                     src={marker.imageUrl}
-                    width={200}
-                    height={100}
-                    className="w-full h-34 object-cover rounded-xl"
+                    width={400}
+                    height={400}
+                    className="w-full h-full object-cover rounded-xl"
                     alt="popup"
                   />
                 </div>
+
               )}
               <div className="flex overflow-x-auto space-x-2 py-2">
                 {marker.tags?.map((item) => (
                   <span
                     key={item}
                     onClick={() => handleTagClick(item)}
-                    className={`flex-shrink-0 px-3 py-1 text-xs font-bold uppercase rounded-full cursor-pointer ${
-                      selectedTag === item ? "bg-blue-600 text-white" : "bg-black text-white hover:bg-white hover:text-black"
-                    }`}
+                    className={`flex-shrink-0 px-3 py-1 text-xs font-bold uppercase rounded-full cursor-pointer ${selectedTag === item ? "bg-blue-600 text-white" : "bg-black text-white hover:bg-white hover:text-black"
+                      }`}
                   >
                     #{item}
                   </span>

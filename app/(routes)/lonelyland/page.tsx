@@ -24,8 +24,12 @@ export default function Lonelyland() {
       try {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/lonelyland`);
         setSouls(res.data);
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch posts.");
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError(String(err) || "Failed to fetch posts.");
+        }
       } finally {
         setLoading(false);
       }

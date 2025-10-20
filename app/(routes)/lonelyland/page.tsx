@@ -23,7 +23,7 @@ export default function Lonelyland() {
   const fetchSouls = useCallback(async () => {
     const cacheKey = "lonelyland_souls";
     const cached = sessionStorage.getItem(cacheKey);
-    
+
     if (cached) {
       setSouls(JSON.parse(cached));
       setLoading(false);
@@ -47,14 +47,23 @@ export default function Lonelyland() {
     fetchSouls();
   }, [fetchSouls]);
 
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/lonelyland`);
+      setSouls(res.data);
+    };
+    fetchPosts();
+  }, []);
+
+
   // 🔥 MEMOIZED DATE FORMATTING
-  const formattedSouls = useMemo(() => 
+  const formattedSouls = useMemo(() =>
     souls.map(soul => ({
       ...soul,
-      formattedDate: new Date(soul.createdAt).toLocaleDateString("en-US", { 
-        year: "numeric", month: "short", day: "numeric" 
+      formattedDate: new Date(soul.createdAt).toLocaleDateString("en-US", {
+        year: "numeric", month: "short", day: "numeric"
       })
-    })), 
+    })),
     [souls]
   );
 
@@ -97,7 +106,7 @@ export default function Lonelyland() {
       <div className="relative z-10 p-4 max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12 pt-8">
-          <h1 
+          <h1
             onClick={handleTitleClick}
             className="text-5xl sm:text-6xl md:text-7xl font-black bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent tracking-tight mb-4 cursor-pointer hover:scale-105 transition-transform duration-200 select-none"
           >
@@ -116,7 +125,7 @@ export default function Lonelyland() {
             >
               {/* Simplified border */}
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-              
+
               {/* Image */}
               {soul.imageUrl && (
                 <div className="relative h-40 md:h-48 overflow-hidden">

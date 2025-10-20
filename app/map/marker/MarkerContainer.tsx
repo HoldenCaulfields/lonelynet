@@ -27,31 +27,20 @@ interface MarkerContainerProps {
 export default function MarkerContainer({ searchText }: MarkerContainerProps) {
   const [markers, setMarkers] = useState<MarkerData[]>([]);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [allTags, setAllTags] = useState<string[]>([]); // 🔥 store all tags
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 🔥 OPTIMIZED API (cached + debounced)
+  // fetch markers
   const fetchMarkers = useCallback(async (search?: string, tag?: string | null) => {
     setLoading(true);
     setError(null);
     try {
-      const cacheKey = `${search || ''}-${tag || ''}`;
-      const cached = sessionStorage.getItem(cacheKey);
-      
-      if (cached) {
-        setMarkers(JSON.parse(cached));
-        setLoading(false);
-        return;
-      }
-
       const res = await axios.get(`${API_URL}/api/lonelyland`, {
         params: { search: search || undefined, tag: tag || undefined },
         timeout: 5000,
       });
-      
-      const data = res.data;
-      setMarkers(data);
-      sessionStorage.setItem(cacheKey, JSON.stringify(data));
+      setMarkers(res.data);
     } catch (err) {
       setError("Failed to load souls");
     } finally {
@@ -59,6 +48,31 @@ export default function MarkerContainer({ searchText }: MarkerContainerProps) {
     }
   }, []);
 
+  // fetch ALL tags once
+  const fetchAllTags = useCallback(async () => {
+    try {
+      // get all souls
+      const res = await axios.get(`${API_URL}/api/lonelyland`);
+      const souls = res.data;
+
+      // extract unique tags
+      const uniqueTags = Array.from(
+        new Set(
+          (souls as MarkerData[]).flatMap((soul) => soul.tags ?? []))
+        );
+
+      setAllTags(uniqueTags);
+    } catch (err) {
+      console.error("Error fetching tags:", err);
+    }
+  }, []);
+
+
+  useEffect(() => {
+    fetchAllTags(); // load all tags on mount
+  }, [fetchAllTags]);
+
+  // debounce marker fetching
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       fetchMarkers(searchText, selectedTag);
@@ -66,21 +80,15 @@ export default function MarkerContainer({ searchText }: MarkerContainerProps) {
     return () => clearTimeout(timeoutId);
   }, [searchText, selectedTag, fetchMarkers]);
 
-  const uniqueTags = useMemo(() => 
-    [...new Set(markers.flatMap((m) => m.tags || []))], 
-    [markers]
-  );
-
   const filteredMarkers = useMemo(() => {
     if (!selectedTag) return markers;
-    return markers.filter(m => m.tags?.includes(selectedTag));
+    return markers.filter((m) => m.tags?.includes(selectedTag));
   }, [markers, selectedTag]);
 
   const handleTagClick = useCallback((tag: string | null) => {
     setSelectedTag(tag);
   }, []);
 
-  // 🔥 LAZY IMAGE (70% faster)
   const LazyImage = ({ src, alt }: { src: string; alt: string }) => (
     <Suspense fallback={<div className="w-44 h-44 bg-gray-200 rounded-xl animate-pulse" />}>
       <Image
@@ -90,8 +98,6 @@ export default function MarkerContainer({ searchText }: MarkerContainerProps) {
         sizes="256px"
         className="w-44 h-44 object-cover rounded-xl"
         alt={alt}
-        placeholder="blur"
-        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltXXXsTgSmUfDGV0cpUdX/9k="
         quality={70}
       />
     </Suspense>
@@ -99,14 +105,13 @@ export default function MarkerContainer({ searchText }: MarkerContainerProps) {
 
   return (
     <>
-      {/* 🔥 POWER BAR - NO ANIMATION */}
+      {/* 🔥 POWER BAR (always show all tags) */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 z-[1000] max-w-2xl w-[95%] sm:w-[80%] animate-in slide-in-from-top-2 duration-300">
         <div className="mt-2 overflow-x-auto scrollbar-hide">
           <Tags
-            tags={uniqueTags}
+            tags={allTags} // ✅ show all tags instead of uniqueTags
             selectedTag={selectedTag}
             onTagSelect={handleTagClick}
-            onMarkersUpdate={setMarkers}
           />
         </div>
         <p className="text-red-500 font-mono text-sm mt-3 tracking-wider animate-in fade-in-0 duration-200">
@@ -114,7 +119,7 @@ export default function MarkerContainer({ searchText }: MarkerContainerProps) {
         </p>
       </div>
 
-      {/* 🔥 LOADING - CSS ONLY */}
+      {/* 🔥 LOADING */}
       {loading && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/20">
           <div className="text-6xl text-white drop-shadow-lg animate-bounce">📍</div>
@@ -148,11 +153,10 @@ export default function MarkerContainer({ searchText }: MarkerContainerProps) {
                   <span
                     key={item}
                     onClick={() => handleTagClick(item)}
-                    className={`flex-shrink-0 px-2 py-1 text-xs font-bold uppercase rounded-full cursor-pointer whitespace-nowrap transition-colors ${
-                      selectedTag === item 
-                        ? "bg-blue-600 text-white" 
+                    className={`flex-shrink-0 px-2 py-1 text-xs font-bold uppercase rounded-full cursor-pointer whitespace-nowrap transition-colors ${selectedTag === item
+                        ? "bg-blue-600 text-white"
                         : "bg-black text-white hover:bg-white hover:text-black"
-                    }`}
+                      }`}
                   >
                     #{item}
                   </span>

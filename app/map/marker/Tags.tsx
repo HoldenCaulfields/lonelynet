@@ -1,46 +1,53 @@
 "use client";
 
-import axios from "axios";
-import { MarkerData } from "./MarkerContainer";
+import { useState } from "react";
+import { Tag } from "lucide-react";
+import { tagIcons } from "../userlocation-post/postform/TagList";
+import { Ghost } from "lucide-react";
 
 interface TagsProps {
   tags: string[];
   selectedTag: string | null;
-  onTagSelect: (tag: string | null) => void; // update selectedTag in parent
-  onMarkersUpdate: (markers: MarkerData[]) => void; // update markers in parent
+  onTagSelect: (tag: string | null) => void;
 }
 
-const API_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://lonelynet.onrender.com"
-    : "http://localhost:5000";
-
-export default function Tags({ tags, selectedTag, onTagSelect, onMarkersUpdate }: TagsProps) {
-  const fetchMarkersByTag = async (tag: string) => {
-    try {
-      const res = await axios.get(`${API_URL}/api/lonelyland?tag=${tag}`);
-      onMarkersUpdate(res.data);
-      onTagSelect(tag);
-    } catch (err) {
-      console.error("Error fetching by tag:", err);
-    }
-  };
+export default function Tags({ tags, selectedTag, onTagSelect }: TagsProps) {
+  const [paused, setPaused] = useState(false);
 
   return (
-    <div className="flex overflow-x-auto space-x-2 py-2">
-      {tags.map((tag) => (
-        <span
-          key={tag}
-          onClick={() => fetchMarkersByTag(tag)}
-          className={`flex-shrink-0 px-3 py-1 text-xs font-bold uppercase rounded-full cursor-pointer ${
-            selectedTag === tag
-              ? "bg-blue-600 text-white"
-              : "bg-black text-white hover:bg-white hover:text-black"
+    <div
+      className="relative w-full overflow-hidden py-2 bg-transparent"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onClick={() => setPaused(true)} // stop moving when clicked
+    >
+      <div
+        className={`flex space-x-2 whitespace-nowrap ${paused ? "animate-none" : "animate-marquee"
           }`}
-        >
-          #{tag}
-        </span>
-      ))}
+      >
+        {/* duplicate tags to make smooth infinite scroll */}
+        {[...tags, ...tags].map((tag, i) => (
+          <span
+            key={i}
+            onClick={() => onTagSelect(tag)}
+            className={`flex items-center gap-1 flex-shrink-0 px-3 py-1 text-xs font-semibold uppercase rounded-full cursor-pointer transition-all duration-300 ${selectedTag === tag
+                ? "bg-white text-black border border-gray-300 shadow-md"
+                : "bg-black text-white hover:bg-gray-800 hover:shadow-md"
+              }`}
+          >
+            {tagIcons[tag] ?? <Ghost size={14} />} {/* fallback icon */}
+            {tag}
+          </span>
+        ))}
+        {selectedTag && (
+          <span
+            onClick={() => onTagSelect(null)}
+            className="flex-shrink-0 px-3 py-1 text-xs font-bold uppercase rounded-full cursor-pointer bg-gray-500 text-white"
+          >
+            ✕ Clear
+          </span>
+        )}
+      </div>
     </div>
   );
 }

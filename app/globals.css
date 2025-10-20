@@ -37,3 +37,14 @@ body {
 .rotate-180 {
   animation: rotate-180 0.7s ease-out;
 }
+
+/* tags moving */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: inline-flex;
+  animation: marquee 40s linear infinite;
+}

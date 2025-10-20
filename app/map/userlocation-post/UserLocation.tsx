@@ -78,7 +78,7 @@ export default function UserLocation({ showForm, setShowForm }: UserLocationProp
             onClick={(e) => e.stopPropagation()}
           >
             <button
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 font-bold text-xl z-10"
+              className="absolute right-1 text-gray-600 hover:text-gray-800 font-bold text-xl z-10"
               onClick={handleClose}
             >
               ×

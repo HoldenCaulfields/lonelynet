@@ -111,7 +111,7 @@ export default function Lonelyland() {
           {formattedSouls.map((soul, index) => (
             <div
               key={soul._id}
-              className="group relative bg-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl overflow-hidden hover:border-cyan-500/30 transition-all duration-200 hover:-translate-y-1 hover:scale-[1.005] animate-in fade-in-up duration-300"
+              className="group relative bg-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl overflow-hidden hover:border-cyan-500/30 transition-all hover:-translate-y-1 hover:scale-[1.005] animate-in fade-in-up duration-300"
               style={{ animationDelay: `${Math.min(index * 20, 200)}ms` }} // 🔥 Cap delay
             >
               {/* Simplified border */}

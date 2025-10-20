@@ -19,15 +19,21 @@ body {
   background-color: #0a0a0a;
 }
 
-/* styles/globals.css */
-.leaflet-marker-icon.user-icon-glow {
-  filter: drop-shadow(0 0 6px rgba(0, 200, 255, 0.8))
-          drop-shadow(0 0 12px rgba(0, 200, 255, 0.6));
-  animation: pulse 2s infinite;
+@keyframes spin-once {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin-once {
+  animation: spin-once 0.6s ease-out;
+}
+.transition-width {
+  transition: width 0.2s ease-out;
 }
 
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.15); opacity: 0.8; }
-  100% { transform: scale(1); opacity: 1; }
+@keyframes rotate-180 {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(180deg); }
+}
+.rotate-180 {
+  animation: rotate-180 0.7s ease-out;
 }

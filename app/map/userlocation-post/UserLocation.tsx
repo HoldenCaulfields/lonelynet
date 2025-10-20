@@ -1,6 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Marker, Tooltip, useMapEvents, Popup } from "react-leaflet";
+
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { Marker, Tooltip, Popup, useMap } from "react-leaflet";
 import { userIcon } from "../../components/Icon";
 import PostForm from "./postform/PostForm";
 
@@ -13,72 +14,79 @@ type UserLocationProps = {
 
 export default function UserLocation({ showForm, setShowForm }: UserLocationProps) {
   const [position, setPosition] = useState<Latlng | null>(null);
-  //const [showForm, setShowForm] = useState(false);
+  const map = useMap(); // 🔥 GET MAP INSTANCE
 
-  const map = useMapEvents({
-    click() {
-      map.locate({ enableHighAccuracy: true });
-    },
-    locationfound(e) {
-      const coords = e.latlng;
-      setPosition(coords);
-      localStorage.setItem("userLocation", JSON.stringify(coords));
-      map.flyTo(coords, map.getZoom());
-    },
-  });
+  // 🔥 CACHED LOCATION
+  const getCachedLocation = useCallback(() => {
+    const saved = localStorage.getItem("userLocation");
+    return saved ? JSON.parse(saved) as Latlng : null;
+  }, []);
+
+  const savedPosition = useMemo(() => getCachedLocation(), [getCachedLocation]);
 
   useEffect(() => {
-    const saved = localStorage.getItem("userLocation");
-    if (saved) {
-      const coords = JSON.parse(saved) as Latlng;
-      setPosition(coords);
-      map.flyTo(coords, map.getZoom());
-    } else {
-      map.locate({ enableHighAccuracy: true });
+    if (savedPosition) {
+      setPosition(savedPosition);
+      // 🔥 AUTO-FOCUS: Center map on cached location IMMEDIATELY
+      map.setView(savedPosition, 13);
+      return;
     }
-  }, [map]);
+
+    // 🔥 FAST GEO
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const coords: Latlng = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setPosition(coords);
+        localStorage.setItem("userLocation", JSON.stringify(coords));
+        // 🔥 AUTO-FOCUS: Center map on NEW location
+        map.setView(coords, 13);
+      },
+      () => {
+        // 🔥 FALLBACK: Default to world center if geo fails
+        const defaultPos = { lat: 0, lng: 0 };
+        setPosition(defaultPos);
+        map.setView(defaultPos, 2);
+      },
+      { timeout: 5000, enableHighAccuracy: false }
+    );
+  }, [savedPosition, map]);
+
+  const handleClose = useCallback(() => setShowForm(false), [setShowForm]);
 
   if (!position) return null;
 
   return (
     <>
-
-      {/* Marker with Popup */}
-      <Marker
-        position={position}
-        icon={userIcon}
-
-      >
+      {/* 🔥 MARKER - Always visible & centered */}
+      <Marker position={position} icon={userIcon}>
         <Tooltip direction="top" offset={[2, -58]} permanent>
           You are here
         </Tooltip>
-        {/* Optional: Popup version */}
         <Popup>
           <PostForm address={position} />
         </Popup>
       </Marker>
 
-      {/* Floating PostForm Modal (for button click) */}
+      {/* 🔥 MODAL */}
       {showForm && (
         <div
-          className="fixed inset-0 z-2000 flex items-center justify-center bg-black/50 p-4"
-          onClick={() => setShowForm(false)} // click on backdrop closes modal
+          className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/50 p-4 animate-in fade-in-0 zoom-in-95 duration-200"
+          onClick={handleClose}
         >
           <div
-            className="relative w-full max-w-xl"
-            onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
+            className="relative w-full max-w-xl bg-white rounded-xl shadow-2xl animate-in slide-in-from-bottom-4 duration-200"
+            onClick={(e) => e.stopPropagation()}
           >
             <button
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 font-bold text-xl"
-              onClick={() => setShowForm(false)}
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 font-bold text-xl z-10"
+              onClick={handleClose}
             >
-              &times;
+              ×
             </button>
             <PostForm address={position} />
           </div>
         </div>
       )}
-
     </>
   );
 }

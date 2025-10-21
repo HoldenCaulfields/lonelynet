@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Tag } from "lucide-react";
 import { tagIcons } from "../userlocation-post/postform/TagList";
 import { Ghost } from "lucide-react";
 

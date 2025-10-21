@@ -4,7 +4,7 @@ import { Marker, Popup } from "react-leaflet";
 import Image from "next/image";
 import { redIcon } from "../../components/Icon";
 import axios from "axios";
-import { useState, useEffect, useMemo, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import Tags from "./Tags";
 
 export interface MarkerData {
@@ -24,67 +24,109 @@ interface MarkerContainerProps {
   searchText: string;
 }
 
-export default function MarkerContainer({ searchText }: MarkerContainerProps) {
+export default function MarkerContainer({
+  searchText,
+}: MarkerContainerProps) {
   const [markers, setMarkers] = useState<MarkerData[]>([]);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [allTags, setAllTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch markers
-  const fetchMarkers = useCallback(async (search?: string, tag?: string | null) => {
+  // --- Fetch all markers ---
+  const fetchAllMarkers = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get(`${API_URL}/api/lonelyland`, {
-        params: { search: search || undefined, tag: tag || undefined },
-        timeout: 5000,
-      });
+      const res = await axios.get(`${API_URL}/api/lonelyland`, { timeout: 5000 });
       setMarkers(res.data);
-    } catch (err) {
+    } catch {
       setError("Failed to load souls");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Fetch all tags once
+  // --- Fetch markers by text ---
+  const fetchMarkersByText = useCallback(async (search: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.get(`${API_URL}/api/lonelyland`, {
+        params: { search },
+        timeout: 5000,
+      });
+      setMarkers(res.data);
+    } catch {
+      setError("Failed to load souls");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // --- Fetch markers by tag ---
+  const fetchMarkersByTag = useCallback(async (tag: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.get(`${API_URL}/api/lonelyland`, {
+        params: { tag },
+        timeout: 5000,
+      });
+      setMarkers(res.data);
+    } catch {
+      setError("Failed to load souls");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // --- Fetch all tags ---
   const fetchAllTags = useCallback(async () => {
     try {
       const res = await axios.get(`${API_URL}/api/lonelyland`);
-      const souls = res.data;
-      const uniqueTags = Array.from(
-        new Set(
-          (souls as MarkerData[]).flatMap((soul) => soul.tags ?? [])
-        )
-      );
+      const souls = res.data as MarkerData[];
+      const uniqueTags = Array.from(new Set(souls.flatMap((soul) => soul.tags ?? [])));
       setAllTags(uniqueTags);
     } catch (err) {
       console.error("Error fetching tags:", err);
     }
   }, []);
 
+  // 1️⃣ On first load: fetch all
   useEffect(() => {
+    fetchAllMarkers();
     fetchAllTags();
-  }, [fetchAllTags]);
+  }, [fetchAllMarkers, fetchAllTags]);
 
-  // Debounce marker fetching
+  // 2️⃣ When search changes
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      fetchMarkers(searchText, selectedTag);
-    }, 300);
-    return () => clearTimeout(timeoutId);
-  }, [searchText, selectedTag, fetchMarkers]);
+    if (searchText.trim()) {
+      setSelectedTag(null); // clear tag when typing
+      const timeoutId = setTimeout(() => {
+        fetchMarkersByText(searchText);
+      }, 300);
+      return () => clearTimeout(timeoutId);
+    } else {
+      fetchAllMarkers(); // show all when cleared
+    }
+  }, [searchText, fetchMarkersByText, fetchAllMarkers]);
 
-  const filteredMarkers = useMemo(() => {
-    if (!selectedTag) return markers;
-    return markers.filter((m) => m.tags?.includes(selectedTag));
-  }, [markers, selectedTag]);
+  // 3️⃣ When tag changes
+  useEffect(() => {
+    if (selectedTag) {
+      fetchMarkersByTag(selectedTag);
+    } else {
+      fetchAllMarkers();
+    }
+  }, [selectedTag, fetchMarkersByTag, fetchAllMarkers]);
 
+  // --- Handle tag click ---
   const handleTagClick = useCallback((tag: string | null) => {
     setSelectedTag(tag);
   }, []);
 
+  // --- Lazy Image ---
   const LazyImage = ({ src, alt }: { src: string; alt: string }) => (
     <Suspense fallback={<div className="w-full h-48 bg-gray-100 rounded-lg animate-pulse" />}>
       <Image
@@ -106,14 +148,10 @@ export default function MarkerContainer({ searchText }: MarkerContainerProps) {
       {/* Power Bar */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 z-[1000] max-w-2xl w-[95%] sm:w-[80%] animate-in slide-in-from-top-2 duration-300">
         <div className="mt-2 overflow-x-auto scrollbar-hide">
-          <Tags
-            tags={allTags}
-            selectedTag={selectedTag}
-            onTagSelect={handleTagClick}
-          />
+          <Tags tags={allTags} selectedTag={selectedTag} onTagSelect={handleTagClick} />
         </div>
         <p className="text-red-500 font-mono text-sm mt-3 tracking-wider animate-in fade-in-0 duration-200">
-          {filteredMarkers.length} SOULS {selectedTag ? `• #${selectedTag}` : ""}
+          {markers.length} SOULS {selectedTag ? `• #${selectedTag}` : ""}
         </p>
       </div>
 
@@ -132,13 +170,9 @@ export default function MarkerContainer({ searchText }: MarkerContainerProps) {
       )}
 
       {/* Markers */}
-      {filteredMarkers.map((marker) => (
+      {markers.map((marker) => (
         <Marker key={marker._id} position={marker.position} icon={redIcon}>
-          <Popup
-            className="custom-popup"
-            maxWidth={320}
-            minWidth={200}
-          >
+          <Popup className="custom-popup" maxWidth={320} minWidth={200}>
             <div className="p-4 bg-white rounded-lg shadow-lg max-w-[320px] font-sans">
               {marker.text && (
                 <p className="text-sm text-gray-700 leading-relaxed mb-3 line-clamp-4">

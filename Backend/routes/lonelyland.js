@@ -46,8 +46,6 @@ router.post("/", upload.single("image"), async (req, res) => {
   }
 });
 
-
-//Get all Souls
 //Get all Souls
 router.get('/', async (req, res) => {
   try {
@@ -67,6 +65,21 @@ router.get('/', async (req, res) => {
     res.json(souls);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+router.put("/:id/love", async (req, res) => {
+  try {
+    const soul = await Soul.findById(req.params.id);
+    if (!soul) return res.status(404).json({ error: "Soul not found" });
+
+    // if 'loves' not exist yet, default to 0
+    soul.loves = (soul.loves || 0) + 1;
+    await soul.save();
+
+    res.json(soul);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update love" });
   }
 });
 

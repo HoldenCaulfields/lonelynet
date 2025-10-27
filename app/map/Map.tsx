@@ -5,6 +5,7 @@ import UserLocation from "./userlocation-post/UserLocation";
 import MarkerContainer from "./marker/MarkerContainer";
 import Navbar from "../navbar/NavBar";
 import { useState } from "react";
+import ChatBox from "../components/chatbox/ChatBox";
 
 export default function Map() {
     const [searchText, setSearchText] = useState("");
@@ -32,6 +33,8 @@ export default function Map() {
 
                 <UserLocation showForm={showForm} setShowForm={setShowForm} />
             </MapContainer>
+
+            <ChatBox />
         </div>
     );
 }

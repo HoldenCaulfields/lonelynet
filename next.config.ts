@@ -11,7 +11,10 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     optimizePackageImports: ['framer-motion', 'react-leaflet']
-  }
+  },
+  allowedDevOrigins: [
+    'http://192.168.1.12:3000',
+  ],
 };
 
 export default nextConfig;

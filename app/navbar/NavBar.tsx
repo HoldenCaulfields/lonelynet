@@ -26,7 +26,7 @@ export default function Navbar({ searchText, setSearchText, setOnClick }: Navbar
               height={36} 
               alt="logo" 
               priority 
-              
+              className="rounded-3xl"
               quality={80}
             />
             <Image 
@@ -57,11 +57,11 @@ export default function Navbar({ searchText, setSearchText, setOnClick }: Navbar
           onClick={() => window.location.reload()}>
           <Image 
             src="/logo.png" 
-            width={40} 
-            height={40} 
+            width={50} 
+            height={50} 
             alt="logo" 
             priority 
-            
+            className="rounded-3xl"
             quality={80}
           />
           <Image 

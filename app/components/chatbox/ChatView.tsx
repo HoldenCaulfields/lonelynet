@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
+import Image from "next/image";
 
 // =========================================================================
 // 1. INTERFACE DEFINITIONS
@@ -71,12 +72,16 @@ const LoadingSpinner: React.FC = () => (
     </div>
 );
 
-const RoomImage: React.FC<{ src: string, alt: string }> = ({ src, alt }) => (
-    <img
-        src={src || "https://via.placeholder.com/150"} // Placeholder for cool factor
-        alt={alt}
-        className="w-12 h-12 rounded-full mr-3 bg-white border-2 border-green-400 object-cover shadow-lg flex-shrink-0"
+const RoomImage: React.FC<{ src: string; alt: string }> = ({ src, alt }) => (
+  <div className="w-12 h-12 rounded-full mr-3 bg-white border-2 border-green-400 overflow-hidden shadow-lg flex-shrink-0">
+    <Image
+      src={src || "/placeholderimg.jpg"}
+      alt={alt}
+      width={48}
+      height={48}
+      className="object-cover w-full h-full"
     />
+  </div>
 );
 
 // 💡 ENHANCEMENT: MessageBubble to handle system messages (join/leave)

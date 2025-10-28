@@ -6,7 +6,6 @@ import { redIcon } from "../../components/Icon";
 import axios from "axios";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import Tags from "./Tags";
-import ChatBox from "@/app/components/chatbox/ChatBox";
 
 export interface MarkerData {
   _id: string;

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { MessageCircle, X } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import GroupList from "./GroupList";
 
 interface ChatBoxProp {

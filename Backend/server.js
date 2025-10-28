@@ -3,6 +3,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import lonelyland from './routes/lonelyland.js';
+import http from "http";
+import {Server} from "socket.io";
+import initSocket from "./socket/socket.js";
+import messages from "./routes/messages.js"
 
 dotenv.config();
 
@@ -17,7 +21,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-//Connect to MongoDB
 //Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
     .then(async () => {
@@ -35,12 +38,22 @@ mongoose.connect(process.env.MONGO_URI)
 
 
 //Routes
-app.use('/api/lonelyland', lonelyland); //Mounting the lonelyland routes
+app.use('/api/lonelyland', lonelyland); 
+app.use('/api/messages', messages)
 
 //Sample route
 app.get('/', (req, res) => {
     res.send('Hello from LonelyNet Backend!');
 });
 
+//socket.io
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+    },
+});
+initSocket(io);
+
 //Start server
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

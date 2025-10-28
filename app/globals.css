@@ -1,4 +1,4 @@
-@import "tailwindcss"; 
+@import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
 :root {
@@ -20,31 +20,170 @@ body {
 }
 
 @keyframes spin-once {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
+
 .animate-spin-once {
   animation: spin-once 0.6s ease-out;
 }
+
 .transition-width {
   transition: width 0.2s ease-out;
 }
 
 @keyframes rotate-180 {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(180deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(180deg);
+  }
 }
+
 .rotate-180 {
   animation: rotate-180 0.7s ease-out;
 }
 
 /* tags moving */
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .animate-marquee {
   display: inline-flex;
   animation: marquee 40s linear infinite;
+}
+
+
+/* chatview */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #a7f3d0;
+  /* green-200 */
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  /* gray-300 */
+  border-radius: 2px;
+}
+
+/* Typing Indicator Dots Animation */
+.dot-pulse-wrapper {
+  display: inline-flex;
+  align-items: center;
+  height: 12px;
+}
+
+.dot-pulse {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #10b981;
+  /* green-500 */
+  color: #10b981;
+  /* green-500 */
+  animation: dotPulse 1.5s infinite ease-in-out;
+}
+
+.dot-pulse::before,
+.dot-pulse::after {
+  content: '';
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #10b981;
+  /* green-500 */
+  color: #10b981;
+  /* green-500 */
+}
+
+.dot-pulse::before {
+  left: -12px;
+  animation: dotPulseBefore 1.5s infinite ease-in-out;
+}
+
+.dot-pulse::after {
+  left: 12px;
+  animation: dotPulseAfter 1.5s infinite ease-in-out;
+}
+
+@keyframes dotPulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.7);
+    opacity: 0.8;
+  }
+}
+
+@keyframes dotPulseBefore {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.7);
+    opacity: 0.8;
+  }
+}
+
+@keyframes dotPulseAfter {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.7);
+    opacity: 0.8;
+  }
 }

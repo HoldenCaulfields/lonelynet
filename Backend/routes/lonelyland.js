@@ -83,5 +83,16 @@ router.put("/:id/love", async (req, res) => {
   }
 });
 
+router.get("/:roomId", async (req, res) => {
+  try {
+    const soul = await Soul.findById(req.params.roomId);
+    if (!soul) return res.status(404).json({ error: "Post not found" });
+    res.json(soul);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 
 export default router;

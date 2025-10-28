@@ -24,10 +24,12 @@ const API_URL =
 
 interface MarkerContainerProps {
   searchText: string;
+  setShowChat: (value: boolean) => void;
+  setRoomId: (value: string | null) => void;
 }
 
 export default function MarkerContainer({
-  searchText,
+  searchText, setShowChat, setRoomId,
 }: MarkerContainerProps) {
   const [markers, setMarkers] = useState<MarkerData[]>([]);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -236,7 +238,7 @@ export default function MarkerContainer({
 
                 <button
                   className="flex-1 p-3 rounded-full bg-indigo-100 hover:bg-indigo-200 transition-all duration-150 shadow-md hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-300"
-                  /* onClick={handleChat} */
+                  onClick={() => {setShowChat(true); setRoomId(marker._id)}}
                   aria-label="Open chat"
                 >
                   <div className="flex items-center justify-center">

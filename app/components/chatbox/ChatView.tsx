@@ -43,9 +43,14 @@ interface Member {
 // =========================================================================
 // 2. CONSTANTS
 // =========================================================================
-const SOCKET_URL = "http://192.168.1.12:5000";
-const API_URL = "http://192.168.1.12:5000/api/lonelyland";
-const MESSAGES_API_URL = `http://192.168.1.12:5000/api/messages`;
+const API_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://lonelynet.onrender.com"
+    : "http://localhost:5000";
+
+const SOCKET_URL = API_URL;
+const API_SOUL = `${API_URL}/api/lonelyland`;
+const MESSAGES_API_URL = `${API_URL}/api/messages`;
 
 const CHAT_EVENTS = {
     JOIN_ROOM: 'joinRoom',
@@ -307,7 +312,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
         const fetchData = async () => {
             try {
                 const [postResponse, messagesResponse] = await Promise.all([
-                    fetch(`${API_URL}/${roomId}`),
+                    fetch(`${API_SOUL}/${roomId}`),
                     fetch(`${MESSAGES_API_URL}/${roomId}`)
                 ]);
 

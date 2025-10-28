@@ -2,8 +2,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import io, { Socket } from "socket.io-client";
 
-const SOCKET_URL = "http://192.168.1.12:5000";
-const API_URL = "http://192.168.1.12:5000/api/lonelyland";
+const API_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://lonelynet.onrender.com"
+    : "http://localhost:5000";
+const SOCKET_URL = API_URL;
+const API_SOUL = `${API_URL}/api/lonelynet`;
 
 interface Room {
   roomId: string;
@@ -28,7 +32,7 @@ export default function GroupList({ visible, onClose, onSelectRoom }: GroupListP
   // Fetch all posts (potential chat rooms)
   const scanActiveRooms = async (): Promise<Room[]> => {
     try {
-      const res = await fetch(API_URL);
+      const res = await fetch(API_SOUL);
       const posts = await res.json();
       return posts.map((post: any) => ({
         roomId: post._id,

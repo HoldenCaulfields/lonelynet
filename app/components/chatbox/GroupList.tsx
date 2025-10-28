@@ -7,7 +7,7 @@ const API_URL =
     ? "https://lonelynet.onrender.com"
     : "http://localhost:5000";
 const SOCKET_URL = API_URL;
-const API_SOUL = `${API_URL}/api/lonelynet`;
+const API_SOUL = `${API_URL}/api/lonelyland`;
 
 interface Room {
   roomId: string;

@@ -148,6 +148,14 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }, []);
 
+    useEffect(() => {
+        if (!loading && messages.length > 0) {
+            const timeout = setTimeout(() => {
+                scrollToBottom();
+            }, 150); // small delay ensures DOM is painted
+            return () => clearTimeout(timeout);
+        }
+    }, [loading]);
     // Scroll effect cleanup: only scroll if the user is near the bottom
     useEffect(() => {
         const chatElement = messagesEndRef.current?.parentElement;
@@ -448,7 +456,8 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
 
     return (
         <div
-            className={`fixed w-full bottom-0 top-40 z-[1000] flex sm:right-0 sm:bottom-6 sm:top-auto justify-center sm:justify-end overflow-hidden transition-all duration-300 ${showChat && isAnimating ? '' : 'pointer-events-none'}`}
+            className={`fixed inset-x-0 bottom-0 top-24 sm:top-auto sm:bottom-8 sm:right-8 z-[1000] flex justify-center sm:justify-end overflow-hidden transition-all duration-300 ${showChat && isAnimating ? '' : 'pointer-events-none'
+                }`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="chat-title"
@@ -462,35 +471,33 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
 
             {/* Chat Container (The Modal Itself) */}
             <div
-                className={`relative bg-white w-full max-w-sm h-full md:h-[90%] md:max-h-[90vh] md:w-3/5 lg:w-2/5 xl:w-1/3 
-                        rounded-t-3xl md:rounded-xl shadow-2xl flex flex-col transition-all duration-500 ease-in-out 
-                        ${isAnimating ? 'translate-y-0 md:scale-100' : 'translate-y-full md:translate-y-0 md:scale-90'}`}
+                className={`relative bg-[#161616] w-full sm:w-[90%] md:w-[70%] lg:w-[45%] xl:w-[35%] 
+      h-[90vh] sm:h-[80vh] md:h-[75vh] rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col 
+      transition-all duration-500 ease-in-out overflow-hidden 
+      ${isAnimating ? 'translate-y-0 scale-100' : 'translate-y-full scale-95'}`}
             >
                 {/* 💡 NEW: Gradient Header for Cool Look */}
-                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-950 to-blue-900 shadow-md flex-shrink-0 rounded-t-3xl md:rounded-t-xl">
+                <div className="flex items-center justify-between p-4 bg-[#1e1e1e] border-b border-[#2a2a2a] rounded-t-2xl">
                     <div className="flex items-center flex-1 min-w-0">
-                        {post && (
-                            <RoomImage src={post.imageUrl} alt="Room Image" />
-                        )}
+                        {post && <RoomImage src={post.imageUrl} alt="Room" />}
                         <div className="flex-1 min-w-0">
-                            <h2 className="text-lg font-extrabold text-white truncate" title={getRoomName()} id="chat-title">
+                            <h2 className="text-white text-base sm:text-lg font-bold truncate" title={getRoomName()}>
                                 {getRoomName()}
                             </h2>
                             <button
                                 onClick={() => setShowMembers(!showMembers)}
-                                className="text-sm font-medium text-green-100 hover:text-white transition"
+                                className="text-xs text-green-400 hover:text-white transition"
                             >
-                                <span className="mr-1 inline-block h-2 w-2 rounded-full bg-yellow-300 animate-pulse"></span>
-                                {members.length} {members.length === 1 ? "person" : "people"} online
+                                <span className="mr-1 inline-block h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
+                                {members.length} online
                             </button>
                         </div>
                     </div>
                     <button
                         onClick={handleClose}
-                        className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center ml-2 text-xl font-semibold text-white hover:bg-white/30 transition-colors"
-                        aria-label="Close Chat"
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-[#2a2a2a] hover:bg-[#333] text-white"
                     >
-                        &times;
+                        ✕
                     </button>
                 </div>
 
@@ -503,9 +510,9 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
                     <>
                         {/* Members List (Collapsed/Expanded) */}
                         <div
-                            className={`relative bg-white/90 backdrop-blur-md shadow-md transition-all duration-500 ease-in-out overflow-hidden
-  ${showMembers ? "max-h-48 opacity-100" : "max-h-0 opacity-0"}
-  border-b border-gray-200`}
+                            className={`relative bg-[#202020]/90 backdrop-blur-md shadow-inner transition-all duration-500 ease-in-out overflow-hidden
+  ${showMembers ? "max-h-40 sm:max-h-48 opacity-100" : "max-h-0 opacity-0"}
+  border-b border-gray-800`}
                             aria-expanded={showMembers}
                         >
                             <div className="px-4 py-2">
@@ -541,7 +548,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
 
 
                         {/* Messages Area */}
-                        <div className="flex-1 overflow-y-auto p-4 flex flex-col custom-scrollbar">
+                        <div className="flex-1 bg-[#0f0f0f] overflow-y-auto px-3 sm:px-4 py-2 sm:py-4 flex flex-col justify-end custom-scrollbar-thin">
                             {messages.length === 0 ? (
                                 <div className="flex-1 flex flex-col items-center justify-center p-10 text-center">
                                     <p className="text-6xl mb-4 animate-bounce">👋</p>
@@ -549,7 +556,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
                                     <p className="text-sm text-gray-500">Be the first to say hello and break the ice.</p>
                                 </div>
                             ) : (
-                                <div className="flex flex-col pt-2">
+                                <div className="flex-1 bg-[#121212] overflow-y-auto p-4 space-y-3 custom-scrollbar">
                                     {messages.map((item) => (
                                         <MessageBubble
                                             key={item._id || item.id || `${item.userId}-${item.timestamp}-${Math.random().toString(36).slice(2, 7)}`}
@@ -566,7 +573,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
 
                         {/* 💡 NEW: Typing Indicator */}
                         {isTyping && (
-                            <div className="px-4 text-xs text-gray-500 flex items-center flex-shrink-0 mb-1">
+                            <div className="px-4 py-1 text-[11px] text-gray-400 flex items-center flex-shrink-0 bg-[#161616]">
                                 <div className="dot-pulse-wrapper mr-2">
                                     <div className="dot-pulse"></div>
                                 </div>
@@ -575,37 +582,36 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
                         )}
 
                         {/* Input Area */}
-                        <div className="flex items-end p-3 border-t border-gray-100 bg-white shadow-inner flex-shrink-0">
+                        <div className="p-2 sm:p-3 bg-[#1e1e1e]/95 border-t border-[#2a2a2a] flex items-center gap-2 sm:gap-3">
                             <textarea
                                 value={message}
-                                onChange={handleTyping} // Use new handler
+                                onChange={handleTyping}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && !e.shiftKey) {
                                         e.preventDefault();
                                         sendMessage();
                                     }
                                 }}
-                                placeholder="Send a message..."
-                                className="flex-1 bg-gray-50 rounded-2xl px-4 py-2.5 mr-2 text-base max-h-[100px] border border-gray-200 resize-none 
-                                    focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-800 placeholder-gray-400 transition-colors"
+                                placeholder="Type something..."
+                                className="flex-1 bg-transparent text-white placeholder-gray-500 text-sm sm:text-base resize-none outline-none leading-snug max-h-32 overflow-y-auto"
                                 maxLength={500}
                                 rows={1}
                             />
                             <button
                                 onClick={sendMessage}
-                                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg 
-                                    ${!message.trim() || sending
+                                className={`min-w-[44px] sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg 
+      ${!message.trim() || sending
                                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
                                         : 'bg-green-500 text-white hover:bg-green-600 shadow-green-500/50 active:scale-90'
                                     }`}
                                 disabled={!message.trim() || sending}
-                                aria-label="Send message"
                             >
-                                <span className="text-2xl leading-none font-bold">
+                                <span className="text-xl sm:text-2xl leading-none font-bold">
                                     {sending ? "📤" : "🚀"}
                                 </span>
                             </button>
                         </div>
+
                     </>
                 )}
             </div>

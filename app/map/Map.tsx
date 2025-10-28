@@ -42,7 +42,11 @@ export default function Map() {
                 <UserLocation showForm={showForm} setShowForm={setShowForm} />
             </MapContainer>
 
-            {/* <ChatBox /> */}
+            <ChatBox setRoomId={(id) => {
+                setRoomId(id);
+                setShowChat(true);
+            }} />
+
             {roomId && (
                 <ChatView
                     roomId={roomId}

@@ -466,7 +466,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
 
     return (
         <div
-            className={`fixed inset-x-0 bottom-0 top-24 sm:top-auto sm:bottom-8 sm:right-8 z-[1000] flex justify-center sm:justify-end overflow-hidden transition-all duration-300 ${showChat && isAnimating ? '' : 'pointer-events-none'
+            className={`fixed inset-x-0 top-30 bottom-0 sm:top-auto sm:bottom-8 sm:right-8 z-[1200] flex justify-center sm:justify-end overflow-hidden transition-all duration-300 ${showChat && isAnimating ? '' : 'pointer-events-none'
                 }`}
             role="dialog"
             aria-modal="true"
@@ -482,7 +482,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
             {/* Chat Container (The Modal Itself) */}
             <div
                 className={`relative bg-[#161616] w-full sm:w-[90%] md:w-[70%] lg:w-[45%] xl:w-[35%] 
-      h-[90vh] sm:h-[80vh] md:h-[75vh] rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col 
+      h-[80vh] sm:h-[80vh] md:h-[75vh] rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col 
       transition-all duration-500 ease-in-out overflow-hidden 
       ${isAnimating ? 'translate-y-0 scale-100' : 'translate-y-full scale-95'}`}
             >
@@ -609,7 +609,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
                             />
                             <button
                                 onClick={sendMessage}
-                                className={`min-w-[44px] sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg 
+                                className={`min-w-[44px] h-11 sm:w-11 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg 
       ${!message.trim() || sending
                                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
                                         : 'bg-green-500 text-white hover:bg-green-600 shadow-green-500/50 active:scale-90'

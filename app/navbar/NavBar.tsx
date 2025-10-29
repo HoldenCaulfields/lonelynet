@@ -8,10 +8,9 @@ import SearchBox from "./SearchBox";
 interface NavbarProps {
   searchText: string;
   setSearchText: (text: string) => void;
-  setOnClick: () => void;
 }
 
-export default function Navbar({ searchText, setSearchText, setOnClick }: NavbarProps) {
+export default function Navbar({ searchText, setSearchText }: NavbarProps) {
   return (
     <nav className="sticky top-0 z-[1100] w-full bg-gradient-to-r from-slate-900 via-black to-slate-900 border-b border-white/10 backdrop-blur-xl px-4 sm:px-6 py-3 shadow-lg animate-in slide-in-from-top-2 duration-200">
       <div className="max-w-7xl mx-auto flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -44,7 +43,7 @@ export default function Navbar({ searchText, setSearchText, setOnClick }: Navbar
             <Link href="/lonelyland" className="hover:text-blue-400 transition-colors duration-200">
               <Globe size={26} />
             </Link>
-            <span className="hover:text-red-400 transition-colors duration-200 cursor-pointer" onClick={setOnClick}>
+            <span className="hover:text-red-400 transition-colors duration-200 cursor-pointer" onClick={() =>{}}>
               <PlusCircle size={26} />
             </span>
           </div>
@@ -85,7 +84,7 @@ export default function Navbar({ searchText, setSearchText, setOnClick }: Navbar
           </Link>
           <span 
             className="hover:text-red-400 bg-blue-800 p-2 rounded-3xl transition-all duration-200 cursor-pointer hover:scale-105" 
-            onClick={setOnClick}
+            onClick={() => {}}
           >
             Create Soul
           </span>

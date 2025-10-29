@@ -5,28 +5,24 @@ import UserLocation from "./userlocation-post/UserLocation";
 import MarkerContainer from "./marker/MarkerContainer";
 import Navbar from "../navbar/NavBar";
 import { useState } from "react";
-import ChatBox from "../components/chatbox/ChatBox";
 import ChatView from "../components/chatbox/ChatView";
-
-
+import Controls from "../components/Controls";
 
 export default function Map() {
     const [searchText, setSearchText] = useState("");
-    const [showForm, setShowForm] = useState(false);
     const [showChat, setShowChat] = useState(false);
     const [roomId, setRoomId] = useState<string | null>(null);
-
-    const handleCreateSoul = () => setShowForm(true);
-
+    const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [userId] = useState(() => Math.floor(Math.random() * 1_000_000).toString());
+    const [openForm, setOpenForm] = useState(false);
 
     return (
         <div className="flex flex-col h-screen w-full">
-            <Navbar searchText={searchText} setSearchText={setSearchText} setOnClick={handleCreateSoul} />
+            <Navbar searchText={searchText} setSearchText={setSearchText} />
 
             <MapContainer
                 center={[16.45568, 107.59315]}
-                zoom={8}
+                zoom={6}
                 style={{ height: "100%", width: "100%" }}
                 zoomControl={false}
             >
@@ -39,13 +35,10 @@ export default function Map() {
 
                 <MarkerContainer searchText={searchText} setShowChat={setShowChat} setRoomId={setRoomId} />
 
-                <UserLocation showForm={showForm} setShowForm={setShowForm} />
+                {userLocation && (
+                    <UserLocation setOpenForm={setOpenForm} targetPosition={userLocation} />
+                )}
             </MapContainer>
-
-            <ChatBox setRoomId={(id) => {
-                setRoomId(id);
-                setShowChat(true);
-            }} />
 
             {roomId && (
                 <ChatView
@@ -55,6 +48,9 @@ export default function Map() {
                     onClose={() => setShowChat(false)}
                 />
             )}
+
+            <Controls openForm={openForm} setOpenForm={setOpenForm} onLocationClick={(coords) => {setUserLocation(coords)}} 
+                setRoomId={(id) => {setRoomId(id); setShowChat(true);}}/>
         </div>
     );
 }

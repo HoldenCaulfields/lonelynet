@@ -87,14 +87,13 @@ export default function Tags({ selectedTag, onTagSelect }: TagsProps) {
             <button
               key={i}
               onClick={() => handleTagClick(tag.name)}
-              className={`flex items-center gap-2 flex-shrink-0 px-4 py-2 rounded-full font-bold uppercase transition-all duration-300 transform border shadow-md text-sm sm:text-base
+              className={`flex items-center text-white gap-2 flex-shrink-0 px-4 py-1 rounded-full font-bold uppercase transition-all duration-300 transform border shadow-md text-sm sm:text-base
                ${isSelected ? "scale-70 ring-offset-2" : "hover:scale-105 hover:shadow-lg"}`}
               style={{
                 background: `linear-gradient(135deg, ${tag.color}AA, ${tag.color})`,
-                color: isSelected ? "#000" : "#fff",
               }}
             >
-              <span className="text-lg">{tag.icon ?? <Ghost size={18} />}</span>
+              <span className="text-sm">{tag.icon ?? <Ghost size={18} />}</span>
               <span>{tag.name}</span>
             </button>
           );

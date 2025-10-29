@@ -5,6 +5,7 @@ import axios from "axios";
 import UploadImage from "./UploadImage";
 import Tags from "./Tags";
 import { useRouter } from "next/navigation";
+import { Send, Image as ImageIcon, Tag, Loader2 } from "lucide-react"; // Import Lucide icons
 
 interface Address {
   lat: number;
@@ -40,7 +41,6 @@ export default function PostForm({ address }: { address: Address }) {
 
       console.log("Post successful:", data);
 
-      // reset
       setText("");
       setImage(null);
       setSelectedCategories([]);
@@ -60,45 +60,68 @@ export default function PostForm({ address }: { address: Address }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full sticky top-6 max-w-xl mx-auto bg-gradient-to-br from-white to-gray-100 
-                 rounded-2xl shadow-lg p-3 flex flex-col gap-5 border border-gray-200"
+      // ✨ More sophisticated dark background with a subtle radial gradient, deeper shadow
+      className="w-full sticky top-6 max-w-xl mx-auto bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900
+                 rounded-2xl shadow-glow-lg p-6 flex flex-col gap-6 border border-gray-800 animate-in fade-in-0 duration-300"
     >
+      <h2 className="text-2xl font-extrabold text-white mb-2 tracking-wide flex items-center gap-3">
+        <Send size={28} className="text-green-400" /> Create a New Soul
+      </h2>
+
       {/* Textarea */}
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Share your thoughts..."
-        className="w-full border border-gray-300 rounded-xl p-3 resize-none min-h-[90px] 
-                   focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400
-                   transition-all"
-      />
+      <div className="relative">
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Share your thoughts, maybe someone out there will find you..."
+          // ✨ Darker input, subtle inner shadow, more prominent green focus
+          className="w-full border border-gray-700 rounded-xl p-4 resize-none min-h-[120px]
+                     focus:outline-none focus:ring-3 focus:ring-green-500/60 placeholder-gray-500
+                     bg-gray-800 text-gray-100 shadow-inner shadow-black/30 transition-all duration-200
+                     text-base font-medium"
+        />
+      </div>
 
-      {/* Upload */}
-      <UploadImage value={image} onImageChange={setImage} />
+      {/* Upload Image Section */}
+      <div className="flex items-center gap-3 text-gray-300">
+        <ImageIcon size={20} className="text-green-400" />
+        <span className="font-semibold">Add a Memory:</span>
+        <UploadImage value={image} onImageChange={setImage} />
+      </div>
 
-      {/* Tags */}
-      <Tags
-        selectedCategories={selectedCategories}
-        setSelectedCategories={setSelectedCategories}
-      />
+      {/* Tags Section */}
+      <div className="flex items-center gap-3 text-gray-300">
+        <Tag size={20} className="text-green-400" />
+        <span className="font-semibold"></span>
+        <Tags
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+        />
+      </div>
 
-      {/* Submit */}
+
+      {/* Submit Button */}
       <button
         disabled={loading}
-        className={`flex items-center justify-center gap-2 py-2 rounded-xl 
-          font-semibold text-white shadow-md transition-all 
+        className={`flex items-center justify-center gap-3 py-3 rounded-full 
+          font-extrabold text-gray-900 shadow-lg transition-all duration-300 ease-in-out
+          text-lg tracking-wider
           ${loading
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700 active:scale-95"
+            // ✨ Loading state: Subtle pulse, lighter gray for contrast
+            ? "bg-gray-700 text-gray-400 cursor-not-allowed animate-pulse"
+            // ✨ Active state: Vibrant gradient green, prominent glowing shadow
+            : "bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 active:scale-98 shadow-green-500/50 hover:shadow-green-500/70"
           }`}
       >
         {loading ? (
           <div className="flex items-center gap-2">
-            <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-            Posting...
+            <Loader2 size={20} className="animate-spin text-gray-100" />
+            <span className="text-gray-100">Casting Soul...</span>
           </div>
         ) : (
-          <div className="flex items-center gap-2">🚀 Post</div>
+          <div className="flex items-center gap-2">
+            <Send size={20} /> Post Soul
+          </div>
         )}
       </button>
     </form>

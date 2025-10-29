@@ -462,20 +462,6 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
         }, 300);
     };
 
-    useEffect(() => {
-        const handleResize = () => {
-            document.body.style.height = `${window.innerHeight}px`;
-        };
-
-        window.addEventListener('resize', handleResize);
-        handleResize();
-
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
-    }, []);
-
-
     if (!showChat && !isAnimating) return null;
 
     return (

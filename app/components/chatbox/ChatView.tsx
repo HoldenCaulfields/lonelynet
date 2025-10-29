@@ -12,14 +12,13 @@ interface GroupChatProps {
     showChat: boolean;
 }
 
-// 💡 ENHANCEMENT: Added 'type' to distinguish between 'user' and 'system' messages.
 interface Message {
     id: string; // Client-side temporary ID (e.g., Date.now().toString())
     _id?: string; // Server-side MongoDB ID
     userId: string;
     text: string;
     timestamp: number;
-    type: 'user' | 'system'; // New property: 'user' for chat, 'system' for join/leave
+    type: 'user' | 'system'; 
 }
 
 interface Post {
@@ -58,8 +57,8 @@ const CHAT_EVENTS = {
     NEW_MESSAGE: 'newMessage',
     RECEIVE_MESSAGE: 'receiveMessage',
     ROOM_MEMBERS: 'roomMembers',
-    USER_JOINED: 'userJoined', // 💡 NEW: Event for user join notification
-    USER_LEFT: 'userLeft',     // 💡 NEW: Event for user leave notification
+    USER_JOINED: 'userJoined', 
+    USER_LEFT: 'userLeft', 
     TYPING: 'typing',
     STOP_TYPING: 'stopTyping'
 };
@@ -89,7 +88,6 @@ const RoomImage: React.FC<{ src: string; alt: string }> = ({ src, alt }) => (
     </div>
 );
 
-// 💡 ENHANCEMENT: MessageBubble to handle system messages (join/leave)
 const MessageBubble: React.FC<{ item: Message; userId: string; formatTime: (t: number) => string }> = ({ item, userId, formatTime }) => {
     // --- System Message Logic ---
     if (item.type === 'system') {
@@ -146,36 +144,29 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
     const [sending, setSending] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
     const [messagesToPersist, setMessagesToPersist] = useState<Message[]>([]);
-    const [isTyping, setIsTyping] = useState(false); // 💡 NEW: Typing indicator state
+    const [isTyping, setIsTyping] = useState(false);
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // --- Utilities ---
 
-    // 💡 ENHANCEMENT: Auto-scroll smoothed and only when needed
+    // Auto-scroll smoothed
     const scrollToBottom = useCallback(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }, []);
 
+    // Scroll effect: Always scroll to bottom on message change, using a timeout for DOM stability.
+    // NOTE: Simplified this useEffect compared to the original, removed the complex near-bottom check.
     useEffect(() => {
         if (!loading && messages.length > 0) {
             const timeout = setTimeout(() => {
                 scrollToBottom();
-            }, 150); // small delay ensures DOM is painted
+            }, 150); 
             return () => clearTimeout(timeout);
         }
-    }, [loading]);
-    // Scroll effect cleanup: only scroll if the user is near the bottom
-    useEffect(() => {
-        const chatElement = messagesEndRef.current?.parentElement;
-        if (chatElement) {
-            const isNearBottom = chatElement.scrollHeight - chatElement.scrollTop - chatElement.clientHeight < 200;
-            if (isNearBottom || messages.length <= 1) {
-                scrollToBottom();
-            }
-        }
-    }, [messages.length, scrollToBottom]);
+    }, [messages.length, loading, scrollToBottom]);
+
 
     const formatTime = (timestamp: number) => {
         const date = new Date(timestamp);
@@ -187,7 +178,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
         return post.tags.map(tag => `#${tag}`).join(" • ");
     };
 
-    // 💡 NEW: Debounced typing handler
+    // Debounced typing handler
     const handleTyping = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setMessage(e.target.value);
         if (!socket || !roomId) return;
@@ -216,7 +207,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
             userId: userId,
             text: message.trim(),
             timestamp: Date.now(),
-            type: 'user', // Set type to 'user'
+            type: 'user', 
         };
 
         // 1. Optimistic UI Update
@@ -364,7 +355,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
 
         // 4. Handle Incoming Events
 
-        // 💡 NEW: Handle incoming user messages
+        // Handle incoming user messages
         s.on(CHAT_EVENTS.RECEIVE_MESSAGE, (msg: Message & { senderSocketId?: string }) => {
             // Ignore the message if it came from our own socket
             if (msg.senderSocketId === s.id) return;
@@ -379,7 +370,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
             });
         });
 
-        // 💡 NEW: Handle user joining
+        // Handle user joining
         s.on(CHAT_EVENTS.USER_JOINED, (user: { userId: string }) => {
             const systemMessage: Message = {
                 id: Date.now().toString() + Math.random(),
@@ -391,7 +382,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
             setMessages(prev => [...prev, systemMessage]);
         });
 
-        // 💡 NEW: Handle user leaving
+        // Handle user leaving
         s.on(CHAT_EVENTS.USER_LEFT, (user: { userId: string }) => {
             const systemMessage: Message = {
                 id: Date.now().toString() + Math.random(),
@@ -403,12 +394,12 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
             setMessages(prev => [...prev, systemMessage]);
         });
 
-        // 💡 NEW: Handle member list update
+        // Handle member list update
         s.on(CHAT_EVENTS.ROOM_MEMBERS, (memberList: Member[]) => {
             setMembers(memberList);
         });
 
-        // 💡 NEW: Typing indicator listener
+        // Typing indicator listener
         s.on(CHAT_EVENTS.TYPING, (user: { userId: string }) => {
             if (user.userId !== userId) {
                 setIsTyping(true);
@@ -461,20 +452,6 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
             onClose();
         }, 300);
     };
-    useEffect(() => {
-        const textarea = document.querySelector('textarea');
-        if (!textarea) return;
-
-        const handleFocus = () => {
-            setTimeout(() => {
-                // This is the problematic line on mobile
-                textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 300);
-        };
-
-        textarea.addEventListener('focus', handleFocus);
-        return () => textarea.removeEventListener('focus', handleFocus);
-    }, []);
 
     if (!showChat && !isAnimating) return null;
 
@@ -496,11 +473,11 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
             {/* Chat Container (The Modal Itself) */}
             <div
                 className={`relative bg-[#161616] w-full sm:w-[90%] md:w-[70%] lg:w-[45%] xl:w-[35%]
-      h-[80dvh] sm:h-[80vh] md:h-[75vh] rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col 
+      h-[80dvh] sm:h-[80dvh] md:h-[75dvh] rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col 
       transition-all duration-500 ease-in-out overflow-hidden 
       ${isAnimating ? 'translate-y-0 scale-100' : 'translate-y-full scale-95'}`}
             >
-                {/* 💡 NEW: Gradient Header for Cool Look */}
+                {/* Gradient Header for Cool Look */}
                 <div className="flex items-center justify-between p-4 bg-[#1e1e1e] border-b border-[#2a2a2a] rounded-t-2xl">
                     <div className="flex items-center flex-1 min-w-0">
                         {post && <RoomImage src={post.imageUrl} alt="Room" />}
@@ -526,7 +503,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
                 </div>
 
                 {loading ? (
-                    // 💡 IMPROVED: Loading spinner background
+                    // IMPROVED: Loading spinner background
                     <div className="flex-1 bg-gray-900/90 flex justify-center items-center rounded-b-3xl md:rounded-b-xl">
                         <LoadingSpinner />
                     </div>
@@ -535,12 +512,12 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
                         {/* Members List (Collapsed/Expanded) */}
                         <div
                             className={`relative bg-[#202020]/90 backdrop-blur-md shadow-inner transition-all duration-500 ease-in-out overflow-hidden
-  ${showMembers ? "max-h-40 sm:max-h-48 opacity-100" : "max-h-0 opacity-0"}
-  border-b border-gray-800`}
+      ${showMembers ? "max-h-40 sm:max-h-48 opacity-100" : "max-h-0 opacity-0"}
+      border-b border-gray-800`}
                             aria-expanded={showMembers}
                         >
                             <div className="px-4 py-2">
-                                <p className="text-sm font-semibold text-gray-800 flex items-center gap-2 mb-2">
+                                <p className="text-sm font-semibold text-gray-400 flex items-center gap-2 mb-2">
                                     👥 <span>Active Members:</span>
                                 </p>
 
@@ -552,35 +529,35 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
                                                 className={`flex items-center py-1 px-3 rounded-full text-xs font-medium border
               transition-all duration-200 hover:scale-105 hover:shadow-[0_0_6px_#22c55e]
               ${member.userId === userId
-                                                        ? "bg-green-100 text-green-800 border-green-300"
-                                                        : "bg-gray-50 text-gray-700 border-gray-200"
+                                                        ? "bg-green-700 text-white border-green-500"
+                                                        : "bg-gray-700 text-gray-200 border-gray-600"
                                                     }`}
                                             >
                                                 <span className="w-2 h-2 rounded-full bg-green-400 mr-2 animate-pulse"></span>
                                                 User {member.userId.slice(0, 6)}
                                                 {member.userId === userId && (
-                                                    <span className="ml-1 text-[10px] text-green-600">(You)</span>
+                                                    <span className="ml-1 text-[10px] text-green-300">(You)</span>
                                                 )}
                                             </div>
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-xs text-gray-400 italic">No one’s online yet...</p>
+                                    <p className="text-xs text-gray-500 italic">No one’s online yet...</p>
                                 )}
                             </div>
                         </div>
 
 
                         {/* Messages Area */}
-                        <div className="flex-1 bg-[#0f0f0f] overflow-y-auto px-3 sm:px-4 py-2 sm:py-4 flex flex-col justify-end custom-scrollbar-thin">
+                        <div className="flex-1 bg-[#0f0f0f] overflow-y-auto px-3 sm:px-4 py-2 sm:py-4 flex flex-col custom-scrollbar">
                             {messages.length === 0 ? (
                                 <div className="flex-1 flex flex-col items-center justify-center p-10 text-center">
                                     <p className="text-6xl mb-4 animate-bounce">👋</p>
-                                    <p className="text-lg font-bold text-gray-800 mb-2">Welcome to the Group!</p>
+                                    <p className="text-lg font-bold text-white mb-2">Welcome to the Group!</p>
                                     <p className="text-sm text-gray-500">Be the first to say hello and break the ice.</p>
                                 </div>
                             ) : (
-                                <div className="flex-1 bg-[#121212] overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                                <div className="space-y-3">
                                     {messages.map((item) => (
                                         <MessageBubble
                                             key={item._id || item.id || `${item.userId}-${item.timestamp}-${Math.random().toString(36).slice(2, 7)}`}
@@ -595,7 +572,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
                             )}
                         </div>
 
-                        {/* 💡 NEW: Typing Indicator */}
+                        {/* Typing Indicator */}
                         {isTyping && (
                             <div className="px-4 py-1 text-[11px] text-gray-400 flex items-center flex-shrink-0 bg-[#161616]">
                                 <div className="dot-pulse-wrapper mr-2">

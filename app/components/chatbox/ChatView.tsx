@@ -474,8 +474,8 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
             <div
                 className={`relative bg-[#161616] w-full sm:w-[90%] md:w-[70%] lg:w-[45%] xl:w-[35%]
       h-[80dvh] sm:h-[80dvh] md:h-[75dvh] rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col 
-      transition-all duration-500 ease-in-out overflow-hidden 
-      ${isAnimating ? 'translate-y-0 scale-100' : 'translate-y-full scale-95'}`}
+      transition-[transform] duration-500 ease-in-out overflow-hidden 
+      ${isAnimating ? 'translate-y-0' : 'translate-y-full'}`}
             >
                 {/* Gradient Header for Cool Look */}
                 <div className="flex items-center justify-between p-4 bg-[#1e1e1e] border-b border-[#2a2a2a] rounded-t-2xl">

@@ -160,21 +160,29 @@ export default function MarkerContainer({
           <Tags selectedTag={selectedTag} onTagSelect={handleTagClick} />
         </div>
 
-        <div className="mt-3 flex items-center gap-3 animate-in fade-in-0 duration-200">
-          <div className="flex items-center gap-2 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 px-4 py-2 rounded-full border-2 border-white shadow-lg animate-pulse">
-            <Zap className="w-4 h-4 text-white" fill="white" />
-            <span className="text-white font-bold text-sm tracking-wider">{markers.length}</span>
-            <span className="text-white text-xs uppercase tracking-widest">Souls</span>
+        <div className="mt-1 flex items-center gap-3 animate-in fade-in-0 duration-200">
+          {/* Souls Counter */}
+          <div className="flex items-center gap-2 bg-gradient-to-r from-green-700 via-green-800 to-green-900 px-3 py-1 rounded-full border border-green-400/50 shadow-[0_0_10px_rgba(0,255,0,0.4)]">
+            <Zap className="w-4 h-4 text-green-400 animate-pulse" />
+            <span className="text-green-300 font-bold text-sm tracking-wider">
+              {markers.length}
+            </span>
+            <span className="text-gray-200 text-xs uppercase tracking-widest">
+              Souls
+            </span>
           </div>
+
+          {/* Selected Tag */}
           {selectedTag && (
-            <div className="bg-white px-4 py-2 rounded-full border-2 border-black shadow-lg">
-              <span className="text-black font-semibold text-xs uppercase tracking-widest">
+            <div className="bg-gradient-to-r from-black via-gray-900 to-black px-4 py-1 rounded-full border border-red-500 shadow-[0_0_8px_rgba(255,0,0,0.5)]">
+              <span className="text-red-400 font-semibold text-xs uppercase tracking-widest">
                 #{selectedTag}
               </span>
             </div>
           )}
         </div>
       </div>
+
 
       {/* Loading Overlay */}
       {loading && (
@@ -220,8 +228,8 @@ export default function MarkerContainer({
                       key={item}
                       onClick={() => handleTagClick(item)}
                       className={`flex-shrink-0 inline-flex items-center px-3 py-1.5 text-xs font-semibold uppercase rounded-full cursor-pointer transition-all duration-200 border-2 tracking-wide ${selectedTag === item
-                          ? "bg-black text-white border-black shadow-lg scale-105"
-                          : "bg-gray-200 text-gray-800 border-gray-300 hover:border-black hover:bg-gray-300 hover:scale-105 hover:shadow-md"
+                        ? "bg-black text-white border-black shadow-lg scale-105"
+                        : "bg-gray-200 text-gray-800 border-gray-300 hover:border-black hover:bg-gray-300 hover:scale-105 hover:shadow-md"
                         }`}
                     >
                       #{item}

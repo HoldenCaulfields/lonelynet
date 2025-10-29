@@ -44,9 +44,9 @@ interface Member {
 // 2. CONSTANTS
 // =========================================================================
 const API_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://lonelynet.onrender.com"
-    : "http://localhost:5000";
+    process.env.NODE_ENV === "production"
+        ? "https://lonelynet.onrender.com"
+        : "http://localhost:5000";
 
 const SOCKET_URL = API_URL;
 const API_SOUL = `${API_URL}/api/lonelyland`;
@@ -78,15 +78,15 @@ const LoadingSpinner: React.FC = () => (
 );
 
 const RoomImage: React.FC<{ src: string; alt: string }> = ({ src, alt }) => (
-  <div className="w-12 h-12 rounded-full mr-3 bg-white border-2 border-green-400 overflow-hidden shadow-lg flex-shrink-0">
-    <Image
-      src={src || "/placeholderimg.jpg"}
-      alt={alt}
-      width={48}
-      height={48}
-      className="object-cover w-full h-full"
-    />
-  </div>
+    <div className="w-12 h-12 rounded-full mr-3 bg-white border-2 border-green-400 overflow-hidden shadow-lg flex-shrink-0">
+        <Image
+            src={src || "/placeholderimg.jpg"}
+            alt={alt}
+            width={48}
+            height={48}
+            className="object-cover w-full h-full"
+        />
+    </div>
 );
 
 // 💡 ENHANCEMENT: MessageBubble to handle system messages (join/leave)
@@ -462,6 +462,34 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
         }, 300);
     };
 
+    useEffect(() => {
+        const handleResize = () => {
+            document.body.style.height = `${window.innerHeight}px`;
+        };
+
+        window.addEventListener('resize', handleResize);
+        handleResize();
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+
+    useEffect(() => {
+        const textarea = document.querySelector('textarea');
+        if (!textarea) return;
+
+        const handleFocus = () => {
+            setTimeout(() => {
+                textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        };
+
+        textarea.addEventListener('focus', handleFocus);
+        return () => textarea.removeEventListener('focus', handleFocus);
+    }, []);
+
+
     if (!showChat && !isAnimating) return null;
 
     return (
@@ -481,8 +509,8 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
 
             {/* Chat Container (The Modal Itself) */}
             <div
-                className={`relative bg-[#161616] w-full sm:w-[90%] md:w-[70%] lg:w-[45%] xl:w-[35%] 
-      h-[80vh] sm:h-[80vh] md:h-[75vh] rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col 
+                className={`relative bg-[#161616] w-full sm:w-[90%] md:w-[70%] lg:w-[45%] xl:w-[35%]
+      h-[80dvh] sm:h-[80vh] md:h-[75vh] rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col 
       transition-all duration-500 ease-in-out overflow-hidden 
       ${isAnimating ? 'translate-y-0 scale-100' : 'translate-y-full scale-95'}`}
             >
@@ -592,7 +620,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
                         )}
 
                         {/* Input Area */}
-                        <div className="p-2 sm:p-3 bg-[#1e1e1e]/95 border-t border-[#2a2a2a] flex items-center gap-2 sm:gap-3">
+                        <div className="p-2 sm:p-3 bg-[#1e1e1e]/95 border-t border-[#2a2a2a] flex items-center gap-2 sm:gap-3 pb-[env(safe-area-inset-bottom)]">
                             <textarea
                                 value={message}
                                 onChange={handleTyping}

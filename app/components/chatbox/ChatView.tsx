@@ -475,20 +475,6 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
         };
     }, []);
 
-    useEffect(() => {
-        const textarea = document.querySelector('textarea');
-        if (!textarea) return;
-
-        const handleFocus = () => {
-            setTimeout(() => {
-                textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 300);
-        };
-
-        textarea.addEventListener('focus', handleFocus);
-        return () => textarea.removeEventListener('focus', handleFocus);
-    }, []);
-
 
     if (!showChat && !isAnimating) return null;
 

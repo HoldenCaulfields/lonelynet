@@ -5,7 +5,7 @@ import io, { Socket } from "socket.io-client";
 const API_URL =
   process.env.NODE_ENV === "production"
     ? "https://lonelynet.onrender.com"
-    : "http://localhost:5000";
+    : "http://192.168.1.12:5000";
 const SOCKET_URL = API_URL;
 const API_SOUL = `${API_URL}/api/lonelyland`;
 

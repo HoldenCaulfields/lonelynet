@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MessageCircle, Edit, MapPin, XCircle } from "lucide-react";
 import GroupList from "./chatbox/GroupList";
 import PostForm from "../map/userlocation-post/postform/PostForm";
-import UserLocationCard from "./UserLocationCard";
+import UserLocationCard from "./chatbox/UserLocationCard";
 
 interface ControlsProps {
     onLocationClick: (coords: { lat: number; lng: number }) => void;

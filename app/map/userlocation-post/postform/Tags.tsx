@@ -56,6 +56,32 @@ export default function Tags({
     }
   };
 
+  // 🔥 Add custom category
+  const handleTagInput = (value: string) => {
+    setTagInput(value);
+  };
+
+  const handleTagSubmit = () => {
+    const newCategoryName = tagInput.trim();
+    if (!newCategoryName) return;
+
+    if (!categories.find((c) => c.name.toLowerCase() === newCategoryName.toLowerCase())) {
+      const newCategory: Category = {
+        name: newCategoryName,
+        icon: <span>🏷️</span>,
+        color: "bg-gradient-to-r from-purple-500 to-pink-500",
+        isCustom: true,
+      };
+      setCategories([...categories, newCategory]);
+    }
+
+    if (!selectedCategories.includes(newCategoryName)) {
+      setSelectedCategories([...selectedCategories, newCategoryName]);
+    }
+
+    setTagInput("");
+  };
+
   return (
     <div className="flex gap-1 overflow-x-auto py-1 scrollbar-hide">
       {categories.map((cat) => {
@@ -68,8 +94,8 @@ export default function Tags({
             className={`
               flex items-center px-1 rounded-full border-2 font-medium text-sm select-none flex-shrink-0
               backdrop-blur-sm transition-all duration-200 ease-out group
-              ${isSelected 
-                ? `${cat.color} text-white border-transparent shadow-lg shadow-[${cat.color}/0.3] hover:shadow-xl hover:shadow-[${cat.color}/0.4] scale-105 active:scale-95` 
+              ${isSelected
+                ? `${cat.color} text-white border-transparent shadow-lg shadow-[${cat.color}/0.3] hover:shadow-xl hover:shadow-[${cat.color}/0.4] scale-105 active:scale-95`
                 : "bg-white/80 text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-white/90 hover:shadow-md active:scale-95"
               }
             `}
@@ -85,23 +111,36 @@ export default function Tags({
         );
       })}
 
-      <div className={`flex-shrink-0 transition-width duration-200 ${tagInput ? "w-auto min-w-[120px]" : "w-[120px]"}`}>
+      <div className="flex-shrink-0 w-[140px]">
         <input
           type="text"
           value={tagInput}
-          onChange={(e) => setTagInput(e.target.value)}
+          onChange={(e) => handleTagInput(e.target.value)}
           onKeyDown={handleTagKeyDown}
+          onKeyPress={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleTagSubmit();
+            }
+          }}
+          onBlur={() => {
+            if (tagInput.trim()) handleTagSubmit();
+          }}
           placeholder="✨ Add category..."
+          inputMode="text"
+          enterKeyHint="done"
           className="
-            px-4 py-2.5 rounded-full font-medium text-sm outline-none
-            bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700
-            border-2 border-gray-200 hover:border-gray-300 
-            focus:border-purple-300 focus:ring-4 focus:ring-purple-100/50
-            transition-all duration-200 shadow-sm hover:shadow-md
-            placeholder-gray-400 placeholder:font-normal
-          "
+      w-full px-4 py-2.5 rounded-full font-medium text-sm outline-none
+      bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700
+      border-2 border-gray-200 hover:border-gray-300 
+      focus:border-purple-300 focus:ring-4 focus:ring-purple-100/50
+      transition-all duration-200 shadow-sm hover:shadow-md
+      placeholder-gray-400 placeholder:font-normal
+      text-[16px]  /* ✅ prevents Safari zoom */
+    "
         />
       </div>
+
     </div>
   );
 }

@@ -45,7 +45,7 @@ interface Member {
 const API_URL =
     process.env.NODE_ENV === "production"
         ? "https://lonelynet.onrender.com"
-        : "http://localhost:5000";
+        : "http://192.168.1.12:5000";
 
 const SOCKET_URL = API_URL;
 const API_SOUL = `${API_URL}/api/lonelyland`;
@@ -457,7 +457,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
 
     return (
         <div
-            className={`fixed inset-x-0 top-30 bottom-0 sm:top-auto sm:bottom-8 sm:right-8 z-[1200] flex justify-center sm:justify-end overflow-hidden transition-all duration-300 ${showChat && isAnimating ? '' : 'pointer-events-none'
+            className={`fixed inset-x-0 bottom-0 sm:top-auto sm:bottom-8 sm:right-8 z-[1200] flex justify-center sm:justify-end overflow-hidden transition-all duration-300 ${showChat && isAnimating ? '' : 'pointer-events-none'
                 }`}
             role="dialog"
             aria-modal="true"
@@ -478,7 +478,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
       ${isAnimating ? 'translate-y-0' : 'translate-y-full'}`}
             >
                 {/* Gradient Header for Cool Look */}
-                <div className="flex items-center justify-between p-4 bg-[#1e1e1e] border-b border-[#2a2a2a] rounded-t-2xl">
+                <div className="flex sticky top-0 items-center justify-between p-4 bg-[#1e1e1e] border-b border-[#2a2a2a] rounded-t-2xl">
                     <div className="flex items-center flex-1 min-w-0">
                         {post && <RoomImage src={post.imageUrl} alt="Room" />}
                         <div className="flex-1 min-w-0">
@@ -600,8 +600,8 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
                             />
                             <button
                                 onClick={sendMessage}
-                                className={`min-w-[44px] h-11 sm:w-11 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg 
-      ${!message.trim() || sending
+                                className={`min-w-[44px] h-11 w-11 sm:w-11 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg 
+                                    ${!message.trim() || sending
                                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
                                         : 'bg-green-500 text-white hover:bg-green-600 shadow-green-500/50 active:scale-90'
                                     }`}

@@ -5,13 +5,7 @@ import { Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import { io } from "socket.io-client";
 import { MessageCircle } from "lucide-react";
-
-const API_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://lonelynet.onrender.com"
-    : "http://192.168.1.12:5000";
-
-const socket = io(API_URL, { transports: ["websocket"] });
+import { socket } from "@/app/components/utils/socket";
 
 interface Props {
   setShowChat: (v: boolean) => void;

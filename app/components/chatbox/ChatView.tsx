@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 import Image from "next/image";
-
+import { socket as s } from "@/app/components/utils/socket";
 // =========================================================================
 // 1. INTERFACE DEFINITIONS
 // =========================================================================
@@ -18,7 +18,7 @@ interface Message {
     userId: string;
     text: string;
     timestamp: number;
-    type: 'user' | 'system'; 
+    type: 'user' | 'system';
 }
 
 interface Post {
@@ -57,8 +57,8 @@ const CHAT_EVENTS = {
     NEW_MESSAGE: 'newMessage',
     RECEIVE_MESSAGE: 'receiveMessage',
     ROOM_MEMBERS: 'roomMembers',
-    USER_JOINED: 'userJoined', 
-    USER_LEFT: 'userLeft', 
+    USER_JOINED: 'userJoined',
+    USER_LEFT: 'userLeft',
     TYPING: 'typing',
     STOP_TYPING: 'stopTyping'
 };
@@ -162,7 +162,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
         if (!loading && messages.length > 0) {
             const timeout = setTimeout(() => {
                 scrollToBottom();
-            }, 150); 
+            }, 150);
             return () => clearTimeout(timeout);
         }
     }, [messages.length, loading, scrollToBottom]);
@@ -207,7 +207,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
             userId: userId,
             text: message.trim(),
             timestamp: Date.now(),
-            type: 'user', 
+            type: 'user',
         };
 
         // 1. Optimistic UI Update
@@ -342,12 +342,13 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
         fetchData();
 
         // --- 3. Setup Socket Connection ---
-        const s: Socket = io(SOCKET_URL, {
-            query: { roomId, userId },
-            transports: ['websocket'],
-            autoConnect: true
-        });
+        // --- 3. Setup Shared Socket (already imported from utils/socket.ts) ---
+        if (!s.connected) s.connect();
+
+        // gửi thông tin room/user cho server
+        s.emit(CHAT_EVENTS.JOIN_ROOM, { roomId, userId });
         setSocket(s);
+
 
         s.on("connect", () => {
             s.emit(CHAT_EVENTS.JOIN_ROOM, { roomId, userId });
@@ -417,10 +418,9 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
             if (s.connected) {
                 s.emit(CHAT_EVENTS.LEAVE_ROOM, { roomId, userId });
             }
-            s.disconnect();
-            // Clear all event listeners for clean dismount
-            s.offAny();
+            s.offAny(); // xoá tất cả listener để tránh leak
         };
+
 
     }, [showChat, roomId, userId]);
 

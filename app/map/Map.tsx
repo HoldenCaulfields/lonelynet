@@ -57,7 +57,7 @@ export default function Map() {
             <UserLocation setOpenForm={setOpenForm} targetPosition={userLocation} />
           )}
 
-          <UserOnlineMarkers />
+          <UserOnlineMarkers setShowChat={setShowChat} setRoomId={setRoomId}/>
         </MapContainer>
 
         {/* CONTROLS nổi góc phải */}

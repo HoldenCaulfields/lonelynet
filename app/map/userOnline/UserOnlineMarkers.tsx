@@ -15,7 +15,7 @@ const socket = io(API_URL, { transports: ["websocket"] });
 
 interface Props {
   setShowChat: (v: boolean) => void;
-  setRoomId: (id: string) => void;
+  setRoomId: (v: string) => void;
 }
 
 export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
@@ -50,7 +50,6 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
     });
 
     socket.on("onlineUsers", (users) => {
-      console.log("📡 Nhận danh sách online:", users);
       setOnlineUsers(users || {});
     });
 
@@ -59,12 +58,21 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
       setOnlineUsers({});
     });
 
+    // 🔔 Nhận lời mời chat tự động
+    socket.on("chat_invite", ({ from, roomId }) => {
+      console.log("📨 Chat invite received from", from);
+      socket.emit("joinRoom", { roomId, userId: myUserId });
+      setRoomId(roomId);
+      setShowChat(true);
+    });
+
     return () => {
       socket.off("onlineUsers");
       socket.off("connect");
       socket.off("disconnect");
+      socket.off("chat_invite");
     };
-  }, [myUserId]);
+  }, [myUserId, setRoomId, setShowChat]);
 
   // ⏱ Cập nhật vị trí định kỳ
   useEffect(() => {
@@ -75,7 +83,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
     return () => clearInterval(interval);
   }, [userLocation]);
 
-  // 🧍 Biểu tượng người dùng
+  // 🧍 Biểu tượng user
   const userIcon = (isSelf: boolean) =>
     L.divIcon({
       className: "flex flex-col items-center",
@@ -86,47 +94,49 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
               ? "w-4 h-4 bg-green-500 ring-4 ring-green-300"
               : "w-4 h-4 bg-blue-500 ring-2 ring-blue-200"
           } rounded-full shadow-md"></div>
-          ${!isSelf ? `<span class="absolute -bottom-5 text-xs bg-white/70 px-1 rounded">Online</span>` : ""}
+          <span class="absolute -bottom-5 text-xs text-black font-semibold bg-white/70 rounded-md px-1">
+            ${isSelf ? "" : "Online"}
+          </span>
         </div>
       `,
       iconAnchor: [12, 24],
       popupAnchor: [0, -10],
     });
 
-  // 🗺 Render marker user khác
+  // 🗺 Render markers
   return (
     <>
-      {Object.entries(onlineUsers)
-        .filter(([socketId]) => socketId !== mySocketId)
-        .map(([socketId, user]) => (
-          <Marker
-            key={socketId}
-            position={[user.lat, user.lng]}
-            icon={userIcon(socketId === mySocketId)}
-          >
-            <Popup>
-              <div className="flex flex-col items-center space-y-2">
-                <p className="font-medium text-sm text-gray-800">
-                  👤 {user.userId} is online
-                </p>
+      {Object.entries(onlineUsers).map(([socketId, user]) => (
+        <Marker
+          key={socketId}
+          position={[user.lat, user.lng]}
+          icon={userIcon(socketId === mySocketId)}
+        >
+          <Popup>
+            {socketId === mySocketId ? (
+              "✨ It's you!"
+            ) : (
+              <div className="flex flex-col items-center gap-2">
+                <p className="font-semibold">👤 {user.userId}</p>
                 <button
-                  className="flex items-center gap-2 px-3 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm shadow-md hover:shadow-lg transition-all"
+                  className="flex items-center gap-2 px-3 py-2 rounded-full bg-blue-600 hover:bg-blue-700 transition-all duration-200 shadow-md text-white"
                   onClick={() => {
-                    const chatRoomId =
-                      myUserId < user.userId
-                        ? `chat_${myUserId}_${user.userId}`
-                        : `chat_${user.userId}_${myUserId}`;
-                    setRoomId(chatRoomId);
+                    const from = myUserId;
+                    const to = user.userId;
+                    const room = [from, to].sort().join("_");
+                    socket.emit("start_chat", { from, to });
+                    setRoomId(room);
                     setShowChat(true);
                   }}
                 >
                   <MessageCircle className="w-4 h-4" />
-                  Chat
+                  <span>Chat</span>
                 </button>
               </div>
-            </Popup>
-          </Marker>
-        ))}
+            )}
+          </Popup>
+        </Marker>
+      ))}
     </>
   );
 }

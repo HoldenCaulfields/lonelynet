@@ -1,6 +1,6 @@
 "use client";
 
-import { Marker, Popup } from "react-leaflet";
+import { Marker, Popup, useMap } from "react-leaflet";
 import Image from "next/image";
 import { redIcon } from "../../components/Icon";
 import axios from "axios";
@@ -38,6 +38,30 @@ export default function MarkerContainer({
   const [allTags, setAllTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [center, setCenter] = useState<MarkerData | null>(null); //center marker khi click
+
+  /* handle center marker when click */
+  const map = useMap(); // ✅ truy cập instance của bản đồ
+  // Center map on new location whenever targetPosition changes
+  useEffect(() => {
+    if (center) {
+      const targetLatLng = center.position;
+      const zoom = map.getZoom();
+
+      // Tính offset (đơn vị pixel)
+      const offsetY = 220; // 👉 điều chỉnh tùy chiều cao navbar (px)
+
+      // Chuyển vị trí thật sang pixel
+      const point = map.project(targetLatLng, zoom).subtract([0, offsetY]);
+      const newLatLng = map.unproject(point, zoom);
+
+      // Pan tới vị trí có offset
+      map.setView(newLatLng, zoom, {
+        animate: true,
+        duration: 0.8,
+      });
+    }
+  }, [center, map]);
 
   // --- API Calls ---
   const fetchAllMarkers = useCallback(async () => {
@@ -116,14 +140,14 @@ export default function MarkerContainer({
 
   const handleTagClick = useCallback((tag: string | null) => setSelectedTag(tag), []);
 
-  const LazyImage = ({ src, alt }: { src: string; alt: string }) => (
+  const LazyImage = ({ src, alt, className }: { src: string; alt: string; className?: string; }) => (
     <Suspense fallback={<div className="w-full h-48 bg-gradient-to-br from-gray-900 to-black rounded-lg animate-pulse" />}>
       <Image
         src={src}
         width={256}
         height={256}
         sizes="(max-width: 768px) 100vw, 256px"
-        className="w-full h-48 object-cover rounded-t-xl transition-transform duration-300 group-hover:scale-105"
+        className={`${className} w-full h-48 object-cover rounded-t-xl transition-transform duration-300 group-hover:scale-105`}
         alt={alt}
         quality={60}
         placeholder="blur"
@@ -205,31 +229,52 @@ export default function MarkerContainer({
 
       {/* Markers */}
       {markers.map((marker) => (
-        <Marker key={marker._id} position={marker.position} icon={redIcon}>
-          <Popup className="custom-popup" maxWidth={320} minWidth={200}>
-            <div className="bg-gradient-to-b from-white to-gray-50 rounded-xl overflow-hidden shadow-xl group  transition-transform duration-300">
+        <Marker key={marker._id} position={marker.position} icon={redIcon} eventHandlers={{ click: () => setCenter(marker) }}>
+          <Popup className="custom-popup" maxWidth={320} minWidth={240}>
+            <div
+              className="
+                bg-gradient-to-b from-white to-gray-50 rounded-xl overflow-hidden shadow-xl 
+                group transition-transform duration-300
+                w-[280px] sm:w-[320px] 
+                max-h-[420px] flex flex-col"
+            >
+              {/* IMAGE */}
               {marker.imageUrl && (
-                <div className="w-full h-48 relative">
-                  <LazyImage src={marker.imageUrl} alt="soul" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition-opacity duration-300" />
+                <div className="relative w-full h-32 sm:h-40 flex-shrink-0 overflow-hidden">
+                  <LazyImage
+                    src={marker.imageUrl}
+                    alt="soul"
+                    className="object-cover w-full h-full"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                 </div>
               )}
 
-              <div className="p-4">
+              {/* CONTENT */}
+              <div className="p-3 flex flex-col justify-between flex-1 overflow-y-auto">
+                {/* TEXT */}
                 {marker.text && (
-                  <p className="text-sm text-gray-800 leading-relaxed mb-4 line-clamp-4 font-medium">
+                  <p
+                    className="
+                      text-sm text-gray-800 leading-relaxed mb-2
+                      line-clamp-3 sm:line-clamp-4 font-medium
+                      max-h-[5.5rem] sm:max-h-[6.5rem] overflow-hidden
+                      text-ellipsis"
+                    title={marker.text} // hover hiển thị full text
+                  >
                     {marker.text}
                   </p>
                 )}
 
-                <div className="flex overflow-x-auto gap-2 mb-4 py-1">
+                {/* TAGS */}
+                <div className="flex overflow-x-auto gap-2 mb-3 py-1 scrollbar-hide">
                   {marker.tags?.slice(0, 5).map((item) => (
                     <button
                       key={item}
                       onClick={() => handleTagClick(item)}
-                      className={`flex-shrink-0 inline-flex items-center px-3 py-1.5 text-xs font-semibold uppercase rounded-full cursor-pointer transition-all duration-200 border-2 tracking-wide ${selectedTag === item
-                        ? "bg-black text-white border-black shadow-lg scale-105"
-                        : "bg-gray-200 text-gray-800 border-gray-300 hover:border-black hover:bg-gray-300 hover:scale-105 hover:shadow-md"
+                      className={`flex-shrink-0 inline-flex items-center px-2.5 py-1 text-xs font-semibold uppercase rounded-full border transition-all duration-200 ${selectedTag === item
+                        ? "bg-black text-white border-black shadow-md"
+                        : "bg-gray-100 text-gray-800 border-gray-300 hover:border-black hover:bg-gray-200"
                         }`}
                     >
                       #{item}
@@ -237,39 +282,38 @@ export default function MarkerContainer({
                   ))}
                 </div>
 
-
-                <div className="flex gap-3 pt-3 border-t-2 border-gray-100">
+                {/* ACTIONS */}
+                <div className="flex gap-2 pt-2 border-t border-gray-200">
+                  {/* LOVE BUTTON */}
                   <button
-                    className="flex-1 group relative overflow-hidden px-4 py-3 rounded-full bg-red-600 hover:bg-red-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full bg-red-600 hover:bg-red-700 transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
                     onClick={() => handleLovePress(marker._id)}
                   >
-                    <div className="flex items-center justify-center gap-2 relative z-10">
-                      <Heart
-                        className="w-5 h-5 text-white group-hover:scale-125 transition-transform duration-200"
-                        fill="white"
-                      />
-                      <span className="font-bold text-base text-white whitespace-nowrap">
-                        {formatLoveCount(marker.loves)}
-                      </span>
-                    </div>
+                    <Heart
+                      className="w-4 h-4 text-white transition-transform duration-150 group-hover:scale-110"
+                      fill="white"
+                    />
+                    <span className="font-semibold text-white text-sm">
+                      {formatLoveCount(marker.loves)}
+                    </span>
                   </button>
 
+                  {/* CHAT BUTTON */}
                   <button
-                    className="flex-1 group relative overflow-hidden px-4 py-3 rounded-full bg-blue-600 hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                    className="flex-1 flex items-center justify-center px-3 py-2 rounded-full bg-blue-600 hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
                     onClick={() => {
                       setShowChat(true);
                       setRoomId(marker._id);
                     }}
                     aria-label="Open chat"
                   >
-                    <div className="flex items-center justify-center relative z-10">
-                      <MessageCircle className="w-5 h-5 text-white hover:scale-120 transition-colors duration-200" />
-                    </div>
+                    <MessageCircle className="w-4 h-4 text-white" />
                   </button>
                 </div>
               </div>
             </div>
           </Popup>
+
         </Marker>
       ))}
     </>

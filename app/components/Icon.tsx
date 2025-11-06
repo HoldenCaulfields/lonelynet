@@ -16,3 +16,11 @@ export const userIcon = new L.Icon({
     popupAnchor: [1, -42],
     className: "user-icon-glow",
 });
+
+export const userOnline = new L.Icon({
+    iconUrl: "/online.png",
+    iconSize: [62, 62],
+    iconAnchor: [30, 60],
+    popupAnchor: [1, -42],
+    className: "user-icon-glow",
+});

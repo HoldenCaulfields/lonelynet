@@ -19,7 +19,7 @@ export default function Navbar({ searchText, setSearchText }: NavbarProps) {
         <div className="flex items-center justify-between lg:hidden">
           <Link
             href="/"
-            className="flex items-center gap-2 hover:scale-105 transition-transform duration-200"
+            className="flex items-center gap-2 active:scale-105 transition-transform duration-200"
             onClick={() => window.location.reload()}
           >
             <Image
@@ -29,15 +29,14 @@ export default function Navbar({ searchText, setSearchText }: NavbarProps) {
               alt="logo"
               priority
               className="rounded-3xl"
-              quality={80}
             />
             <Image
               src="/LonelyNet.png"
               width={80}
               height={38}
               alt="LonelyNet"
+              style={{ width: "80px", height: "38px" }}
               priority
-              quality={80}
             />
           </Link>
 
@@ -70,15 +69,14 @@ export default function Navbar({ searchText, setSearchText }: NavbarProps) {
             alt="logo"
             priority
             className="rounded-3xl"
-            quality={80}
           />
           <Image
             src="/LonelyNet.png"
             width={95}
             height={45}
             alt="LonelyNet"
+            style={{ width: "80px", height: "38px" }}
             priority
-            quality={80}
           />
         </Link>
 

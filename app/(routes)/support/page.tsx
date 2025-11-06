@@ -15,7 +15,7 @@ export default function BuyMeACoffeePage() {
 
         <h1 className="text-3xl font-bold mb-2">Buy Me a Coffee ☕</h1>
         <p className="text-gray-300 mb-6">
-          If you enjoy <span className="text-blue-400 font-semibold">LonelyNet</span>  
+          If you enjoy <span className="text-blue-400 font-semibold">LonelyNet </span>   
           and want to support my work, you can scan the QR code below to send me a coffee through PayPal.
         </p>
 

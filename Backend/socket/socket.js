@@ -27,6 +27,11 @@ export default function initSocket(io) {
       );
     });
 
+    socket.on("wave", ({ from }) => {
+      console.log("👋 Wave from:", from);
+      io.emit("wave_signal", { from }); // broadcast tới mọi client
+    });
+
     // ─────────────────────────────
     // 📍 UPDATE LOCATION
     // ─────────────────────────────

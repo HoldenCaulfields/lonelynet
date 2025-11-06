@@ -13,8 +13,15 @@ interface ControlsProps {
     setOpenForm: (value: boolean) => void;
 }
 
-export default function Controls({ onLocationClick, setRoomId, openForm, setOpenForm }: ControlsProps) {
-    const [active, setActive] = useState<"chat" | "post" | "location" | null>(null);
+export default function Controls({
+    onLocationClick,
+    setRoomId,
+    openForm,
+    setOpenForm,
+}: ControlsProps) {
+    const [active, setActive] = useState<"chat" | "post" | "location" | null>(
+        null
+    );
     const [userLocation, setUserLocation] = useState<{ lat: number; lng: number }>({
         lat: 0,
         lng: 0,
@@ -39,55 +46,55 @@ export default function Controls({ onLocationClick, setRoomId, openForm, setOpen
         }
     };
 
+    // 🎨 Tông trắng đen hiện đại, đơn giản
     const buttons = [
         {
             id: "chat",
             label: "Group Chat",
             icon: <MessageCircle size={22} />,
-            gradient: "from-green-400 via-emerald-500 to-green-600",
-            hover: "hover:shadow-[0_0_20px_#22c55e90]",
+            gradient: "from-black via-gray-900 to-black",
+            hover: "hover:shadow-[0_0_25px_rgba(255,255,255,0.1)] hover:bg-gray-800",
+            text: "text-white",
             action: () => setActive("chat"),
         },
         {
             id: "post",
             label: "Create Soul",
             icon: <Edit size={22} />,
-            gradient: "from-cyan-400 via-blue-500 to-indigo-500",
-            hover: "hover:shadow-[0_0_20px_#06b6d490]",
+            gradient: "from-black via-gray-900 to-black",
+            hover: "hover:shadow-[0_0_25px_rgba(255,255,255,0.1)] hover:bg-gray-800",
+            text: "text-white",
             action: () => fetchLocation(() => setActive("post")),
         },
         {
             id: "location",
             label: "Location",
             icon: <MapPin size={22} />,
-            gradient: "from-amber-400 via-orange-500 to-red-500",
-            hover: "hover:shadow-[0_0_20px_#f9731690]",
+            gradient: "from-black via-gray-900 to-black",
+            hover: "hover:shadow-[0_0_25px_rgba(255,255,255,0.1)] hover:bg-gray-800",
+            text: "text-white",
             action: () => fetchLocation(() => setActive("location")),
         },
     ];
 
     return (
         <>
-            {/* 🌌 Floating Glass Panel of Buttons */}
+            {/* ⚪ Floating Buttons */}
             <div className="fixed bottom-6 right-0 z-[1000] flex flex-col gap-4 md:bottom-8 md:right-8">
                 {buttons.map((btn) => (
                     <button
                         key={btn.id}
                         onClick={btn.action}
                         className={`
-              group flex items-center gap-3
-              bg-gradient-to-br ${btn.gradient}
-              text-white font-semibold rounded-full
-              px-3 py-3 sm:px-7 sm:py-4 shadow-xl ${btn.hover}
-              transition-all duration-300 ease-in-out
-              hover:scale-105 active:scale-95
-              border border-white/10
-            `}
-                    >
-                        <div className="flex items-center justify-center w-9 h-9 bg-white/10 rounded-full backdrop-blur-md">
-                            {btn.icon}
-                        </div>
-                        <span className="hidden sm:inline text-sm tracking-wide drop-shadow-md">
+                            group flex items-center gap-3
+                            bg-gradient-to-br ${btn.gradient} ${btn.text}
+                            font-medium rounded-full
+                            px-4 py-3 sm:px-7 sm:py-4 shadow-md ${btn.hover}
+                            transition-all duration-300 ease-in-out
+                            hover:scale-105 active:scale-95 border border-gray-200/50
+                        `}>
+                        {btn.icon}
+                        <span className="hidden sm:inline text-sm tracking-wide">
                             {btn.label}
                         </span>
                     </button>
@@ -108,22 +115,27 @@ export default function Controls({ onLocationClick, setRoomId, openForm, setOpen
                 {/* 🧠 Post Form */}
                 {(active === "post" || openForm) && (
                     <div
-                        className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-200"
-                        onClick={() => {setActive(null); setOpenForm(false)}}
+                        className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4"
+                        onClick={() => {
+                            setActive(null);
+                            setOpenForm(false);
+                        }}
                     >
                         <div
-                            className="relative w-full max-w-xl rounded-2xl bg-gradient-to-b from-[#202020] to-[#0f0f0f] border border-white/10 shadow-[0_0_40px_#0ff5] overflow-hidden animate-in slide-in-from-bottom-4 duration-200"
+                            className="relative w-full max-w-xl rounded-2xl bg-white text-black border shadow-2xl overflow-hidden"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            {/* 🔴 Close Button */}
+                            {/* 🔴 Close */}
                             <button
-                                className="absolute top-4 right-4 z-[900] p-2 rounded-full text-red-400 hover:text-red-500 bg-black/40 hover:bg-black/60 transition-colors duration-200"
-                                onClick={() => {setActive(null); setOpenForm(false)}}
+                                className="absolute top-4 right-4 z-[900] p-2 rounded-full text-gray-500 hover:text-black bg-gray-100 hover:bg-gray-200 transition-colors"
+                                onClick={() => {
+                                    setActive(null);
+                                    setOpenForm(false);
+                                }}
                             >
                                 <XCircle size={24} />
                             </button>
 
-                            {/* 🧩 Post Form */}
                             <PostForm address={userLocation} />
                         </div>
                     </div>
@@ -132,7 +144,7 @@ export default function Controls({ onLocationClick, setRoomId, openForm, setOpen
                 {/* 📍 Location Info */}
                 {active === "location" && (
                     <div
-                        className="fixed bottom-4 left-4 z-[100] flex flex-col gap-2 animate-in fade-in duration-200"
+                        className="fixed bottom-4 left-4 z-[100] flex flex-col gap-2"
                         onClick={() => setActive(null)}
                     >
                         <UserLocationCard />

@@ -5,8 +5,8 @@ import Image from "next/image";
 import { redIcon } from "../../components/Icon";
 import axios from "axios";
 import { useState, useEffect, useCallback, Suspense } from "react";
-import Tags from "./Tags";
 import { Zap, MessageCircle, Heart } from "lucide-react";
+import { CustomTooltip } from "../userlocation-post/postform/TagList";
 
 export interface MarkerData {
   _id: string;
@@ -180,10 +180,7 @@ export default function MarkerContainer({
     <>
       {/* Tag Bar */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 z-[1000] max-w-2xl w-[95%] sm:w-[80%] animate-in slide-in-from-top-2 duration-300">
-        <div className="mt-2 overflow-x-auto">
-          <Tags selectedTag={selectedTag} onTagSelect={handleTagClick} />
-        </div>
-
+        
         <div className="mt-1 flex items-center gap-3 animate-in fade-in-0 duration-200">
           {/* Souls Counter */}
           <div className="flex items-center gap-2 bg-gradient-to-r from-green-700 via-green-800 to-green-900 px-3 py-1 rounded-full border border-green-400/50 shadow-[0_0_10px_rgba(0,255,0,0.4)]">
@@ -314,6 +311,7 @@ export default function MarkerContainer({
             </div>
           </Popup>
 
+          <CustomTooltip marker={marker} />
         </Marker>
       ))}
     </>

@@ -4,7 +4,7 @@ const messageSchema = new mongoose.Schema({
     // The foreign key linking this message back to the Soul/Post it belongs to.
     // This 'roomId' corresponds to the 'Soul' document's _id.
     roomId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.Mixed,
         ref: 'Soul', // References the 'Soul' model
         required: true,
         index: true // Indexing this field dramatically speeds up the chat history lookup

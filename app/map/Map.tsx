@@ -15,8 +15,19 @@ export default function Map() {
   const [showChat, setShowChat] = useState(false);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [userId] = useState(() => Math.floor(Math.random() * 1_000_000).toString());
   const [openForm, setOpenForm] = useState(false);
+
+  const [userId] = useState(() => {
+  if (typeof window !== "undefined") {
+    const stored = localStorage.getItem("socigo_user_id");
+    if (stored) return stored;
+    const newId = Math.floor(Math.random() * 1_000_000).toString();
+    localStorage.setItem("socigo_user_id", newId);
+    return newId;
+  }
+  return "anonymous";
+});
+
 
   return (
     <div className="flex flex-col h-screen w-full bg-gray-100">

@@ -1,6 +1,7 @@
 import express from 'express';
 import Soul from '../models/Soul.js';
 import { upload } from '../config/cloudinary.js';
+import mongoose from "mongoose";
 
 const router = express.Router();
 
@@ -85,14 +86,26 @@ router.put("/:id/love", async (req, res) => {
 
 router.get("/:roomId", async (req, res) => {
   try {
-    const soul = await Soul.findById(req.params.roomId);
+    const { roomId } = req.params;
+
+    // ✅ Nếu không phải ObjectId (room ảo), trả về thông tin mô phỏng
+    if (!mongoose.Types.ObjectId.isValid(roomId)) {
+      return res.json({
+        _id: roomId,
+        type: "virtual",
+        text: "🌐 This is a virtual chat room (no Soul in DB)",
+        createdAt: new Date(),
+      });
+    }
+
+    // ✅ Còn nếu là ObjectId thật → truy vấn DB như bình thường
+    const soul = await Soul.findById(roomId);
     if (!soul) return res.status(404).json({ error: "Post not found" });
     res.json(soul);
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching soul:", error);
     res.status(500).json({ error: "Server error" });
   }
 });
-
 
 export default router;

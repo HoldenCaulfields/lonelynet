@@ -286,144 +286,101 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
     // --- CONSOLIDATED SOCKET AND DATA FETCHING LOGIC ---
     // ---------------------------------------------------------------------
     useEffect(() => {
-        // 1. Exit/Cleanup Logic (When chat closes or props are invalid)
-        if (!showChat || !roomId || !userId) {
-            if (socket) {
-                socket.emit(CHAT_EVENTS.LEAVE_ROOM, { roomId, userId });
-                socket.disconnect();
-            }
-            setSocket(null);
-            setLoading(false);
-            return;
-        }
+  if (!showChat || !roomId || !userId) {
+    s.emit(CHAT_EVENTS.LEAVE_ROOM, { roomId, userId });
+    setSocket(null);
+    setLoading(false);
+    return;
+  }
 
-        // --- 2. Data Fetching Functions (Combined) ---
-        setLoading(true);
+  setLoading(true);
 
-        const fetchData = async () => {
-            try {
-                const [postResponse, messagesResponse] = await Promise.all([
-                    fetch(`${API_SOUL}/${roomId}`),
-                    fetch(`${MESSAGES_API_URL}/${roomId}`)
-                ]);
+  const fetchData = async () => {
+    try {
+      const [postResponse, messagesResponse] = await Promise.all([
+        fetch(`${API_SOUL}/${roomId}`),
+        fetch(`${MESSAGES_API_URL}/${roomId}`)
+      ]);
 
-                // Handle Post Data
-                if (postResponse.ok) {
-                    const postData: Post = await postResponse.json();
-                    setPost(postData);
-                } else {
-                    setPost({
-                        _id: roomId, text: "Failed to load post details", imageUrl: "", tags: ["Error"],
-                        location: { latitude: 0, longitude: 0 }, createdAt: new Date().toISOString(), loves: 0,
-                    } as Post);
-                }
+      if (postResponse.ok) {
+        const postData: Post = await postResponse.json();
+        setPost(postData);
+      }
 
-                // Handle Messages Data
-                if (messagesResponse.ok) {
-                    const data = await messagesResponse.json();
-                    const messagesArray: Message[] = Array.isArray(data)
-                        ? data.map((m: any) => ({ ...m, type: 'user' })) // Ensure fetched messages are 'user' type
-                        : Array.isArray(data.messages)
-                            ? data.messages.map((m: any) => ({ ...m, type: 'user' }))
-                            : [];
-                    setMessages(messagesArray);
-                } else {
-                    setMessages([]);
-                }
-            } catch (error) {
-                console.error("❌ Failed to fetch initial data:", error);
-                setPost(prev => prev || { _id: roomId, text: "Failed to load post details", imageUrl: "", tags: ["Error"], location: { latitude: 0, longitude: 0 }, createdAt: new Date().toISOString(), loves: 0 } as Post);
-                setMessages([]);
-            } finally {
-                setLoading(false);
-            }
-        };
+      if (messagesResponse.ok) {
+        const data = await messagesResponse.json();
+        const messagesArray: Message[] = Array.isArray(data)
+          ? data.map((m: any) => ({ ...m, type: "user" }))
+          : Array.isArray(data.messages)
+          ? data.messages.map((m: any) => ({ ...m, type: "user" }))
+          : [];
+        setMessages(messagesArray);
+      } else setMessages([]);
+    } catch (err) {
+      console.error("❌ Fetch error:", err);
+      setMessages([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        fetchData();
+  fetchData();
 
-        // --- 3. Setup Socket Connection ---
-        // --- 3. Setup Shared Socket (already imported from utils/socket.ts) ---
-        if (!s.connected) s.connect();
+  if (!s.connected) s.connect();
+  s.emit(CHAT_EVENTS.JOIN_ROOM, { roomId, userId });
+  setSocket(s);
 
-        // gửi thông tin room/user cho server
-        s.emit(CHAT_EVENTS.JOIN_ROOM, { roomId, userId });
-        setSocket(s);
+  // --- Remove old listeners ---
+  Object.values(CHAT_EVENTS).forEach(event => s.off(event));
 
+  // --- Add listeners ---
+  s.on(CHAT_EVENTS.RECEIVE_MESSAGE, (msg: Message & { senderSocketId?: string }) => {
+    if (msg.senderSocketId === s.id) return;
+    setMessages(prev => {
+      const exists = prev.some(m => m._id === msg._id);
+      return exists ? prev : [...prev, { ...msg, type: "user" }];
+    });
+  });
 
-        s.on("connect", () => {
-            s.emit(CHAT_EVENTS.JOIN_ROOM, { roomId, userId });
-        });
+  s.on(CHAT_EVENTS.USER_JOINED, (user) => {
+    setMessages(prev => [...prev, {
+      id: `${Date.now()}-${Math.random()}`,
+      userId: 'system',
+      text: `✨ User ${user.userId.slice(0, 8)} joined.`,
+      timestamp: Date.now(),
+      type: 'system',
+    }]);
+  });
 
-        // 4. Handle Incoming Events
+  s.on(CHAT_EVENTS.USER_LEFT, (user) => {
+    setMessages(prev => [...prev, {
+      id: `${Date.now()}-${Math.random()}`,
+      userId: 'system',
+      text: `🚪 User ${user.userId.slice(0, 8)} left.`,
+      timestamp: Date.now(),
+      type: 'system',
+    }]);
+  });
 
-        // Handle incoming user messages
-        s.on(CHAT_EVENTS.RECEIVE_MESSAGE, (msg: Message & { senderSocketId?: string }) => {
-            // Ignore the message if it came from our own socket
-            if (msg.senderSocketId === s.id) return;
+  s.on(CHAT_EVENTS.ROOM_MEMBERS, setMembers);
 
-            setMessages((prev) => {
-                const isDuplicate = prev.some(m => m._id === msg._id && m._id);
-                if (isDuplicate) return prev;
-                // Ensure received message is 'user' type by default
-                const messageToAdd: Message = { ...msg, type: 'user' };
+  s.on(CHAT_EVENTS.TYPING, (user) => {
+    if (user.userId !== userId) setIsTyping(true);
+  });
 
-                return [...prev, messageToAdd];
-            });
-        });
+  s.on(CHAT_EVENTS.STOP_TYPING, (user) => {
+    if (user.userId !== userId) setIsTyping(false);
+  });
 
-        // Handle user joining
-        s.on(CHAT_EVENTS.USER_JOINED, (user: { userId: string }) => {
-            const systemMessage: Message = {
-                id: Date.now().toString() + Math.random(),
-                userId: 'system',
-                text: `✨ User ${user.userId.slice(0, 8)} has joined the chat.`,
-                timestamp: Date.now(),
-                type: 'system',
-            };
-            setMessages(prev => [...prev, systemMessage]);
-        });
+  s.on("connect", () => {
+    s.emit(CHAT_EVENTS.JOIN_ROOM, { roomId, userId });
+  });
 
-        // Handle user leaving
-        s.on(CHAT_EVENTS.USER_LEFT, (user: { userId: string }) => {
-            const systemMessage: Message = {
-                id: Date.now().toString() + Math.random(),
-                userId: 'system',
-                text: `🚪 User ${user.userId.slice(0, 8)} has left the chat.`,
-                timestamp: Date.now(),
-                type: 'system',
-            };
-            setMessages(prev => [...prev, systemMessage]);
-        });
-
-        // Handle member list update
-        s.on(CHAT_EVENTS.ROOM_MEMBERS, (memberList: Member[]) => {
-            setMembers(memberList);
-        });
-
-        // Typing indicator listener
-        s.on(CHAT_EVENTS.TYPING, (user: { userId: string }) => {
-            if (user.userId !== userId) {
-                setIsTyping(true);
-            }
-        });
-
-        s.on(CHAT_EVENTS.STOP_TYPING, (user: { userId: string }) => {
-            if (user.userId !== userId) {
-                setIsTyping(false);
-            }
-        });
-
-        // 5. Cleanup on dismount
-        return () => {
-            if (s.connected) {
-                s.emit(CHAT_EVENTS.LEAVE_ROOM, { roomId, userId });
-            }
-            s.offAny(); // xoá tất cả listener để tránh leak
-        };
-
-
-    }, [showChat, roomId, userId]);
-
+  return () => {
+    s.emit(CHAT_EVENTS.LEAVE_ROOM, { roomId, userId });
+    Object.values(CHAT_EVENTS).forEach(event => s.off(event));
+  };
+}, [showChat, roomId, userId]);
 
     // ---------------------------------------------------------------------
     // --- ANIMATION CONTROLLER ---
@@ -558,14 +515,19 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
                                 </div>
                             ) : (
                                 <div className="space-y-3">
-                                    {messages.map((item) => (
+                                    {messages.map((item, index) => (
                                         <MessageBubble
-                                            key={item._id || item.id || `${item.userId}-${item.timestamp}-${Math.random().toString(36).slice(2, 7)}`}
+                                            key={
+                                                item._id
+                                                    ? item._id
+                                                    : `${item.userId}-${item.timestamp}-${index}-${Math.random().toString(36).slice(2, 8)}`
+                                            }
                                             item={item}
                                             userId={userId}
                                             formatTime={formatTime}
                                         />
                                     ))}
+
                                     {/* The anchor div for auto-scrolling */}
                                     <div ref={messagesEndRef} />
                                 </div>

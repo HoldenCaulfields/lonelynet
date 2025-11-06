@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import { Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
-import { io } from "socket.io-client";
 import { MessageCircle } from "lucide-react";
-import { socket } from "@/app/components/utils/socket";
+import { socket, connectSocket } from "@/app/components/utils/socket"; // ✅ dùng connectSocket
 
 interface Props {
   setShowChat: (v: boolean) => void;
@@ -19,40 +18,37 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [mySocketId, setMySocketId] = useState<string | null>(null);
   const [myUserId] = useState(() => Math.floor(Math.random() * 1_000_000).toString());
-
   const map = useMap();
 
-  // 🧭 Lấy vị trí hiện tại
+  // 🧭 Lấy vị trí người dùng
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setUserLocation(coords);
         map.setView(coords, 8);
-        socket.emit("update_location", coords);
       },
       () => console.warn("⚠️ Không lấy được vị trí người dùng.")
     );
   }, [map]);
 
-  // 🔌 Kết nối socket
+  // 🔌 Kết nối socket (có wake-up)
   useEffect(() => {
+    connectSocket();
+
     socket.on("connect", () => {
       setMySocketId(socket.id || null);
       console.log("🟢 Connected:", socket.id, "User:", myUserId);
       socket.emit("userOnline", myUserId);
+      if (userLocation) socket.emit("update_location", userLocation);
     });
 
-    socket.on("onlineUsers", (users) => {
-      setOnlineUsers(users || {});
-    });
-
+    socket.on("onlineUsers", (users) => setOnlineUsers(users || {}));
     socket.on("disconnect", () => {
       console.log("🔴 Disconnected");
       setOnlineUsers({});
     });
 
-    // 🔔 Nhận lời mời chat tự động
     socket.on("chat_invite", ({ from, roomId }) => {
       console.log("📨 Chat invite received from", from);
       socket.emit("joinRoom", { roomId, userId: myUserId });
@@ -65,10 +61,11 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
       socket.off("connect");
       socket.off("disconnect");
       socket.off("chat_invite");
+      socket.disconnect();
     };
-  }, [myUserId, setRoomId, setShowChat]);
+  }, [myUserId, userLocation, setRoomId, setShowChat]);
 
-  // ⏱ Cập nhật vị trí định kỳ
+  // ⏱ Gửi vị trí định kỳ
   useEffect(() => {
     if (!userLocation) return;
     const interval = setInterval(() => {
@@ -77,7 +74,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
     return () => clearInterval(interval);
   }, [userLocation]);
 
-  // 🧍 Biểu tượng user
+  // 🧍 Tạo icon user
   const userIcon = (isSelf: boolean) =>
     L.divIcon({
       className: "flex flex-col items-center",
@@ -97,7 +94,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
       popupAnchor: [0, -10],
     });
 
-  // 🗺 Render markers
+  // 🗺 Hiển thị marker
   return (
     <>
       {Object.entries(onlineUsers).map(([socketId, user]) => (

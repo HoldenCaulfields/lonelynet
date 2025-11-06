@@ -46,7 +46,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
     socket.on("onlineUsers", (users) => setOnlineUsers(users || {}));
     socket.on("disconnect", () => setOnlineUsers({}));
 
-    socket.on("chat_invite", ({ from, roomId }) => {
+    socket.on("chat_invite", ({ roomId }) => {
       socket.emit("joinRoom", { roomId, userId: myUserId });
       setRoomId(roomId);
       setShowChat(true);
@@ -143,7 +143,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
                     }, 5000);
                   }}
                 >
-                  <p className="font-semibold">✨ It's you!</p>
+                  <p className="font-semibold">✨ It&apos;s you!</p>
                   <p className="text-sm text-gray-600">Click to wave 👋 to everyone</p>
                 </div>
 

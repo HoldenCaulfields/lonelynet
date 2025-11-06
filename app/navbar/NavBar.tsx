@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Globe, PlusCircle, Coffee } from "lucide-react";
+import { Globe, Coffee } from "lucide-react";
 import SearchBox from "./SearchBox";
 
 interface NavbarProps {

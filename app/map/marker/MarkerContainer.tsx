@@ -108,7 +108,7 @@ export default function MarkerContainer({
       setLoading(false);
     }
   }, []);
-
+/* 
   const fetchAllTags = useCallback(async () => {
     try {
       const res = await axios.get(`${API_URL}/api/lonelyland`);
@@ -118,12 +118,11 @@ export default function MarkerContainer({
     } catch (err) {
       console.error("Error fetching tags:", err);
     }
-  }, []);
+  }, []); */
 
   useEffect(() => {
     fetchAllMarkers();
-    fetchAllTags();
-  }, [fetchAllMarkers, fetchAllTags]);
+  }, [fetchAllMarkers]);
 
   useEffect(() => {
     if (searchText.trim()) {

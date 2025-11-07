@@ -1,583 +1,428 @@
+"use client";
+
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { io, Socket } from "socket.io-client";
-import Image from "next/image";
+import { Socket } from "socket.io-client";
 import { socket as s } from "@/app/components/utils/socket";
-// =========================================================================
-// 1. INTERFACE DEFINITIONS
-// =========================================================================
+import Image from "next/image";
+
+/* ---------------------------
+  Types
+----------------------------*/
 interface GroupChatProps {
-    roomId: string | null;
-    userId: string;
-    onClose: () => void;
-    showChat: boolean;
+  roomId: string | null;
+  userId: string;
+  onClose: () => void;
+  showChat: boolean;
 }
 
 interface Message {
-    id: string; // Client-side temporary ID (e.g., Date.now().toString())
-    _id?: string; // Server-side MongoDB ID
-    userId: string;
-    text: string;
-    timestamp: number;
-    type: 'user' | 'system';
+  id: string;
+  _id?: string;
+  userId: string;
+  text: string;
+  timestamp: number;
+  type: "user" | "system";
 }
 
 interface Post {
-    _id: string;
-    text: string;
-    imageUrl: string;
-    tags: string[];
-    location: {
-        latitude: number;
-        longitude: number;
-    };
-    createdAt: string;
-    loves: number;
+  _id: string;
+  text?: string;
+  imageUrl?: string;
+  tags?: string[];
+  createdAt?: string;
 }
 
-interface Member {
-    userId: string;
-    socketId: string;
-}
-
-// =========================================================================
-// 2. CONSTANTS
-// =========================================================================
+/* ---------------------------
+  Constants
+----------------------------*/
 const API_URL =
-    process.env.NODE_ENV === "production"
-        ? "https://lonelynet.onrender.com"
-        : "http://192.168.1.12:5000";
+  process.env.NODE_ENV === "production"
+    ? "https://lonelynet.onrender.com"
+    : "http://192.168.1.12:5000";
 
-const SOCKET_URL = API_URL;
 const API_SOUL = `${API_URL}/api/lonelyland`;
 const MESSAGES_API_URL = `${API_URL}/api/messages`;
 
 const CHAT_EVENTS = {
-    JOIN_ROOM: 'joinRoom',
-    LEAVE_ROOM: 'leaveRoom',
-    NEW_MESSAGE: 'newMessage',
-    RECEIVE_MESSAGE: 'receiveMessage',
-    ROOM_MEMBERS: 'roomMembers',
-    USER_JOINED: 'userJoined',
-    USER_LEFT: 'userLeft',
-    TYPING: 'typing',
-    STOP_TYPING: 'stopTyping'
-};
+  JOIN_ROOM: "joinRoom",
+  LEAVE_ROOM: "leaveRoom",
+  NEW_MESSAGE: "newMessage",
+  RECEIVE_MESSAGE: "receiveMessage",
+  TYPING: "typing",
+  STOP_TYPING: "stopTyping",
+  ROOM_MEMBERS: "roomMembers",
+  USER_JOINED: "userJoined",
+  USER_LEFT: "userLeft",
+} as const;
 
 const TYPING_TIMEOUT_MS = 1500;
 
-// =========================================================================
-// 3. UTILITY COMPONENTS
-// =========================================================================
-
-const LoadingSpinner: React.FC = () => (
-    <div className="flex flex-col items-center justify-center p-16 flex-1 text-center">
-        <div className="w-10 h-10 border-4 border-white border-t-green-500 rounded-full animate-spin"></div>
-        <p className="mt-4 text-base text-white font-medium">Establishing connection...</p>
-    </div>
+/* ---------------------------
+  Simple RoomImage
+----------------------------*/
+const RoomImage: React.FC<{ src?: string; alt?: string }> = ({ src, alt }) => (
+  <div className="w-10 h-10 rounded-full bg-gray-300 overflow-hidden flex-shrink-0">
+    <Image
+      src={src || "/placeholderimg.jpg"}
+      alt={alt || "room"}
+      width={40}
+      height={40}
+      className="object-cover"
+    />
+  </div>
 );
 
-const RoomImage: React.FC<{ src: string; alt: string }> = ({ src, alt }) => (
-    <div className="w-12 h-12 rounded-full mr-3 bg-white border-2 border-green-400 overflow-hidden shadow-lg flex-shrink-0">
-        <Image
-            src={src || "/placeholderimg.jpg"}
-            alt={alt}
-            width={48}
-            height={48}
-            className="object-cover w-full h-full"
-        />
-    </div>
-);
-
-const MessageBubble: React.FC<{ item: Message; userId: string; formatTime: (t: number) => string }> = ({ item, userId, formatTime }) => {
-    // --- System Message Logic ---
-    if (item.type === 'system') {
-        return (
-            <div className="flex justify-center my-3 mx-auto max-w-[90%]">
-                <p className="text-xs font-medium text-center text-gray-500 bg-gray-100 rounded-xl px-3 py-1 shadow-sm italic">
-                    {item.text}
-                </p>
-            </div>
-        );
-    }
-
-    // --- User Message Logic (Original) ---
-    const isMe = item.userId === userId;
-
-    const wrapperClasses = `flex mb-3 ${isMe ? 'justify-end' : 'justify-start'}`;
-    const bubbleClasses = `rounded-2xl px-3.5 py-2 max-w-[80%] shadow-md transform transition-all duration-300 ${isMe
-        ? 'bg-green-500 text-white rounded-br-lg rounded-tr-sm'
-        : 'bg-gray-100 text-gray-900 rounded-tl-lg rounded-bl-sm'
-        }`;
-    const timestampClasses = `block mt-1 text-[10px] font-medium text-right ${isMe ? 'text-green-200 opacity-90' : 'text-gray-500'
-        }`;
-    const senderNameClasses = 'text-xs text-gray-600 font-bold mb-1 uppercase tracking-wider overflow-hidden truncate max-w-full';
-
-    return (
-        <div className={wrapperClasses}>
-            <div className={bubbleClasses}>
-                {!isMe && (
-                    <p className={senderNameClasses}>
-                        User {item.userId.slice(0, 8)}
-                    </p>
-                )}
-                <p className="text-sm leading-snug break-words whitespace-pre-wrap">{item.text}</p>
-                <span className={timestampClasses}>
-                    {formatTime(item.timestamp)}
-                </span>
-            </div>
-        </div>
-    );
-};
-
-// =========================================================================
-// 4. MAIN COMPONENT
-// =========================================================================
+/* ---------------------------
+  ChatView Component
+----------------------------*/
 export default function ChatView({ roomId, userId, onClose, showChat }: GroupChatProps) {
-    // --- State & Refs ---
-    const [socket, setSocket] = useState<Socket | null>(null);
-    const [message, setMessage] = useState("");
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [post, setPost] = useState<Post | null>(null);
-    const [members, setMembers] = useState<Member[]>([]);
-    const [showMembers, setShowMembers] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const [sending, setSending] = useState(false);
-    const [isAnimating, setIsAnimating] = useState(false);
-    const [messagesToPersist, setMessagesToPersist] = useState<Message[]>([]);
-    const [isTyping, setIsTyping] = useState(false);
-    const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [post, setPost] = useState<Post | null>(null);
+  const [members, setMembers] = useState<{ userId: string; socketId?: string }[]>([]);
 
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+  const typingRef = useRef<NodeJS.Timeout | null>(null);
+  const endRef = useRef<HTMLDivElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const innerContainerRef = useRef<HTMLDivElement | null>(null);
 
-    // --- Utilities ---
+  const scrollToBottom = useCallback(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, []);
 
-    // Auto-scroll smoothed
-    const scrollToBottom = useCallback(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }, []);
+  useEffect(() => {
+    // scroll on messages update
+    const t = setTimeout(() => scrollToBottom(), 120);
+    return () => clearTimeout(t);
+  }, [messages.length, scrollToBottom]);
 
-    // Scroll effect: Always scroll to bottom on message change, using a timeout for DOM stability.
-    // NOTE: Simplified this useEffect compared to the original, removed the complex near-bottom check.
-    useEffect(() => {
-        if (!loading && messages.length > 0) {
-            const timeout = setTimeout(() => {
-                scrollToBottom();
-            }, 150);
-            return () => clearTimeout(timeout);
-        }
-    }, [messages.length, loading, scrollToBottom]);
-
-
-    const formatTime = (timestamp: number) => {
-        const date = new Date(timestamp);
-        return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
-    };
-
-    const getRoomName = () => {
-        if (!post?.tags || post.tags.length === 0) return "Global Chat Room";
-        return post.tags.map(tag => `#${tag}`).join(" • ");
-    };
-
-    // Debounced typing handler
-    const handleTyping = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setMessage(e.target.value);
-        if (!socket || !roomId) return;
-
-        if (!typingTimeoutRef.current) {
-            socket.emit(CHAT_EVENTS.TYPING, { roomId, userId });
-        }
-
-        if (typingTimeoutRef.current) {
-            clearTimeout(typingTimeoutRef.current);
-        }
-
-        typingTimeoutRef.current = setTimeout(() => {
-            socket.emit(CHAT_EVENTS.STOP_TYPING, { roomId, userId });
-            typingTimeoutRef.current = null;
-        }, TYPING_TIMEOUT_MS);
-    };
-
-
-    const sendMessage = () => {
-        if (!message.trim() || !socket || !roomId || sending) return;
-
-        setSending(true);
-        const newMessage: Message = {
-            id: Date.now().toString(), // Client-side unique ID
-            userId: userId,
-            text: message.trim(),
-            timestamp: Date.now(),
-            type: 'user',
-        };
-
-        // 1. Optimistic UI Update
-        setMessages(prev => [...prev, newMessage]);
-        setMessage("");
-
-        // 2. Queue for Persistence (API Call)
-        setMessagesToPersist(prev => [...prev, newMessage]);
-
-        // 3. Emit Real-time Message
-        socket.emit(CHAT_EVENTS.NEW_MESSAGE, {
-            roomId: roomId,
-            message: newMessage,
-        });
-
-        // 4. Emit stop typing if a message is sent
-        if (typingTimeoutRef.current) {
-            clearTimeout(typingTimeoutRef.current);
-            typingTimeoutRef.current = null;
-        }
-        socket.emit(CHAT_EVENTS.STOP_TYPING, { roomId, userId });
-
-
-        // Small delay to prevent double-click issues
-        setTimeout(() => setSending(false), 300);
-    };
-
-    // --- EFFECT: Handle Message Persistence (API POST) ---
-    useEffect(() => {
-        if (messagesToPersist.length === 0 || !roomId) return;
-
-        // Take the latest message from the queue
-        const messageToSave = messagesToPersist[messagesToPersist.length - 1];
-
-        const saveMessageToDatabase = async (msg: Message) => {
-            if (msg.type !== 'user') { // Only persist user messages
-                setMessagesToPersist(prev => prev.filter(m => m.id !== msg.id));
-                return;
-            }
-
-            try {
-                const response = await fetch(MESSAGES_API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        roomId: roomId,
-                        userId: msg.userId,
-                        text: msg.text,
-                        timestamp: msg.timestamp,
-                    }),
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP Error saving message: Status ${response.status}`);
-                }
-
-                const savedMessage: Message = await response.json();
-
-                // Replace the temporary client-side ID with the real server _id
-                setMessages(prev => prev.map(m => (m.id === msg.id ? { ...m, _id: savedMessage._id } : m)));
-
-            } catch (error) {
-                console.error("❌ Failed to save message to database:", error);
-            } finally {
-                // Remove the message from the persistence queue regardless of success/failure
-                setMessagesToPersist(prev => prev.filter(m => m.id !== msg.id));
-            }
-        };
-
-        // Only save the latest one, the rest will be handled by the next render cycle
-        saveMessageToDatabase(messageToSave);
-
-    }, [messagesToPersist, roomId]);
-
-    // ---------------------------------------------------------------------
-    // --- CONSOLIDATED SOCKET AND DATA FETCHING LOGIC ---
-    // ---------------------------------------------------------------------
-    useEffect(() => {
-  if (!showChat || !roomId || !userId) {
-    s.emit(CHAT_EVENTS.LEAVE_ROOM, { roomId, userId });
-    setSocket(null);
-    setLoading(false);
-    return;
-  }
-
-  setLoading(true);
-
-  const fetchData = async () => {
-    try {
-      const [postResponse, messagesResponse] = await Promise.all([
-        fetch(`${API_SOUL}/${roomId}`),
-        fetch(`${MESSAGES_API_URL}/${roomId}`)
-      ]);
-
-      if (postResponse.ok) {
-        const postData: Post = await postResponse.json();
-        setPost(postData);
-      }
-
-      if (messagesResponse.ok) {
-        const data = await messagesResponse.json();
-        const messagesArray: Message[] = Array.isArray(data)
-          ? data.map((m: any) => ({ ...m, type: "user" }))
-          : Array.isArray(data.messages)
-          ? data.messages.map((m: any) => ({ ...m, type: "user" }))
-          : [];
-        setMessages(messagesArray);
-      } else setMessages([]);
-    } catch (err) {
-      console.error("❌ Fetch error:", err);
-      setMessages([]);
-    } finally {
+  // Fetch messages + post + setup socket listeners
+  useEffect(() => {
+    if (!showChat || !roomId) {
+      try {
+        s.emit(CHAT_EVENTS.LEAVE_ROOM, { roomId, userId });
+      } catch {}
+      setSocket(null);
       setLoading(false);
+      return;
+    }
+
+    let mounted = true;
+    setLoading(true);
+
+    // fetch post metadata and messages
+    (async () => {
+      try {
+        const [postRes, msgsRes] = await Promise.all([
+          fetch(`${API_SOUL}/${roomId}`),
+          fetch(`${MESSAGES_API_URL}/${roomId}`),
+        ]);
+
+        if (postRes.ok) {
+          const pd = await postRes.json();
+          if (mounted) setPost(pd);
+        }
+
+        if (msgsRes.ok) {
+          const data = await msgsRes.json();
+          const arr: Message[] = Array.isArray(data) ? data : data.messages || [];
+          if (mounted) setMessages(arr);
+        } else {
+          if (mounted) setMessages([]);
+        }
+      } catch (err) {
+        console.error("[ChatView] fetch error", err);
+        if (mounted) setMessages([]);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+
+    // socket connect
+    try {
+      if (!s.connected) s.connect();
+      setSocket(s);
+    } catch (err) {
+      console.error("[ChatView] socket init error", err);
+    }
+
+    // handlers
+    const onReceive = (msg: Message & { senderSocketId?: string }) => {
+      if ((msg as any).senderSocketId && s.id && (msg as any).senderSocketId === s.id) return;
+      setMessages((prev) => {
+        const exists = msg._id ? prev.some((m) => m._id === msg._id) : false;
+        return exists ? prev : [...prev, { ...msg, type: "user" }];
+      });
+    };
+
+    const onTyping = (u: { userId: string }) => {
+      if (u?.userId !== userId) setIsTyping(true);
+    };
+
+    const onStopTyping = (u: { userId: string }) => {
+      if (u?.userId !== userId) setIsTyping(false);
+    };
+
+    const onRoomMembers = (list: { userId: string; socketId?: string }[]) => {
+      setMembers(list || []);
+    };
+
+    try {
+      s.on(CHAT_EVENTS.RECEIVE_MESSAGE, onReceive);
+      s.on(CHAT_EVENTS.TYPING, onTyping);
+      s.on(CHAT_EVENTS.STOP_TYPING, onStopTyping);
+      s.on(CHAT_EVENTS.ROOM_MEMBERS, onRoomMembers);
+
+      // join room after listeners registered
+      s.emit(CHAT_EVENTS.JOIN_ROOM, { roomId, userId });
+    } catch (err) {
+      console.warn("[ChatView] socket listeners error", err);
+    }
+
+    return () => {
+      mounted = false;
+      try {
+        s.emit(CHAT_EVENTS.LEAVE_ROOM, { roomId, userId });
+        s.off(CHAT_EVENTS.RECEIVE_MESSAGE, onReceive);
+        s.off(CHAT_EVENTS.TYPING, onTyping);
+        s.off(CHAT_EVENTS.STOP_TYPING, onStopTyping);
+        s.off(CHAT_EVENTS.ROOM_MEMBERS, onRoomMembers);
+      } catch (err) {
+        console.warn("[ChatView] cleanup error", err);
+      }
+    };
+  }, [showChat, roomId, userId]);
+
+  // typing emit
+  const handleTyping = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(e.target.value);
+    if (!socket || !roomId) return;
+    try {
+      socket.emit(CHAT_EVENTS.TYPING, { roomId, userId });
+    } catch {}
+    if (typingRef.current) clearTimeout(typingRef.current);
+    typingRef.current = setTimeout(() => {
+      try {
+        socket.emit(CHAT_EVENTS.STOP_TYPING, { roomId, userId });
+      } catch {}
+      typingRef.current = null;
+    }, TYPING_TIMEOUT_MS);
+  };
+
+  // send message
+  const sendMessage = async () => {
+    if (!message.trim() || !socket || !roomId || sending) return;
+    setSending(true);
+    const newMsg: Message = {
+      id: Date.now().toString(),
+      userId,
+      text: message.trim(),
+      timestamp: Date.now(),
+      type: "user",
+    };
+
+    setMessages((p) => [...p, newMsg]);
+    setMessage("");
+
+    try {
+      socket.emit(CHAT_EVENTS.NEW_MESSAGE, { roomId, message: newMsg });
+    } catch (err) {
+      console.error("[ChatView] emit error", err);
+    }
+
+    // persist
+    (async () => {
+      try {
+        const res = await fetch(MESSAGES_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...newMsg, roomId }),
+        });
+        if (res.ok) {
+          const saved = await res.json();
+          if (saved?._id) {
+            setMessages((prev) => prev.map((m) => (m.id === newMsg.id ? { ...m, _id: saved._id } : m)));
+          }
+        } else {
+          console.warn("[ChatView] save non-ok", res.status);
+        }
+      } catch (err) {
+        console.error("[ChatView] save error", err);
+      } finally {
+        setSending(false);
+      }
+    })();
+  };
+
+  // prevent body scroll while typing + adjust inner padding with visualViewport (if available)
+  useEffect(() => {
+    const ta = textareaRef.current;
+    const inner = innerContainerRef.current;
+    if (!ta) return;
+
+    const onFocus = () => {
+      try {
+        document.body.style.overflow = "hidden";
+      } catch {}
+      const vv = window.visualViewport;
+      if (vv && inner) {
+        const adjust = () => {
+          const kbHeight = window.innerHeight - vv.height - (vv.offsetTop || 0);
+          inner.style.paddingBottom = `${Math.max(16, kbHeight + 80)}px`;
+        };
+        adjust();
+        vv.addEventListener("resize", adjust);
+        vv.addEventListener("scroll", adjust);
+        const cleanup = () => {
+          try {
+            document.body.style.overflow = "";
+            inner.style.paddingBottom = "";
+          } catch {}
+          vv.removeEventListener("resize", adjust);
+          vv.removeEventListener("scroll", adjust);
+          ta.removeEventListener("blur", cleanup);
+        };
+        ta.addEventListener("blur", cleanup, { once: true });
+      } else {
+        if (inner) inner.style.paddingBottom = "110px";
+        const cleanup = () => {
+          try {
+            document.body.style.overflow = "";
+            if (inner) inner.style.paddingBottom = "";
+          } catch {}
+          ta.removeEventListener("blur", cleanup);
+        };
+        ta.addEventListener("blur", cleanup, { once: true });
+      }
+    };
+
+    ta.addEventListener("focus", onFocus);
+    return () => {
+      ta.removeEventListener("focus", onFocus);
+    };
+  }, [textareaRef, innerContainerRef]);
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
   };
 
-  fetchData();
+  if (!showChat) return null;
 
-  if (!s.connected) s.connect();
-  s.emit(CHAT_EVENTS.JOIN_ROOM, { roomId, userId });
-  setSocket(s);
-
-  // --- Remove old listeners ---
-  Object.values(CHAT_EVENTS).forEach(event => s.off(event));
-
-  // --- Add listeners ---
-  s.on(CHAT_EVENTS.RECEIVE_MESSAGE, (msg: Message & { senderSocketId?: string }) => {
-    if (msg.senderSocketId === s.id) return;
-    setMessages(prev => {
-      const exists = prev.some(m => m._id === msg._id);
-      return exists ? prev : [...prev, { ...msg, type: "user" }];
-    });
-  });
-
-  s.on(CHAT_EVENTS.USER_JOINED, (user) => {
-    setMessages(prev => [...prev, {
-      id: `${Date.now()}-${Math.random()}`,
-      userId: 'system',
-      text: `✨ User ${user.userId.slice(0, 8)} joined.`,
-      timestamp: Date.now(),
-      type: 'system',
-    }]);
-  });
-
-  s.on(CHAT_EVENTS.USER_LEFT, (user) => {
-    setMessages(prev => [...prev, {
-      id: `${Date.now()}-${Math.random()}`,
-      userId: 'system',
-      text: `🚪 User ${user.userId.slice(0, 8)} left.`,
-      timestamp: Date.now(),
-      type: 'system',
-    }]);
-  });
-
-  s.on(CHAT_EVENTS.ROOM_MEMBERS, setMembers);
-
-  s.on(CHAT_EVENTS.TYPING, (user) => {
-    if (user.userId !== userId) setIsTyping(true);
-  });
-
-  s.on(CHAT_EVENTS.STOP_TYPING, (user) => {
-    if (user.userId !== userId) setIsTyping(false);
-  });
-
-  s.on("connect", () => {
-    s.emit(CHAT_EVENTS.JOIN_ROOM, { roomId, userId });
-  });
-
-  return () => {
-    s.emit(CHAT_EVENTS.LEAVE_ROOM, { roomId, userId });
-    Object.values(CHAT_EVENTS).forEach(event => s.off(event));
+  const getRoomName = () => {
+    if (!post?.tags || post.tags.length === 0) return "Global Chat Room";
+    return post.tags.map((t) => `#${t}`).join(" • ");
   };
-}, [showChat, roomId, userId]);
 
-    // ---------------------------------------------------------------------
-    // --- ANIMATION CONTROLLER ---
-    // ---------------------------------------------------------------------
-    useEffect(() => {
-        if (showChat) {
-            const timeoutId = setTimeout(() => {
-                setIsAnimating(true);
-            }, 50);
-            return () => clearTimeout(timeoutId);
-        } else {
-            setIsAnimating(false);
-        }
-    }, [showChat]);
-
-    // --- CLOSING LOGIC ---
-    const handleClose = () => {
-        setIsAnimating(false);
-
-        setTimeout(() => {
-            // Cleanup local state
-            setMessages([]);
-            setMembers([]);
-            setShowMembers(false);
-            setPost(null);
-            onClose();
-        }, 300);
-    };
-
-    if (!showChat && !isAnimating) return null;
-
-    return (
-        <div
-            className={`fixed inset-x-0 bottom-0 sm:top-auto sm:bottom-8 sm:right-8 z-[1200] flex justify-center sm:justify-end overflow-hidden transition-all duration-300 ${showChat && isAnimating ? '' : 'pointer-events-none'
-                }`}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="chat-title"
-        >
-
-            {/* Backdrop */}
-            <div
-                className={`absolute inset-0 transition-opacity duration-300 ${showChat && isAnimating ? 'opacity-100' : 'opacity-0'}`}
-                onClick={handleClose}
-            />
-
-            {/* Chat Container (The Modal Itself) */}
-            <div
-                className={`relative bg-[#161616] w-full sm:w-[90%] md:w-[70%] lg:w-[45%] xl:w-[35%]
-      h-[80dvh] sm:h-[80dvh] md:h-[75dvh] rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col 
-      transition-[transform] duration-500 ease-in-out overflow-hidden 
-      ${isAnimating ? 'translate-y-0' : 'translate-y-full'}`}
-            >
-                {/* Gradient Header for Cool Look */}
-                <div className="flex sticky top-0 items-center justify-between p-4 bg-[#1e1e1e] border-b border-[#2a2a2a] rounded-t-2xl">
-                    <div className="flex items-center flex-1 min-w-0">
-                        {post && <RoomImage src={post.imageUrl} alt="Room" />}
-                        <div className="flex-1 min-w-0">
-                            <h2 className="text-white text-base sm:text-lg font-bold truncate" title={getRoomName()}>
-                                {getRoomName()}
-                            </h2>
-                            <button
-                                onClick={() => setShowMembers(!showMembers)}
-                                className="text-xs text-green-400 hover:text-white transition"
-                            >
-                                <span className="mr-1 inline-block h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
-                                {members.length} online
-                            </button>
-                        </div>
-                    </div>
-                    <button
-                        onClick={handleClose}
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-[#2a2a2a] hover:bg-[#333] text-white"
-                    >
-                        ✕
-                    </button>
-                </div>
-
-                {loading ? (
-                    // IMPROVED: Loading spinner background
-                    <div className="flex-1 bg-gray-900/90 flex justify-center items-center rounded-b-3xl md:rounded-b-xl">
-                        <LoadingSpinner />
-                    </div>
-                ) : (
-                    <>
-                        {/* Members List (Collapsed/Expanded) */}
-                        <div
-                            className={`relative bg-[#202020]/90 backdrop-blur-md shadow-inner transition-all duration-500 ease-in-out overflow-hidden
-      ${showMembers ? "max-h-40 sm:max-h-48 opacity-100" : "max-h-0 opacity-0"}
-      border-b border-gray-800`}
-                            aria-expanded={showMembers}
-                        >
-                            <div className="px-4 py-2">
-                                <p className="text-sm font-semibold text-gray-400 flex items-center gap-2 mb-2">
-                                    👥 <span>Active Members:</span>
-                                </p>
-
-                                {members.length > 0 ? (
-                                    <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar-thin">
-                                        {members.map((member) => (
-                                            <div
-                                                key={member.userId}
-                                                className={`flex items-center py-1 px-3 rounded-full text-xs font-medium border
-              transition-all duration-200 hover:scale-105 hover:shadow-[0_0_6px_#22c55e]
-              ${member.userId === userId
-                                                        ? "bg-green-700 text-white border-green-500"
-                                                        : "bg-gray-700 text-gray-200 border-gray-600"
-                                                    }`}
-                                            >
-                                                <span className="w-2 h-2 rounded-full bg-green-400 mr-2 animate-pulse"></span>
-                                                User {member.userId.slice(0, 6)}
-                                                {member.userId === userId && (
-                                                    <span className="ml-1 text-[10px] text-green-300">(You)</span>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <p className="text-xs text-gray-500 italic">No one’s online yet...</p>
-                                )}
-                            </div>
-                        </div>
-
-
-                        {/* Messages Area */}
-                        <div className="flex-1 bg-[#0f0f0f] overflow-y-auto px-3 sm:px-4 py-2 sm:py-4 flex flex-col custom-scrollbar">
-                            {messages.length === 0 ? (
-                                <div className="flex-1 flex flex-col items-center justify-center p-10 text-center">
-                                    <p className="text-6xl mb-4 animate-bounce">👋</p>
-                                    <p className="text-lg font-bold text-white mb-2">Welcome to the Group!</p>
-                                    <p className="text-sm text-gray-500">Be the first to say hello and break the ice.</p>
-                                </div>
-                            ) : (
-                                <div className="space-y-3">
-                                    {messages.map((item, index) => (
-                                        <MessageBubble
-                                            key={
-                                                item._id
-                                                    ? item._id
-                                                    : `${item.userId}-${item.timestamp}-${index}-${Math.random().toString(36).slice(2, 8)}`
-                                            }
-                                            item={item}
-                                            userId={userId}
-                                            formatTime={formatTime}
-                                        />
-                                    ))}
-
-                                    {/* The anchor div for auto-scrolling */}
-                                    <div ref={messagesEndRef} />
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Typing Indicator */}
-                        {isTyping && (
-                            <div className="px-4 py-1 text-[11px] text-gray-400 flex items-center flex-shrink-0 bg-[#161616]">
-                                <div className="dot-pulse-wrapper mr-2">
-                                    <div className="dot-pulse"></div>
-                                </div>
-                                Someone is typing...
-                            </div>
-                        )}
-
-                        {/* Input Area */}
-                        <div className="p-2 sm:p-3 bg-[#1e1e1e]/95 border-t border-[#2a2a2a] flex items-center gap-2 sm:gap-3 pb-[env(safe-area-inset-bottom)]">
-                            <textarea
-                                value={message}
-                                onChange={handleTyping}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && !e.shiftKey) {
-                                        e.preventDefault();
-                                        sendMessage();
-                                    }
-                                }}
-                                placeholder="Type something..."
-                                className="flex-1 bg-transparent text-white placeholder-gray-500 text-sm sm:text-base resize-none outline-none leading-snug max-h-32 overflow-y-auto"
-                                maxLength={500}
-                                rows={1}
-                            />
-                            <button
-                                onClick={sendMessage}
-                                className={`min-w-[44px] h-11 w-11 sm:w-11 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg 
-                                    ${!message.trim() || sending
-                                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
-                                        : 'bg-green-500 text-white hover:bg-green-600 shadow-green-500/50 active:scale-90'
-                                    }`}
-                                disabled={!message.trim() || sending}
-                            >
-                                <span className="text-xl sm:text-2xl leading-none font-bold">
-                                    {sending ? "📤" : "🚀"}
-                                </span>
-                            </button>
-                        </div>
-
-                    </>
-                )}
+  return (
+    <div
+      className={`chatbox-wrapper fixed inset-x-0 bottom-0 sm:top-auto sm:bottom-8 sm:right-8 z-[1200] flex justify-center sm:justify-end`}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="chat-title"
+    >
+      <div
+        className="w-full max-w-md  sm:mx-0 bg-[#161616] text-white rounded-t-3xl shadow-2xl border border-[#252525] flex flex-col overflow-hidden"
+        style={{ maxHeight: "80vh" }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 bg-[#1e1e1e] border-b border-[#2a2a2a] sticky top-0 z-10">
+          <div className="flex items-center gap-3 min-w-0">
+            <RoomImage src={post?.imageUrl} alt={post?.text || "room"} />
+            <div className="min-w-0">
+              <h3 id="chat-title" className="text-sm font-semibold truncate">
+                {post ? getRoomName() : "Group Chat"}
+              </h3>
+              <p className="text-xs text-green-400 truncate">
+                {members.length} online
+              </p>
             </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setMembers((prev) => prev)}
+              className="text-xs text-green-400 hover:text-white"
+              title="Members"
+            >
+              👥
+            </button>
+            <button onClick={onClose} aria-label="Close chat" className="w-8 h-8 rounded-full font-bold bg-red-500 flex items-center justify-center">
+              ✕
+            </button>
+          </div>
         </div>
-    );
+
+        {/* Messages */}
+        <div
+          ref={innerContainerRef}
+          className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-3 custom-scrollbar min-h-0"
+        >
+          {loading ? (
+            <div className="flex-1 flex items-center justify-center py-8">
+              <div className="text-gray-400">Loading messages...</div>
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center py-8 text-center">
+              <div className="text-2xl mb-2">👋</div>
+              <div className="font-semibold">Welcome to the Group</div>
+              <div className="text-xs text-gray-400">Start the conversation</div>
+            </div>
+          ) : (
+            messages.map((m, i) => {
+              const isMe = m.userId === userId;
+              return (
+                <div key={m._id || m.id || i} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                  <div className={`px-3 py-2 rounded-2xl max-w-[80%] text-sm ${isMe ? "bg-green-500 text-white" : "bg-gray-100 text-gray-900"}`}>
+                    <div className="whitespace-pre-wrap">{m.text}</div>
+                    <div className="text-[10px] opacity-60 mt-1 text-right">
+                      {new Date(m.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+          <div ref={endRef} />
+        </div>
+
+        {/* Typing */}
+        {isTyping && (
+          <div className="px-4 py-1 text-xs text-gray-400 bg-[#161616] border-t border-[#222]">
+            Someone is typing...
+          </div>
+        )}
+
+        {/* Input */}
+        <div className="px-3 py-3 bg-[#1e1e1e] border-t border-[#2a2a2a] sticky bottom-0 z-10">
+          <div className="flex items-center gap-2">
+            <textarea
+              ref={textareaRef}
+              value={message}
+              onChange={handleTyping}
+              onKeyDown={onKeyDown}
+              placeholder="Type your message..."
+              rows={1}
+              inputMode="text"
+              enterKeyHint="send"
+              className="flex-1 resize-none bg-transparent text-white placeholder-gray-400 text-sm outline-none text-[16px] leading-snug max-h-32"
+            />
+            <button
+              onClick={sendMessage}
+              disabled={!message.trim() || sending}
+              className={`w-10 h-10 rounded-full flex items-center justify-center ${!message.trim() ? "bg-gray-600 text-gray-300" : "bg-green-500 hover:bg-green-600"}`}
+            >
+              🚀
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

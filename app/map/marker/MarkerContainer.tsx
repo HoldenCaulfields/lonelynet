@@ -194,7 +194,7 @@ export default function MarkerContainer({
           <div className="relative">
             <div className="w-20 h-20 border-4 border-white/20 border-t-white rounded-full animate-spin" />
             <div className="absolute inset-0 flex items-center justify-center">
-              <Zap className="w-8 h-8 text-white animate-bounce" fill="white" />
+              <Image src={"/logo.png"} alt="logo" width={50} height={50} className="animate-pulse rounded-4xl" />
             </div>
           </div>
         </div>

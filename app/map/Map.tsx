@@ -7,8 +7,6 @@ import Navbar from "../navbar/NavBar";
 import { useState } from "react";
 import ChatView from "../components/chatbox/ChatView";
 import Controls from "../components/Controls";
-import { User } from "lucide-react";
-import UserOnlineMarkers from "./userOnline/UserOnlineMarkers";
 import UserLocationNew from "./user/UserLocationNew";
 
 export default function Map() {
@@ -65,15 +63,12 @@ export default function Map() {
 
                     <UserLocationNew setShowChat={setShowChat} setRoomId={setRoomId}/>
 
-                    {/* USER LOCATION */}
                     {/* {userLocation && (
                         <UserLocation setOpenForm={setOpenForm} targetPosition={userLocation} />
                     )} */}
 
-                    {/* <UserOnlineMarkers setShowChat={setShowChat} setRoomId={setRoomId} /> */}
                 </MapContainer>
 
-                {/* CONTROLS nổi góc phải */}
                 <Controls
                     openForm={openForm}
                     setOpenForm={setOpenForm}

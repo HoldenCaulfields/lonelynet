@@ -9,6 +9,7 @@ import ChatView from "../components/chatbox/ChatView";
 import Controls from "../components/Controls";
 import { User } from "lucide-react";
 import UserOnlineMarkers from "./userOnline/UserOnlineMarkers";
+import UserLocationNew from "./user/UserLocationNew";
 
 export default function Map() {
     const [searchText, setSearchText] = useState("");
@@ -62,10 +63,12 @@ export default function Map() {
                         setRoomId={setRoomId}
                     />
 
+                    <UserLocationNew setShowChat={setShowChat} setRoomId={setRoomId}/>
+
                     {/* USER LOCATION */}
-                    {userLocation && (
+                    {/* {userLocation && (
                         <UserLocation setOpenForm={setOpenForm} targetPosition={userLocation} />
-                    )}
+                    )} */}
 
                     {/* <UserOnlineMarkers setShowChat={setShowChat} setRoomId={setRoomId} /> */}
                 </MapContainer>

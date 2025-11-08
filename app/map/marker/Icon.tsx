@@ -10,9 +10,9 @@ export const redIcon = new L.Icon({
 });
 
 export const userIcon = new L.Icon({
-    iconUrl: "/user-icon.png",
-    iconSize: [62, 62],
-    iconAnchor: [30, 60],
+    iconUrl: "/red-icon.png",
+    iconSize: [52, 52],
+    iconAnchor: [30, 50],
     popupAnchor: [1, -42],
     className: "user-icon-glow",
 });

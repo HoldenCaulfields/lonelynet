@@ -6,6 +6,9 @@ import L from "leaflet";
 import { MessageCircle } from "lucide-react";
 import { socket, connectSocket } from "@/app/components/utils/socket";
 import { userIcon } from "../marker/Icon";
+import userIconImg from "@/public/red-icon.png";  // ảnh của bạn
+import otherIconImg from "@/public/online.png";
+
 interface Props {
   setShowChat: (v: boolean) => void;
   setRoomId: (v: string) => void;
@@ -123,7 +126,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
     if (!canvasRef.current) return;
     try {
       canvasRef.current.remove();
-    } catch {}
+    } catch { }
     canvasRef.current = null;
   }
 
@@ -185,27 +188,28 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
   }
 
   // ====== ICON MAKER ======
-  const makeIcon = (isSelf: boolean, isWaving: boolean) =>
-    L.divIcon({
+  const makeIcon = (isSelf: boolean, isWaving: boolean) => {
+    const imgSrc = isSelf ? userIconImg.src : otherIconImg.src;
+
+    return L.divIcon({
       className: "flex flex-col items-center",
       html: `
         <div class="relative flex flex-col items-center">
           <div class="relative">
-            <div class="${
-              isSelf
-                ? "w-6 h-6 bg-green-500 ring-4 ring-green-300 shadow-md"
-                : "w-6 h-6 bg-blue-500 ring-2 ring-blue-200"
-            } rounded-full"></div>
-            ${
-              isWaving
-                ? `
+            <img
+            src="${imgSrc}"
+            alt="user-icon"
+            class="w-12 h-12 rounded-full  shadow-md object-cover"
+          />
+            ${isWaving
+          ? `
                 <div class="absolute inset-0 flex items-center justify-center">
                   <span class="absolute text-2xl animate-wave">👋</span>
                   <span class="absolute w-10 h-10 rounded-full border-2 border-yellow-400 animate-ping-slow"></span>
                 </div>
               `
-                : ""
-            }
+          : ""
+        }
           </div>
           <span class="absolute -bottom-5 text-xs text-black font-semibold bg-white/70 rounded-md px-1">
             ${isSelf ? "Me" : "Online"}
@@ -214,7 +218,8 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
       `,
       iconAnchor: [12, 24],
       popupAnchor: [0, -10],
-    });
+    })
+  };
 
   // ====== RENDER MARKERS ======
   if (!userLocation) return null;
@@ -225,9 +230,9 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
         const isSelf = socketId === mySocketId;
         const isWaving = wavingUsers[user.userId];
         return (
-          <Marker key={socketId} position={[user.lat, user.lng]} icon={userIcon}>
+          <Marker key={socketId} position={[user.lat, user.lng]} icon={makeIcon(isSelf, isWaving)}>
             {isSelf ? (
-              <Tooltip direction="top" offset={[0, -50]} permanent interactive>
+              <Tooltip direction="top" offset={[0, -20]} permanent interactive>
                 <div
                   onClick={(e) => {
                     e.stopPropagation();

@@ -17,7 +17,7 @@ export const userIcon = new L.Icon({
     className: "user-icon-glow",
 });
 
-export const userOnline = new L.Icon({
+export const otherIcon = new L.Icon({
     iconUrl: "/online.png",
     iconSize: [62, 62],
     iconAnchor: [30, 60],

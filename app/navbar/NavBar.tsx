@@ -49,7 +49,7 @@ export default function Navbar({ searchText, setSearchText }: NavbarProps) {
             </Link>
             <Link
               className="hover:text-red-400 transition-colors duration-200 cursor-pointer"
-              href="/support" target="_blank"
+              href="/support"
             >
               <Coffee size={26} />
             </Link>
@@ -86,7 +86,7 @@ export default function Navbar({ searchText, setSearchText }: NavbarProps) {
         {/* Desktop: Right Links */}
         <div className="hidden lg:flex items-center gap-6 text-white font-semibold text-lg">
           <Link
-            href="/lonelyland"
+            href="/lonelyland" target="_blank"
             className="hover:text-blue-400 transition-colors duration-200"
           >
             LonelyLand

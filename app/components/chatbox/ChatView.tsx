@@ -35,10 +35,7 @@ interface Post {
 /* ---------------------------
   Constants
 ----------------------------*/
-const API_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://lonelynet.onrender.com"
-    : "http://192.168.1.12:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const API_SOUL = `${API_URL}/api/lonelyland`;
 const MESSAGES_API_URL = `${API_URL}/api/messages`;
@@ -67,7 +64,7 @@ const RoomImage: React.FC<{ src?: string; alt?: string }> = ({ src, alt }) => (
       alt={alt || "room"}
       width={40}
       height={40}
-      className="object-cover"
+      className="object-cover w-full h-full"
     />
   </div>
 );

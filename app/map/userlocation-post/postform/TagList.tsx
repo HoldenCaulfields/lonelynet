@@ -22,16 +22,16 @@ export const tagIcons: Record<string, React.ElementType> = {
 };
 
 const TagTooltip = ({ tag }: { tag: string | null }) => {
-  // ICON MAP ====================================================
-  const iconMap: Record<string, React.ReactNode> = {
-    lonely: <span className="text-2xl">🌌</span>,
-    findjob: <span className="text-2xl">💼</span>,
-    lover: <span className="text-2xl">❤️</span>,
-    music: <span className="text-2xl">🎵</span>,
-    books: <span className="text-2xl">📚</span>,
-    movie: <span className="text-2xl">🎬</span>,
-    game: <span className="text-2xl">🎮</span>,
-    sport: <span className="text-2xl">🏋️‍♂️</span>,
+  // IMAGE MAP ====================================================
+  const imageMap: Record<string, string> = {
+    lonely: "/icons/logo.png",
+    findjob: "/icons/findjob.png",
+    lover: "/icons/lover.png",
+    music: "/icons/music.png",
+    books: "/icons/books.png",
+    movie: "/icons/movie.png",
+    game: "/icons/game.png",
+    sport: "/icons/sport.png",
   };
 
   // COLOR MAP ===================================================
@@ -59,24 +59,26 @@ const TagTooltip = ({ tag }: { tag: string | null }) => {
   };
 
   // FINAL PROPS =================================================
-  const safeTag = tag && iconMap[tag] ? tag : "lonely";
-  const icon = iconMap[safeTag];
+  const safeTag = tag && imageMap[tag] ? tag : "lonely";
+  const imgSrc = imageMap[safeTag];
   const bgColor = bgColorMap[safeTag];
   const glow = glowMap[safeTag];
 
   // RENDER ======================================================
   return (
     <div
-      className={`flex items-center justify-center w-10 h-10 rounded-full ${bgColor} border border-white/50 shadow-lg ${glow} backdrop-blur-sm transition-transform hover:scale-110 duration-200`}
+      className={`flex items-center justify-center w-10 h-10 rounded-full ${bgColor} border border-black/50 shadow-lg ${glow}  transition-transform hover:scale-150 duration-200`}
     >
-      {icon}
+      <img
+        src={imgSrc}
+        alt={safeTag}
+        className="w-8 h-8 object-contain"
+      />
     </div>
   );
 };
 
-// ==============================
-// 📍 CustomTooltip Wrapper
-// ==============================
+
 export const CustomTooltip = ({ marker }: { marker: any }) => {
   const tag = marker.tags?.[0]?.toLowerCase() || "lonely";
 

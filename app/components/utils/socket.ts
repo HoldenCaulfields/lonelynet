@@ -1,10 +1,7 @@
 // utils/socket.ts
 import { io } from "socket.io-client";
 
-const PROD_URL = "https://lonelynet.onrender.com";
-const DEV_URL = "http://192.168.1.12:5000";
-
-const API_URL = process.env.NODE_ENV === "production" ? PROD_URL : DEV_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
 
 // ❌ KHÔNG auto connect
 export const socket = io(API_URL, {

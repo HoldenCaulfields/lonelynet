@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Marker, Tooltip, useMap } from "react-leaflet";
-import { userIcon } from "../../components/Icon";
+import { userIcon } from "../marker/Icon";
 
 type Latlng = { lat: number; lng: number };
 

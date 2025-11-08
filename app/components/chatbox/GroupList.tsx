@@ -2,10 +2,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import io, { Socket } from "socket.io-client";
 
-const API_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://lonelynet.onrender.com"
-    : "http://192.168.1.12:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 const SOCKET_URL = API_URL;
 const API_SOUL = `${API_URL}/api/lonelyland`;
 
@@ -151,7 +149,7 @@ export default function GroupList({ visible, onClose, onSelectRoom }: GroupListP
             </p>
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+          <div className="flex-1 overflow-y-auto space-y-3 pr-1 custom-scrollbar">
             <button
               onClick={handleRefresh}
               className="w-full text-sm text-gray-400 mb-2 hover:text-white"

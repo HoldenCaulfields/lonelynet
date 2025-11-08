@@ -216,7 +216,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
           </span>
         </div>
       `,
-      iconAnchor: [12, 24],
+      iconAnchor: [24, 48],
       popupAnchor: [0, -10],
     })
   };
@@ -232,7 +232,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
         return (
           <Marker key={socketId} position={[user.lat, user.lng]} icon={makeIcon(isSelf, isWaving)}>
             {isSelf ? (
-              <Tooltip direction="top" offset={[0, -20]} permanent interactive>
+              <Tooltip direction="top" offset={[-16, -40]} permanent interactive>
                 <div
                   onClick={(e) => {
                     e.stopPropagation();

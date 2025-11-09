@@ -1,7 +1,6 @@
 "use client";
 
 import { MapContainer, TileLayer, ZoomControl } from "react-leaflet";
-import UserLocation from "./userlocation-post/UserLocation";
 import MarkerContainer from "./marker/MarkerContainer";
 import Navbar from "../navbar/NavBar";
 import { useState } from "react";

@@ -5,9 +5,9 @@ import { Marker, Popup, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
 import { MessageCircle } from "lucide-react";
 import { socket, connectSocket } from "@/app/components/utils/socket";
-import { userIcon } from "../marker/Icon";
-import userIconImg from "@/public/red-icon.png";  // ảnh của bạn
+import userIconImg from "@/public/red-icon.png";
 import otherIconImg from "@/public/online.png";
+import UserProfilePopup from "./UserProfilePopup";
 
 interface Props {
   setShowChat: (v: boolean) => void;
@@ -87,7 +87,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
       socket.off("chat_invite");
       socket.off("wave_signal");
     };
-  }, [myUserId, userLocation, setRoomId, setShowChat, map]);
+  }, [myUserId, userLocation, setRoomId, setShowChat, map, fireworksAt]);
 
   // gửi vị trí định kỳ
   useEffect(() => {
@@ -217,7 +217,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
         </div>
       `,
       iconAnchor: [24, 48],
-      popupAnchor: [0, -10],
+      popupAnchor: [-20, -35],
     })
   };
 
@@ -241,11 +241,17 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
                     fireworksAt(point.x, point.y);
                     socket.emit("wave", { from: myUserId, lat: userLocation.lat, lng: userLocation.lng });
                   }}
-                  className="flex items-center gap-2 text-sm font-semibold cursor-pointer select-none"
+                  className="
+                    flex items-center gap-1
+                    text-sm font-semibold cursor-pointer select-none
+                    rounded-full shadow-md 
+                    transition-all duration-200 active:scale-[1.03]
+                    hover:bg-yellow-50 hover:shadow-lg hover:scale-[1.03]
+                  "
                   role="button"
                 >
-                  <span>👋</span>
-                  <span>Hey there 💥</span>
+                  <span>👋 </span>
+                  <span> Hey there 💥</span>
                 </div>
               </Tooltip>
             ) : null}
@@ -270,9 +276,8 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
                   </button>
                 </div>
               ) : (
-                <div className="text-center">
-                  <p className="font-semibold">✨ It&apos;s you!</p>
-                  <p className="text-sm text-gray-600">Click tooltip to celebrate 🎆</p>
+                <div>
+                  <UserProfilePopup address={userLocation}/>
                 </div>
               )}
             </Popup>

@@ -37,7 +37,7 @@ export default function UserLocationCard() {
             );
             const data = await res.json();
             locationData.country = data.address?.country || "Unknown";
-          } catch (err) {
+          } catch (_err) {
             locationData.country = "Unknown";
           }
 

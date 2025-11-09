@@ -228,3 +228,19 @@ body {
 .leaflet-fireworks-overlay {
   z-index: 650; /* trên layer bản đồ, dưới popup/controls nếu cần */
 }
+
+/* Links fb/ig/reddit */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.15s ease-out;
+}

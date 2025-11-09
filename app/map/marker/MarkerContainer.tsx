@@ -6,6 +6,7 @@ import axios from "axios";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { Zap, MessageCircle, Heart } from "lucide-react";
 import { getTagIcon } from "./Icon";
+import Links from "./Links";
 
 export interface MarkerData {
   _id: string;
@@ -14,6 +15,7 @@ export interface MarkerData {
   imageUrl?: string;
   tags?: string[];
   loves: number;
+  links?: { type: string; url: string }[];
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -293,6 +295,9 @@ export default function MarkerContainer({
                     >
                       <MessageCircle className="w-4 h-4 text-white" />
                     </button>
+
+                    {/*   LINKS */}
+                    <Links marker={marker} />
                   </div>
                 </div>
               </div>

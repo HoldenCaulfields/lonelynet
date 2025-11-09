@@ -6,6 +6,11 @@ const soulSchema = new mongoose.Schema({
     tags: {type: [String], default: []},
     loves: { type: Number, default: 0 },
     position: {type: [Number, Number], required: true},
+    links: [{ type: {type: String,
+          enum: ["facebook","instagram","x","reddit",
+            "github","linkedin","email","phone","website",],
+        },url: String,},
+    ],
 }, {timestamps: true});
 
 export default mongoose.model('Soul', soulSchema);

@@ -12,7 +12,6 @@ export default function Map() {
     const [searchText, setSearchText] = useState("");
     const [showChat, setShowChat] = useState(false);
     const [roomId, setRoomId] = useState<string | null>(null);
-    const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [showPost, setShowPost] = useState(false);
 
     const [userId] = useState(() => {
@@ -65,7 +64,6 @@ export default function Map() {
                 </MapContainer>
 
                 <Controls
-                    onLocationClick={(coords) => setUserLocation(coords)}
                     setRoomId={(id) => {
                         setRoomId(id);
                         setShowChat(true);

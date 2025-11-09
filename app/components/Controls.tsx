@@ -6,38 +6,14 @@ import GroupList from "./chatbox/GroupList";
 import UserLocationCard from "./chatbox/UserLocationCard";
 
 interface ControlsProps {
-    onLocationClick: (coords: { lat: number; lng: number }) => void;
     setRoomId: (roomId: string) => void;
     togglePost: () => void;
 }
 
-export default function Controls({ onLocationClick, setRoomId, togglePost }: ControlsProps) {
+export default function Controls({ setRoomId, togglePost }: ControlsProps) {
     const [active, setActive] = useState<"chat" | "post" | "location" | null>(
         null
     );
-    const [userLocation, setUserLocation] = useState<{ lat: number; lng: number }>({
-        lat: 0,
-        lng: 0,
-    });
-
-    const fetchLocation = (callback?: (coords: { lat: number; lng: number }) => void) => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                    setUserLocation(coords);
-                    callback?.(coords);
-                    onLocationClick(coords);
-                },
-                () => {
-                    const fallback = { lat: 0, lng: 0 };
-                    setUserLocation(fallback);
-                    callback?.(fallback);
-                    onLocationClick(fallback);
-                }
-            );
-        }
-    };
 
     // 🎨 Tông trắng đen hiện đại, đơn giản
     const buttons = [
@@ -66,7 +42,7 @@ export default function Controls({ onLocationClick, setRoomId, togglePost }: Con
             gradient: "from-black via-gray-900 to-black",
             hover: "hover:shadow-[0_0_25px_rgba(255,255,255,0.1)] hover:bg-gray-800",
             text: "text-white",
-            action: () => fetchLocation(() => setActive("location")),
+            action: () => setActive("location"),
         },
     ];
 

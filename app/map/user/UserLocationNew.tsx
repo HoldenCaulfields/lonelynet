@@ -45,6 +45,22 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
       },
       () => console.warn("⚠️ Không lấy được vị trí người dùng.")
     );
+    
+    const savedPosition = sessionStorage.getItem('flyToPosition');
+    if (savedPosition) {
+        try {
+            const { lat, lng, timestamp } = JSON.parse(savedPosition);
+            // Chỉ fly to nếu data mới (trong vòng 5 giây)
+            if (Date.now() - timestamp < 5000) {
+                setTimeout(() => {
+                    map.flyTo([lat, lng], 14, { duration: 1.2 });
+                }, 500); // Đợi map render xong
+            }
+            sessionStorage.removeItem('flyToPosition');
+        } catch (e) {
+            console.error('Failed to parse saved position:', e);
+        }
+    }
   }, [map]);
 
   // ====== POPUP CONTROL FOR SHOWPOST ======
@@ -275,7 +291,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                     fireworksAt(point.x, point.y);
                     socket.emit("wave", { from: myUserId, lat: userLocation.lat, lng: userLocation.lng });
                   }}
-                  className="
+                  className=" 
                     flex items-center gap-1
                     text-sm font-semibold cursor-pointer select-none
                     rounded-full shadow-md 

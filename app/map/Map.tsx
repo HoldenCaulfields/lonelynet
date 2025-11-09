@@ -13,7 +13,7 @@ export default function Map() {
     const [showChat, setShowChat] = useState(false);
     const [roomId, setRoomId] = useState<string | null>(null);
     const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-    const [openForm, setOpenForm] = useState(false);
+    const [showPost, setShowPost] = useState(false);
 
     const [userId] = useState(() => {
         if (typeof window !== "undefined") {
@@ -34,7 +34,7 @@ export default function Map() {
             {/* Map chiếm toàn bộ phần còn lại */}
             <div className="flex-1 relative">
                 <MapContainer
-                    center={[16, 107]} // đặt giữa thế giới
+                    center={[16, 107]} 
                     zoom={6}
                     minZoom={2}
                     style={{ height: "100%", width: "100%" }}
@@ -53,29 +53,24 @@ export default function Map() {
 
                     <ZoomControl position="bottomleft" />
 
-                    {/* MARKERS */}
                     <MarkerContainer
                         searchText={searchText}
                         setShowChat={setShowChat}
                         setRoomId={setRoomId}
                     />
 
-                    <UserLocationNew setShowChat={setShowChat} setRoomId={setRoomId}/>
-
-                    {/* {userLocation && (
-                        <UserLocation setOpenForm={setOpenForm} targetPosition={userLocation} />
-                    )} */}
+                    <UserLocationNew setShowChat={setShowChat} setRoomId={setRoomId} 
+                        showPost={showPost} setShowPost={setShowPost} />
 
                 </MapContainer>
 
                 <Controls
-                    openForm={openForm}
-                    setOpenForm={setOpenForm}
                     onLocationClick={(coords) => setUserLocation(coords)}
                     setRoomId={(id) => {
                         setRoomId(id);
                         setShowChat(true);
                     }}
+                    togglePost={() => setShowPost((prev) => !prev)}
                 />
             </div>
 

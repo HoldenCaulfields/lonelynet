@@ -1,24 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { MessageCircle, Edit, MapPin, XCircle } from "lucide-react";
+import { MessageCircle, Edit, MapPin } from "lucide-react";
 import GroupList from "./chatbox/GroupList";
-import PostForm from "../map/userlocation-post/postform/PostForm";
 import UserLocationCard from "./chatbox/UserLocationCard";
 
 interface ControlsProps {
     onLocationClick: (coords: { lat: number; lng: number }) => void;
     setRoomId: (roomId: string) => void;
-    openForm: boolean;
-    setOpenForm: (value: boolean) => void;
+    togglePost: () => void;
 }
 
-export default function Controls({
-    onLocationClick,
-    setRoomId,
-    openForm,
-    setOpenForm,
-}: ControlsProps) {
+export default function Controls({ onLocationClick, setRoomId, togglePost }: ControlsProps) {
     const [active, setActive] = useState<"chat" | "post" | "location" | null>(
         null
     );
@@ -64,7 +57,7 @@ export default function Controls({
             gradient: "from-black via-gray-900 to-black",
             hover: "hover:shadow-[0_0_25px_rgba(255,255,255,0.1)] hover:bg-gray-800",
             text: "text-white",
-            action: () => fetchLocation(() => setActive("post")),
+            action: () => togglePost(),
         },
         {
             id: "location",
@@ -110,35 +103,6 @@ export default function Controls({
                         onClose={() => setActive(null)}
                         onSelectRoom={(roomId) => setRoomId(roomId)}
                     />
-                )}
-
-                {/* 🧠 Post Form */}
-                {(active === "post" || openForm) && (
-                    <div
-                        className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4"
-                        onClick={() => {
-                            setActive(null);
-                            setOpenForm(false);
-                        }}
-                    >
-                        <div
-                            className="relative w-full max-w-xl rounded-2xl bg-white text-black border shadow-2xl overflow-hidden"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            {/* 🔴 Close */}
-                            <button
-                                className="absolute top-4 right-4 z-[900] p-2 rounded-full text-gray-500 hover:text-black bg-gray-100 hover:bg-gray-200 transition-colors"
-                                onClick={() => {
-                                    setActive(null);
-                                    setOpenForm(false);
-                                }}
-                            >
-                                <XCircle size={24} />
-                            </button>
-
-                            <PostForm address={userLocation} />
-                        </div>
-                    </div>
                 )}
 
                 {/* 📍 Location Info */}

@@ -12,6 +12,7 @@ import {
 import { Phone, Globe, Camera } from "lucide-react";
 import Tags from "./Tags";
 import axios from "axios";
+import { useMap } from "react-leaflet";
 
 const linkOptions = [
     { id: "facebook", label: "Facebook", icon: <SiFacebook className="w-4 h-4 text-blue-600" /> },
@@ -39,6 +40,7 @@ export default function UserProfilePopup({ address }: { address: Address }) {
     const [newLinkType, setNewLinkType] = useState("facebook");
     const [newLinkUrl, setNewLinkUrl] = useState("");
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+    const map = useMap();
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -78,6 +80,36 @@ export default function UserProfilePopup({ address }: { address: Address }) {
         setLinks((prev) => prev.filter((_, i) => i !== index));
     };
 
+    const handleSubmit = async () => {
+        const formData = new FormData();
+        if (imageFile) formData.append("image", imageFile);
+        formData.append("text", text);
+        selectedCategories.forEach((tag) => formData.append("tags[]", tag));
+        formData.append("links", JSON.stringify(links));
+        formData.append("position", JSON.stringify([address.lat, address.lng]));
+
+        try {
+            const res = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/lonelyland`,
+                formData,
+                { headers: { "Content-Type": "multipart/form-data" } }
+            );
+
+            alert("✅ Profile saved successfully!");
+
+            // 🗺️ Di chuyển map đến vị trí mới
+            map.flyTo([address.lat, address.lng], 14, {
+                duration: 1.2,
+            });
+
+            // (Tuỳ: nếu bạn có popup của marker này)
+            // Có thể trigger openPopup() nếu markerRefs[addressId] tồn tại
+
+        } catch (err) {
+            console.error(err);
+            alert("❌ Failed to save profile");
+        }
+    };
 
     return (
         <div className="w-[300px] bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
@@ -197,7 +229,7 @@ export default function UserProfilePopup({ address }: { address: Address }) {
                         }}
                         onChange={(e) => setNewLinkUrl(e.target.value)}
                         placeholder="Enter URL or contact..."
-                        className="flex-1 min-w-0 text-xs px-2 py-1 bg-transparent text-neutral-800 placeholder:text-neutral-400 outline-none"
+                        className="flex-1 min-w-0 text-[16px] md:text-xs px-2 py-1 bg-transparent text-neutral-800 placeholder:text-neutral-400 outline-none"
                     />
 
                     {/* Add button */}
@@ -211,25 +243,7 @@ export default function UserProfilePopup({ address }: { address: Address }) {
 
                 {/* 💾 Save button */}
                 <button
-                    onClick={async () => {
-                        const formData = new FormData();
-                        if (imageFile) formData.append("image", imageFile);
-                        formData.append("text", text);
-                        /* formData.append("tags", JSON.stringify(selectedCategories)); */
-                        selectedCategories.forEach((tag) => formData.append("tags[]", tag));
-                        formData.append("links", JSON.stringify(links));
-                        formData.append("position", JSON.stringify([address.lat, address.lng])); // nếu có
-
-                        try {
-                            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/lonelyland`, formData, {
-                                headers: { "Content-Type": "multipart/form-data" },
-                            });
-                            alert("✅ Profile saved successfully!");
-                        } catch (err) {
-                            console.error(err);
-                            alert("❌ Failed to save profile");
-                        }
-                    }}
+                    onClick={handleSubmit}
                     className="w-full mt-3 py-2 rounded-full bg-black text-white text-sm font-semibold hover:bg-gray-900 transition-all"
                 >
                     Create Soul

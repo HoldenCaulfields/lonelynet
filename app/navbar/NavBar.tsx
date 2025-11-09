@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Globe, Coffee } from "lucide-react";
+import { Globe, HeartPlus } from "lucide-react";
 import SearchBox from "./SearchBox";
 
 interface NavbarProps {
@@ -49,9 +49,9 @@ export default function Navbar({ searchText, setSearchText }: NavbarProps) {
             </Link>
             <Link
               className="hover:text-red-400 transition-colors duration-200 cursor-pointer"
-              href="/support"
+              href="/suggestion"
             >
-              <Coffee size={26} />
+              <HeartPlus size={26} />
             </Link>
           </div>
         </div>
@@ -94,12 +94,12 @@ export default function Navbar({ searchText, setSearchText }: NavbarProps) {
 
           {/* Buy Me a Coffee (navbar version for desktop) */}
           <Link
-            href="/support"
+            href="/suggestion"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-blue-400 hover:bg-blue-500 text-black font-medium px-4 py-2 rounded-full shadow-lg flex items-center gap-2 transition-transform hover:scale-105"
+            className="bg-blue-400 hover:bg-blue-500 text-black hover:text-white font-medium px-4 py-2 rounded-full shadow-lg flex items-center gap-2 transition-transform hover:scale-105"
           >
-            <Coffee className="w-5 h-5" />
+            <HeartPlus className="w-5 h-5" />
           </Link>
         </div>
       </div>

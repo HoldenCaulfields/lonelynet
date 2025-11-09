@@ -12,6 +12,8 @@ import UserProfilePopup from "./UserProfilePopup";
 interface Props {
   setShowChat: (v: boolean) => void;
   setRoomId: (v: string) => void;
+  showPost: boolean;
+  setShowPost: (v: boolean) => void;
 }
 
 interface UserData {
@@ -20,13 +22,14 @@ interface UserData {
   lng: number;
 }
 
-export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
+export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, setShowPost }: Props) {
   const [onlineUsers, setOnlineUsers] = useState<Record<string, UserData>>({});
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [mySocketId, setMySocketId] = useState<string | null>(null);
   const [myUserId] = useState(() => Math.floor(Math.random() * 1_000_000).toString());
   const [wavingUsers, setWavingUsers] = useState<Record<string, boolean>>({});
   const map = useMap();
+  const markerRefs = useRef<{ [key: string]: L.Marker }>({});
 
   // canvas overlay cho pháo hoa
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -43,6 +46,35 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
       () => console.warn("⚠️ Không lấy được vị trí người dùng.")
     );
   }, [map]);
+
+  // ====== POPUP CONTROL FOR SHOWPOST ======
+  useEffect(() => {
+    if (!mySocketId) return;
+    const marker = markerRefs.current[mySocketId];
+    if (!marker) return;
+
+    console.log("📍 showPost changed:", showPost);
+
+    if (showPost) {
+      // Mở popup
+      marker.openPopup();
+    } else {
+      // Đóng popup
+      marker.closePopup();
+    }
+
+    // Khi popup bị đóng (người dùng click ra ngoài), đồng bộ lại state
+    const handlePopupClose = () => {
+      console.log("❌ Popup closed, updating showPost=false");
+      setShowPost(false);
+    };
+
+    marker.on("popupclose", handlePopupClose);
+    return () => {
+      marker.off("popupclose", handlePopupClose);
+    };
+  }, [showPost, mySocketId, setShowPost]);
+
 
   // ====== SOCKET.IO ======
   useEffect(() => {
@@ -230,7 +262,9 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId }: Props) {
         const isSelf = socketId === mySocketId;
         const isWaving = wavingUsers[user.userId];
         return (
-          <Marker key={socketId} position={[user.lat, user.lng]} icon={makeIcon(isSelf, isWaving)}>
+          <Marker key={socketId} position={[user.lat, user.lng]} icon={makeIcon(isSelf, isWaving)} ref={(ref) => {
+            if (ref) markerRefs.current[socketId] = ref;
+          }}>
             {isSelf ? (
               <Tooltip direction="top" offset={[-16, -40]} permanent interactive>
                 <div

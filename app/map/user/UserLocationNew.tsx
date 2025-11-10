@@ -292,11 +292,11 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                     socket.emit("wave", { from: myUserId, lat: userLocation.lat, lng: userLocation.lng });
                   }}
                   className=" 
-                    flex items-center gap-1
+                    flex items-center gap-1 p-1 bg-amber-50
                     text-sm font-semibold cursor-pointer select-none
                     rounded-full shadow-md 
                     transition-all duration-200 active:scale-[1.03]
-                    hover:bg-yellow-50 hover:shadow-lg hover:scale-[1.03]
+                    hover:bg-blue-100 hover:shadow-lg hover:scale-[1.03]
                   "
                   role="button"
                 >

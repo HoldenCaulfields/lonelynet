@@ -6,11 +6,10 @@ import { Globe, HeartPlus } from "lucide-react";
 import SearchBox from "./SearchBox";
 
 interface NavbarProps {
-  searchText: string;
   setSearchText: (text: string) => void;
 }
 
-export default function Navbar({ searchText, setSearchText }: NavbarProps) {
+export default function Navbar({setSearchText }: NavbarProps) {
   return (
     <nav className="sticky top-0 z-[1100] w-full bg-gradient-to-r from-slate-900 via-black to-slate-900 border-b border-white/10 backdrop-blur-xl px-4 sm:px-6 py-3 shadow-lg animate-in slide-in-from-top-2 duration-200">
       <div className="max-w-7xl mx-auto flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -81,7 +80,7 @@ export default function Navbar({ searchText, setSearchText }: NavbarProps) {
         </Link>
 
         {/* SearchBox */}
-        <SearchBox searchText={searchText} setSearchText={setSearchText} />
+        <SearchBox setSearchText={setSearchText} />
 
         {/* Desktop: Right Links */}
         <div className="hidden lg:flex items-center gap-6 text-white font-semibold text-lg">

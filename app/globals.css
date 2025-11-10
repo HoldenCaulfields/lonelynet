@@ -244,3 +244,18 @@ body {
 .animate-fade-up {
   animation: fade-up 0.15s ease-out;
 }
+
+
+/* Ghi đè CSS Tooltip mặc định của Leaflet */
+.leaflet-tooltip {
+    /* 1. Xóa Nền (Background) */
+    background-color: transparent !important; 
+    
+    /* 2. Xóa Shadow */
+    box-shadow: none !important;
+    
+    /* 3. Xóa viền/padding (nếu có) */
+    border: none !important;
+    padding: 0 !important;
+}
+

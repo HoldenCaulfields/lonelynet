@@ -28,7 +28,7 @@ export default function Map() {
     return (
         <div className="flex flex-col h-screen w-full bg-gray-100">
             {/* Navbar ở trên */}
-            <Navbar searchText={searchText} setSearchText={setSearchText} />
+            <Navbar setSearchText={setSearchText} />
 
             {/* Map chiếm toàn bộ phần còn lại */}
             <div className="flex-1 relative">
@@ -81,6 +81,7 @@ export default function Map() {
                     onClose={() => setShowChat(false)}
                 />
             )}
+
         </div>
     );
 }

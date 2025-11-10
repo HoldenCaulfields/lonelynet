@@ -57,23 +57,38 @@ router.post("/", upload.single("image"), async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const { tag, search } = req.query;
+    let souls = [];
 
-    let query = {};
-
+    // 1️⃣ Nếu có tag → chỉ tìm theo tag (exact match)
     if (tag) {
-      query.tags = tag; // exact match
+      souls = await Soul.find({ tags: tag }).sort({ createdAt: -1 });
+      return res.json(souls || []);
     }
 
+    // 2️⃣ Nếu có search → thử tìm trong text trước
     if (search) {
-      query.$text = { $search: search };
+      // thử full-text search
+      souls = await Soul.find({ $text: { $search: search } }).sort({ createdAt: -1 });
+
+      // 3️⃣ Nếu không có kết quả → fallback tìm trong tags
+      if (!souls.length) {
+        souls = await Soul.find({
+          tags: { $regex: search, $options: 'i' },
+        }).sort({ createdAt: -1 });
+      }
+
+      return res.json(souls || []);
     }
 
-    const souls = await Soul.find(query).sort({ createdAt: -1 });
-    res.json(souls);
+    // 4️⃣ Không có tag / search → trả về tất cả
+    souls = await Soul.find().sort({ createdAt: -1 });
+    return res.json(souls || []);
   } catch (error) {
+    console.error("🔥 Error in /api/lonelyland:", error.message);
     res.status(500).json({ error: error.message });
   }
 });
+
 
 router.put("/:id/love", async (req, res) => {
   try {

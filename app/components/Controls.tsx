@@ -15,7 +15,6 @@ export default function Controls({ setRoomId, togglePost }: ControlsProps) {
         null
     );
 
-    // 🎨 Tông trắng đen hiện đại, đơn giản
     const buttons = [
         {
             id: "chat",

@@ -243,7 +243,7 @@ export default function UserProfilePopup({ address }: { address: Address }) {
                     <select
                         value={newLinkType}
                         onChange={(e) => setNewLinkType(e.target.value)}
-                        className="px-1 py-2 bg-white border-2 border-gray-200 rounded-xl outline-none focus:border-black transition-all text-sm font-medium cursor-pointer hover:bg-gray-50"
+                        className="px-1 py-3 md:py-2 bg-white border-2 border-gray-200 rounded-xl outline-none focus:border-black transition-all text-sm font-medium cursor-pointer hover:bg-gray-50"
                     >
                         {linkOptions.map((opt) => (
                             <option key={opt.id} value={opt.id}>

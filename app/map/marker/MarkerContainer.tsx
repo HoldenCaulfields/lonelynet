@@ -16,6 +16,7 @@ export interface MarkerData {
   tags?: string[];
   loves: number;
   links?: { type: string; url: string }[];
+  icon?: string;
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -212,7 +213,7 @@ export default function MarkerContainer({
       {/* Markers */}
       {markers.map((marker) => {
         const tag = marker.tags?.[0]?.toLowerCase() || "lonely";
-        const dynamicIcon = getTagIcon(tag);
+        const dynamicIcon = getTagIcon(marker.icon || tag);
 
         return (
           <Marker key={marker._id} position={marker.position} icon={dynamicIcon} eventHandlers={{ click: () => setCenter(marker) }}>
@@ -260,7 +261,7 @@ export default function MarkerContainer({
                         onClick={() => handleTagClick(item)}
                         className={`flex-shrink-0 inline-flex items-center px-2.5 py-1 text-xs font-semibold uppercase rounded-full border transition-all duration-200 ${selectedTag === item
                           ? "bg-black text-white border-black shadow-md"
-                          : "bg-gray-100 text-gray-800 border-gray-300 hover:border-black hover:bg-gray-200"
+                          : "bg-gray-100 text-gray-800 border-black hover:border-black hover:bg-gray-200"
                           }`}
                       >
                         #{item}

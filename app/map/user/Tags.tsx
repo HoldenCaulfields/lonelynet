@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, KeyboardEvent } from "react";
+import IconPicker from "./IconPicker";
 
 const TagList = [
     { name: "findjob", icon: <span>💼</span>, color: "bg-green-400" },
     { name: "lover", icon: <span>❤️</span>, color: "bg-pink-400" },
-    { name: "cooperate", icon: <span>🌌</span>, color: "bg-purple-400" },
+    { name: "cooperate", icon: <span>🌌</span>, color: "bg-orange-400" },
     { name: "music", icon: <span>🎵</span>, color: "bg-red-400" },
     { name: "books", icon: <span>📚</span>, color: "bg-yellow-400" },
 ];
@@ -20,11 +21,13 @@ interface Category {
 interface Props {
   selectedCategories: string[];
   setSelectedCategories: (cats: string[]) => void;
+  onSelect?: (icon: string) => void;
 }
 
 export default function Tags({
   selectedCategories,
   setSelectedCategories,
+  onSelect
 }: Props) {
   const [categories, setCategories] = useState<Category[]>(TagList);
   const [tagInput, setTagInput] = useState("");
@@ -48,7 +51,7 @@ export default function Tags({
         const newCategory: Category = {
           name: newCategoryName,
           icon: <span>🏷️</span>,
-          color: "bg-gradient-to-r from-purple-500 to-pink-500",
+          color: "bg-gradient-to-r from-blue-500 to-blue-400",
           isCustom: true,
         };
         setCategories([...categories, newCategory]);
@@ -137,17 +140,18 @@ export default function Tags({
           inputMode="text"
           enterKeyHint="done"
           className="
-      w-full px-4 py-2.5 rounded-full font-medium text-sm outline-none
-      bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700
-      border-2 border-gray-200 hover:border-gray-300 
-      focus:border-purple-300 focus:ring-4 focus:ring-purple-100/50
-      transition-all duration-200 shadow-sm hover:shadow-md
-      placeholder-gray-400 placeholder:font-normal
-      text-[16px]  /* ✅ prevents Safari zoom */
-    "
+            w-full px-4 py-2.5 rounded-full font-medium text-sm outline-none
+            bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700
+            border-2 border-gray-200 hover:border-gray-300 
+            focus:border-purple-300 focus:ring-4 focus:ring-purple-100/50
+            transition-all duration-200 shadow-sm hover:shadow-md
+            placeholder-gray-400 placeholder:font-normal
+            text-[16px] 
+          "
         />
       </div>
 
+      <IconPicker onSelect={(icon) => onSelect?.(icon)}/>
     </div>
   );
 }

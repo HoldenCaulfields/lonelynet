@@ -10,9 +10,10 @@ import {
     SiYoutube
 } from "react-icons/si";
 
-import { Phone, Globe, Camera, Loader2, Send, Plus, X } from "lucide-react";
+import { Phone, Globe, Camera, Loader2, Send, X } from "lucide-react";
 import Tags from "./Tags";
 import { useMap } from "react-leaflet";
+import axios from 'axios';
 
 const linkOptions = [
     { id: "facebook", label: "Facebook", icon: <SiFacebook className="w-4 h-4 text-blue-600" /> },
@@ -43,6 +44,7 @@ export default function UserProfilePopup({ address }: { address: Address }) {
     const map = useMap();
     const [loading, setLoading] = useState(false);
     const [imageLoading, setImageLoading] = useState(false);
+    const [selectedIcon, setSelectedIcon] = useState<string>("");
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -92,25 +94,26 @@ export default function UserProfilePopup({ address }: { address: Address }) {
         selectedCategories.forEach((tag) => formData.append("tags[]", tag));
         formData.append("links", JSON.stringify(links));
         formData.append("position", JSON.stringify([address.lat, address.lng]));
+        formData.append("icon", selectedIcon);
 
         try {
             setLoading(true);
-            
+
             // 1. Gửi form data tới backend
-            const res = await fetch(
+            const res  = await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/api/lonelyland`,
+                formData,
                 {
-                    method: "POST",
-                    body: formData,
+                    headers: { "Content-Type": "multipart/form-data" },
                 }
             );
 
-            if (!res.ok) throw new Error("Failed to save");
+            if (res.status !== 200) throw new Error("Failed to save");
 
             // 2. Reload page (chờ 100ms cho backend xử lý xong)
             await new Promise((resolve) => setTimeout(resolve, 100));
             window.location.reload();
-            
+
             // 3. Fly to vị trí mới sau khi page reload xong (sẽ tự động chạy sau reload)
             // Lưu vị trí vào sessionStorage để fly to sau khi reload
             sessionStorage.setItem('flyToPosition', JSON.stringify({
@@ -179,7 +182,9 @@ export default function UserProfilePopup({ address }: { address: Address }) {
                 </div>
 
                 {/* Tags */}
-                <Tags selectedCategories={selectedCategories} setSelectedCategories={setSelectedCategories} />
+                <Tags selectedCategories={selectedCategories} 
+                    setSelectedCategories={setSelectedCategories} 
+                    onSelect={(icon) => setSelectedIcon(icon)}/>
 
                 {/* Links Display */}
                 {links.length > 0 && (

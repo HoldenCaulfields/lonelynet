@@ -11,6 +11,7 @@ const soulSchema = new mongoose.Schema({
             "github","linkedin","email","phone","website",],
         },url: String,},
     ],
+    icon: {type: String},
 }, {timestamps: true});
 
 export default mongoose.model('Soul', soulSchema);

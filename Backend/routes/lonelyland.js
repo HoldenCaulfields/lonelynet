@@ -8,7 +8,7 @@ const router = express.Router();
 //Create Soul (post):
 router.post("/", upload.single("image"), async (req, res) => {
   try {
-    const { text, tags, position, links } = req.body;
+    const { text, tags, position, links, icon } = req.body;
     const parsedPos = JSON.parse(position);
 
     // build update fields dynamically
@@ -21,10 +21,12 @@ router.post("/", upload.single("image"), async (req, res) => {
     }
     if (req.file) updateData.imageUrl = req.file.path;
     if (links) {
-      updateData.links = Array.isArray(links)
-        ? links
-        : JSON.parse(links);
+      const parsedLinks = Array.isArray(links) ? links : JSON.parse(links);
+      if (parsedLinks.length > 0) {
+        updateData.links = parsedLinks;
+      }
     }
+    if (icon) updateData.icon = icon;
 
     let soul = await Soul.findOne({ position: parsedPos });
 
@@ -44,6 +46,7 @@ router.post("/", upload.single("image"), async (req, res) => {
         position: parsedPos,
         imageUrl: req.file ? req.file.path : null,
         links: links ? JSON.parse(links) : [],
+        icon: icon || "",
       });
       await newSoul.save();
       return res.status(201).json({ message: "Created new post", soul: newSoul });

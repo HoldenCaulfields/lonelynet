@@ -14,6 +14,7 @@ export default function Map() {
     const [showChat, setShowChat] = useState(false);
     const [roomId, setRoomId] = useState<string | null>(null);
     const [showPost, setShowPost] = useState(false);
+    const [musicUrl, setMusicUrl] = useState<string | null>(null);
 
     const [userId] = useState(() => {
         if (typeof window !== "undefined") {
@@ -29,7 +30,7 @@ export default function Map() {
     return (
         <div className="flex flex-col h-screen w-full bg-gray-100">
             {/* Navbar ở trên */}
-            <Navbar setSearchText={setSearchText} />
+            <Navbar setSearchText={setSearchText} setMusicUrl={setMusicUrl}/>
 
             {/* Map chiếm toàn bộ phần còn lại */}
             <div className="flex-1 relative">
@@ -60,7 +61,7 @@ export default function Map() {
                     />
 
                     <UserLocationNew setShowChat={setShowChat} setRoomId={setRoomId} 
-                        showPost={showPost} setShowPost={setShowPost} />
+                        showPost={showPost} setShowPost={setShowPost} musicUrl={musicUrl}/>
 
                     {/* <ThemeMarker theme="webdev" shape="circle" center={[37.7749, -122.4194]} /> */}
 

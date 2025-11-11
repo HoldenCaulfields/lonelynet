@@ -8,12 +8,10 @@ export default function initSocket(io) {
   io.on("connection", (socket) => {
     console.log("⚡ New client connected:", socket.id);
 
-    // ─────────────────────────────
-    // 🟢 USER ONLINE
-    // ─────────────────────────────
+  // 🟢 USER ONLINE
     socket.on("userOnline", (userId) => {
       if (!userId) return;
-      onlineUsers[socket.id] = { userId, lat: 0, lng: 0 };
+      onlineUsers[socket.id] = { userId, lat: 0, lng: 0, musicUrl: null }; // Thêm musicUrl
       console.log(`🟢 ${userId} is now online (${socket.id})`);
 
       io.emit(
@@ -21,7 +19,12 @@ export default function initSocket(io) {
         Object.fromEntries(
           Object.entries(onlineUsers).map(([id, u]) => [
             id,
-            { userId: u.userId, lat: u.lat, lng: u.lng },
+            { 
+              userId: u.userId, 
+              lat: u.lat, 
+              lng: u.lng,
+              musicUrl: u.musicUrl // ✅ Thêm dòng này
+            },
           ])
         )
       );
@@ -30,6 +33,28 @@ export default function initSocket(io) {
     socket.on("wave", ({ from, lat, lng }) => {
       console.log("👋 Wave from:", from);
       io.emit("wave_signal", { from, lat, lng }); // broadcast tới mọi client
+    });
+
+    socket.on("update_music", ({ userId, musicUrl }) => {
+      const user = onlineUsers[socket.id];
+      if (!user) return;
+
+      user.musicUrl = musicUrl;
+      io.emit(
+        "onlineUsers",
+        Object.fromEntries(
+          Object.entries(onlineUsers).map(([id, u]) => [
+            id,
+            { 
+              userId: u.userId, 
+              lat: u.lat, 
+              lng: u.lng,
+              musicUrl: u.musicUrl // ✅ Thêm dòng này
+            },
+          ])
+        )
+      );
+      console.log(`🎵 ${userId} is now playing: ${musicUrl}`);
     });
 
     // ─────────────────────────────
@@ -45,7 +70,7 @@ export default function initSocket(io) {
           Object.fromEntries(
             Object.entries(onlineUsers).map(([id, u]) => [
               id,
-              { userId: u.userId, lat: u.lat, lng: u.lng },
+              { userId: u.userId, lat: u.lat, lng: u.lng, musicUrl: u.musicUrl },
             ])
           )
         );
@@ -139,7 +164,7 @@ export default function initSocket(io) {
           Object.fromEntries(
             Object.entries(onlineUsers).map(([id, u]) => [
               id,
-              { userId: u.userId, lat: u.lat, lng: u.lng },
+              { userId: u.userId, lat: u.lat, lng: u.lng, musicUrl: u.musicUrl },
             ])
           )
         );

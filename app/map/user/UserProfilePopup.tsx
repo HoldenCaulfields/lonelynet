@@ -12,7 +12,6 @@ import {
 
 import { Phone, Globe, Camera, Loader2, Send, X } from "lucide-react";
 import Tags from "./Tags";
-import { useMap } from "react-leaflet";
 import axios from 'axios';
 
 const linkOptions = [
@@ -41,7 +40,6 @@ export default function UserProfilePopup({ address }: { address: Address }) {
     const [newLinkType, setNewLinkType] = useState("facebook");
     const [newLinkUrl, setNewLinkUrl] = useState("");
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-    const map = useMap();
     const [loading, setLoading] = useState(false);
     const [imageLoading, setImageLoading] = useState(false);
     const [selectedIcon, setSelectedIcon] = useState<string>("");

@@ -3,26 +3,28 @@
 import { useEffect, useRef, useState } from "react";
 import { Marker, Popup, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
-import { MessageCircle } from "lucide-react";
 import { socket, connectSocket } from "@/app/components/utils/socket";
 import userIconImg from "@/public/red-icon.png";
 import otherIconImg from "@/public/online.png";
 import UserProfilePopup from "./UserProfilePopup";
+import OnlinePopup from "./OnlinePopup";
 
 interface Props {
   setShowChat: (v: boolean) => void;
   setRoomId: (v: string) => void;
   showPost: boolean;
   setShowPost: (v: boolean) => void;
+  musicUrl: string | null;
 }
 
 interface UserData {
   userId: string;
   lat: number;
   lng: number;
+  musicUrl?: string | null;
 }
 
-export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, setShowPost }: Props) {
+export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, setShowPost, musicUrl }: Props) {
   const [onlineUsers, setOnlineUsers] = useState<Record<string, UserData>>({});
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [mySocketId, setMySocketId] = useState<string | null>(null);
@@ -102,7 +104,10 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
       if (userLocation) socket.emit("update_location", userLocation);
     });
 
-    socket.on("onlineUsers", (users) => setOnlineUsers(users || {}));
+    socket.on("onlineUsers", (users) => {
+      console.log("📡 Received onlineUsers from backend:", users);
+      setOnlineUsers(users || {});
+    });
     socket.on("disconnect", () => setOnlineUsers({}));
 
     // nhận wave / fireworks
@@ -128,6 +133,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
       setShowChat(true);
     });
 
+
     return () => {
       socket.off("onlineUsers");
       socket.off("connect");
@@ -145,6 +151,12 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
     }, 10000);
     return () => clearInterval(interval);
   }, [userLocation]);
+
+  useEffect(() => {
+  console.log("🎵 Emitting update_music:", musicUrl); // Thêm log này
+  if (!musicUrl) return;
+  socket.emit("update_music", { userId: myUserId, musicUrl });
+}, [musicUrl, myUserId]);
 
   // ====== CANVAS FIREWORKS ======
   function ensureCanvas(): HTMLCanvasElement {
@@ -277,6 +289,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
       {Object.entries(onlineUsers).map(([socketId, user]) => {
         const isSelf = socketId === mySocketId;
         const isWaving = wavingUsers[user.userId];
+
         return (
           <Marker key={socketId} position={[user.lat, user.lng]} icon={makeIcon(isSelf, isWaving)} ref={(ref) => {
             if (ref) markerRefs.current[socketId] = ref;
@@ -308,32 +321,13 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
 
             <Popup>
               {!isSelf ? (
-                <div className="flex flex-col items-center gap-3 p-4 bg-white/10 backdrop-blur-md rounded-2xl shadow-lg border border-white/20 transition-all hover:scale-105 hover:bg-white/20 duration-300">
-                  <div className="flex flex-col items-center gap-1">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-md">
-                      {user.userId.charAt(0).toUpperCase()}
-                    </div>
-                    <p className="font-semibold text-white text-sm opacity-90 mt-1">
-                      👤 {user.userId}
-                    </p>
-                  </div>
-
-                  <button
-                    className="group flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:from-blue-600 hover:to-indigo-700 active:scale-95 transition-all duration-200 shadow-md"
-                    onClick={() => {
-                      const from = myUserId;
-                      const to = user.userId;
-                      const room = [from, to].sort().join("_");
-                      socket.emit("start_chat", { from, to });
-                      setRoomId(room);
-                      setShowChat(true);
-                    }}
-                  >
-                    <MessageCircle className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                    <span>Chat</span>
-                  </button>
-                </div>
-
+                <OnlinePopup
+                  user={user}
+                  myUserId={myUserId}
+                  setRoomId={setRoomId}
+                  setShowChat={setShowChat}
+                /* musicUrl={musicUrl} */
+                />
               ) : (
                 <div>
                   <UserProfilePopup address={userLocation} />

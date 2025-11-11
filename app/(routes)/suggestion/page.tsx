@@ -106,9 +106,9 @@ export default function SuggestionBoxPage() {
       </div>
 
       {/* FOOTER */}
-      <p className="mt-8 text-sm text-gray-500">
+      <Link href={"/"} className="mt-8 text-sm text-gray-500">
         Made with 💙 by <span className="text-blue-400 font-medium">LonelyNet</span>
-      </p>
+      </Link>
     </main>
   );
 }

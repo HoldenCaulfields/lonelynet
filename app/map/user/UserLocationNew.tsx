@@ -45,21 +45,21 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
       },
       () => console.warn("⚠️ Không lấy được vị trí người dùng.")
     );
-    
+
     const savedPosition = sessionStorage.getItem('flyToPosition');
     if (savedPosition) {
-        try {
-            const { lat, lng, timestamp } = JSON.parse(savedPosition);
-            // Chỉ fly to nếu data mới (trong vòng 5 giây)
-            if (Date.now() - timestamp < 5000) {
-                setTimeout(() => {
-                    map.flyTo([lat, lng], 14, { duration: 1.2 });
-                }, 500); // Đợi map render xong
-            }
-            sessionStorage.removeItem('flyToPosition');
-        } catch (e) {
-            console.error('Failed to parse saved position:', e);
+      try {
+        const { lat, lng, timestamp } = JSON.parse(savedPosition);
+        // Chỉ fly to nếu data mới (trong vòng 5 giây)
+        if (Date.now() - timestamp < 5000) {
+          setTimeout(() => {
+            map.flyTo([lat, lng], 14, { duration: 1.2 });
+          }, 500); // Đợi map render xong
         }
+        sessionStorage.removeItem('flyToPosition');
+      } catch (e) {
+        console.error('Failed to parse saved position:', e);
+      }
     }
   }, [map]);
 
@@ -308,10 +308,18 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
 
             <Popup>
               {!isSelf ? (
-                <div className="flex flex-col items-center gap-2">
-                  <p className="font-semibold">👤 {user.userId}</p>
+                <div className="flex flex-col items-center gap-3 p-4 bg-white/10 backdrop-blur-md rounded-2xl shadow-lg border border-white/20 transition-all hover:scale-105 hover:bg-white/20 duration-300">
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-md">
+                      {user.userId.charAt(0).toUpperCase()}
+                    </div>
+                    <p className="font-semibold text-white text-sm opacity-90 mt-1">
+                      👤 {user.userId}
+                    </p>
+                  </div>
+
                   <button
-                    className="flex items-center gap-2 px-3 py-2 rounded-full bg-blue-600 hover:bg-blue-700 transition-all duration-200 shadow-md text-white"
+                    className="group flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:from-blue-600 hover:to-indigo-700 active:scale-95 transition-all duration-200 shadow-md"
                     onClick={() => {
                       const from = myUserId;
                       const to = user.userId;
@@ -321,13 +329,14 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                       setShowChat(true);
                     }}
                   >
-                    <MessageCircle className="w-4 h-4" />
+                    <MessageCircle className="w-4 h-4 group-hover:scale-110 transition-transform" />
                     <span>Chat</span>
                   </button>
                 </div>
+
               ) : (
                 <div>
-                  <UserProfilePopup address={userLocation}/>
+                  <UserProfilePopup address={userLocation} />
                 </div>
               )}
             </Popup>

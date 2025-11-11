@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Globe, HeartPlus } from "lucide-react";
 import SearchBox from "./SearchBox";
+import { Montserrat } from "next/font/google";
+const montserrat = Montserrat({ subsets: ["latin"], weight: ["600", "700"] });
 
 interface NavbarProps {
   setSearchText: (text: string) => void;
@@ -12,7 +14,7 @@ interface NavbarProps {
 export default function Navbar({setSearchText }: NavbarProps) {
   return (
     <nav className="sticky top-0 z-[1100] w-full bg-gradient-to-r from-slate-900 via-black to-slate-900 border-b border-white/10 backdrop-blur-xl px-4 sm:px-6 py-3 shadow-lg animate-in slide-in-from-top-2 duration-200">
-      <div className="max-w-7xl mx-auto flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div className={`${montserrat.className} max-w-7xl mx-auto flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between`}>
 
         {/* Mobile: Logo + Icons */}
         <div className="flex items-center justify-between lg:hidden">
@@ -29,14 +31,9 @@ export default function Navbar({setSearchText }: NavbarProps) {
               priority
               className="rounded-3xl"
             />
-            <Image
-              src="/LonelyNet.png"
-              width={80}
-              height={38}
-              alt="LonelyNet"
-              style={{ width: "80px", height: "38px" }}
-              priority
-            />
+            <span className="text-white font-black text-xl tracking-tight drop-shadow-[0_0_10px_rgba(0,150,255,0.6)]">
+            LonelyNet
+          </span>
           </Link>
 
           <div className="flex items-center gap-5 text-white">
@@ -69,18 +66,15 @@ export default function Navbar({setSearchText }: NavbarProps) {
             priority
             className="rounded-3xl"
           />
-          <Image
-            src="/LonelyNet.png"
-            width={95}
-            height={45}
-            alt="LonelyNet"
-            style={{ width: "80px", height: "38px" }}
-            priority
-          />
+          <span className={`text-white font-black text-xl tracking-tight drop-shadow-[0_0_10px_rgba(0,150,255,0.6)]`}>
+            LonelyNet
+          </span>
         </Link>
 
         {/* SearchBox */}
         <SearchBox setSearchText={setSearchText} />
+
+        
 
         {/* Desktop: Right Links */}
         <div className="hidden lg:flex items-center gap-6 text-white font-semibold text-lg">

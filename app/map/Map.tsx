@@ -7,6 +7,7 @@ import { useState } from "react";
 import ChatView from "../components/chatbox/ChatView";
 import Controls from "../components/Controls";
 import UserLocationNew from "./user/UserLocationNew";
+import ThemeMarker from "./topics/ThemeMarker";
 
 export default function Map() {
     const [searchText, setSearchText] = useState("");
@@ -60,6 +61,8 @@ export default function Map() {
 
                     <UserLocationNew setShowChat={setShowChat} setRoomId={setRoomId} 
                         showPost={showPost} setShowPost={setShowPost} />
+
+                    {/* <ThemeMarker theme="webdev" shape="circle" center={[37.7749, -122.4194]} /> */}
 
                 </MapContainer>
 

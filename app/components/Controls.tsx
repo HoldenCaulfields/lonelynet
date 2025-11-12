@@ -8,9 +8,10 @@ import UserLocationCard from "./chatbox/UserLocationCard";
 interface ControlsProps {
     setRoomId: (roomId: string) => void;
     togglePost: () => void;
+    showPost: boolean;
 }
 
-export default function Controls({ setRoomId, togglePost }: ControlsProps) {
+export default function Controls({ setRoomId, togglePost, showPost }: ControlsProps) {
     const [active, setActive] = useState<"chat" | "post" | "location" | null>(
         null
     );
@@ -48,6 +49,7 @@ export default function Controls({ setRoomId, togglePost }: ControlsProps) {
     return (
         <>
             {/* ⚪ Floating Buttons */}
+            {!showPost && (
             <div className="fixed bottom-6 right-0 z-[1000] flex flex-col gap-4 md:bottom-8 md:right-8">
                 {buttons.map((btn) => (
                     <button
@@ -67,7 +69,7 @@ export default function Controls({ setRoomId, togglePost }: ControlsProps) {
                         </span>
                     </button>
                 ))}
-            </div>
+            </div>)}
 
             {/* ⚡ Panels */}
             <div className="fixed bottom-24 right-6 w-[90vw] max-w-sm md:max-w-md z-[1100]">

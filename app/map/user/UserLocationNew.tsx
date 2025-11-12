@@ -319,14 +319,13 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
               </Tooltip>
             ) : null}
 
-            <Popup>
+            <Popup eventHandlers={{ add: () => { if (isSelf) setShowPost(true)} }}>
               {!isSelf ? (
                 <OnlinePopup
                   user={user}
                   myUserId={myUserId}
                   setRoomId={setRoomId}
                   setShowChat={setShowChat}
-                /* musicUrl={musicUrl} */
                 />
               ) : (
                 <div>

@@ -129,7 +129,7 @@ export default function UserProfilePopup({ address }: { address: Address }) {
     return (
         <div className="w-[300px] bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 animate-in fade-in slide-in-from-bottom-4 duration-300">
             {/* Image Upload Section */}
-            <div className="relative group">
+            <div className="relative group ">
                 {image ? (
                     <label className="block cursor-pointer relative overflow-hidden">
                         <img
@@ -137,7 +137,7 @@ export default function UserProfilePopup({ address }: { address: Address }) {
                             alt="upload"
                             className="w-full h-44 object-cover transition-transform duration-300 group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
+                        <div className="absolute inset-0  group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
                             <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-2 text-white font-medium">
                                 <Camera size={20} />
                                 <span className="text-sm">Change Image</span>
@@ -146,7 +146,7 @@ export default function UserProfilePopup({ address }: { address: Address }) {
                         <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                     </label>
                 ) : (
-                    <label className="w-full h-44 flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 cursor-pointer hover:from-gray-100 hover:to-gray-200 transition-all duration-300 border-b border-gray-200">
+                    <label className="w-full h-44 flex flex-col items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 cursor-pointer hover:from-gray-100 hover:to-gray-200 transition-all duration-300 border-b border-gray-200">
                         {imageLoading ? (
                             <Loader2 size={32} className="animate-spin text-gray-400" />
                         ) : (

@@ -73,6 +73,7 @@ export default function Map() {
                         setShowChat(true);
                     }}
                     togglePost={() => setShowPost((prev) => !prev)}
+                    showPost={showPost}
                 />
             </div>
 

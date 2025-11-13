@@ -10,7 +10,7 @@ import {
     SiYoutube
 } from "react-icons/si";
 
-import { Phone, Globe, Camera, Loader2, Send, X } from "lucide-react";
+import { Phone, Globe, Camera, Loader2, Send, X, Sparkles } from "lucide-react";
 import Tags from "./Tags";
 import axios from 'axios';
 
@@ -98,7 +98,7 @@ export default function UserProfilePopup({ address }: { address: Address }) {
             setLoading(true);
 
             // 1. Gửi form data tới backend
-            const res  = await axios.post(
+            const res = await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/api/lonelyland`,
                 formData,
                 {
@@ -129,33 +129,53 @@ export default function UserProfilePopup({ address }: { address: Address }) {
     return (
         <div className="w-[300px] bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 animate-in fade-in slide-in-from-bottom-4 duration-300">
             {/* Image Upload Section */}
-            <div className="relative group ">
+            <div className="relative">
                 {image ? (
-                    <label className="block cursor-pointer relative overflow-hidden">
-                        <img
-                            src={image}
-                            alt="upload"
-                            className="w-full h-44 object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0  group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-2 text-white font-medium">
-                                <Camera size={20} />
-                                <span className="text-sm">Change Image</span>
+                    <label className="block cursor-pointer relative overflow-hidden group">
+                        <div className="relative h-56">
+                            <img
+                                src={image}
+                                alt="upload"
+                                className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                        </div>
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
+                            <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-105 flex flex-col items-center gap-2 text-white">
+                                <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
+                                    <Camera size={26} strokeWidth={1.5} />
+                                </div>
+                                <span className="text-sm font-medium tracking-wide">Change Photo</span>
                             </div>
                         </div>
                         <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                     </label>
                 ) : (
-                    <label className="w-full h-44 flex flex-col items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 cursor-pointer hover:from-gray-100 hover:to-gray-200 transition-all duration-300 border-b border-gray-200">
+                    <label className="w-full h-56 flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-50 cursor-pointer hover:from-white hover:via-gray-50 hover:to-white transition-all duration-700 relative overflow-hidden group border-b border-gray-100">
+                        {/* Animated dots */}
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                            <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-black/10 rounded-full animate-ping" />
+                            <div className="absolute bottom-1/3 right-1/3 w-1 h-1 bg-black/10 rounded-full animate-ping" style={{ animationDelay: '0.3s' }} />
+                            <div className="absolute top-1/2 right-1/4 w-1 h-1 bg-black/10 rounded-full animate-ping" style={{ animationDelay: '0.6s' }} />
+                        </div>
+                        
                         {imageLoading ? (
-                            <Loader2 size={32} className="animate-spin text-gray-400" />
+                            <div className="flex flex-col items-center gap-4">
+                                <Loader2 size={40} className="animate-spin text-black" strokeWidth={1.5} />
+                                <span className="text-sm text-gray-400 tracking-wide">Processing...</span>
+                            </div>
                         ) : (
                             <>
-                                <div className="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center mb-3 transform transition-transform duration-300 hover:scale-110">
-                                    <Camera size={28} className="text-gray-700" />
+                                <div className="relative mb-4">
+                                    <div className="w-20 h-20 rounded-full bg-black flex items-center justify-center transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg">
+                                        <Camera size={34} className="text-white" strokeWidth={1.5} />
+                                    </div>
+                                    <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-white border-2 border-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                        <Sparkles size={14} className="text-black" />
+                                    </div>
                                 </div>
-                                <span className="text-sm font-semibold text-gray-700">Add a Photo</span>
-                                <span className="text-xs text-gray-500 mt-1">Click to upload</span>
+                                <span className="text-base font-bold text-black mb-1 tracking-wide">Add Your Photo</span>
+                                <span className="text-sm text-gray-400">Click anywhere to upload</span>
                             </>
                         )}
                         <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
@@ -180,9 +200,9 @@ export default function UserProfilePopup({ address }: { address: Address }) {
                 </div>
 
                 {/* Tags */}
-                <Tags selectedCategories={selectedCategories} 
-                    setSelectedCategories={setSelectedCategories} 
-                    onSelect={(icon) => setSelectedIcon(icon)}/>
+                <Tags selectedCategories={selectedCategories}
+                    setSelectedCategories={setSelectedCategories}
+                    onSelect={(icon) => setSelectedIcon(icon)} />
 
                 {/* Links Display */}
                 {links.length > 0 && (

@@ -270,14 +270,14 @@ export default function MarkerContainer({
                   </div>
 
                   {/* ACTIONS */}
-                  <div className="flex gap-2 pt-2 border-t border-gray-200">
+                  <div className="flex gap-2 pt-2 border-t border-gray-200 ">
                     {/* LOVE BUTTON */}
                     <button
-                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full bg-red-600 hover:bg-red-700 transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
+                      className="flex-1 flex hover:scale-110 hover:-rotate-6 items-center justify-center gap-1.5 px-3 py-2 rounded-full bg-red-600 hover:bg-red-700 transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
                       onClick={() => handleLovePress(marker._id)}
                     >
                       <Heart
-                        className="w-4 h-4 text-white transition-transform duration-150 group-hover:scale-110"
+                        className="w-4 h-4 hover:animate-bounce text-white transition-transform duration-150 group-hover:scale-110"
                         fill="white"
                       />
                       <span className="font-semibold text-white text-sm">
@@ -287,7 +287,7 @@ export default function MarkerContainer({
 
                     {/* CHAT BUTTON */}
                     <button
-                      className="flex-1 flex items-center justify-center px-3 py-2 rounded-full bg-blue-600 hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                      className="flex-1 hover:scale-110 hover:rotate-6 flex items-center justify-center px-3 py-2 rounded-full bg-blue-600 hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
                       onClick={() => {
                         setShowChat(true);
                         setRoomId(marker._id);

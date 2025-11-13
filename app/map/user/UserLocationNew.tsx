@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Marker, Popup, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
 import { socket, connectSocket } from "@/app/components/utils/socket";
@@ -8,7 +8,9 @@ import userIconImg from "@/public/red-icon.png";
 import otherIconImg from "@/public/online.png";
 import UserProfilePopup from "./UserProfilePopup";
 import OnlinePopup from "./OnlinePopup";
+import CreateSoulModal from "./CreateSoulModal";
 import { Hand, Pencil, Gamepad, Rocket, Star, Sword, Trophy, Zap, X, Sparkles } from "lucide-react";
+import UserPopup from "./UserPopup";
 
 interface Props {
   setShowChat: (v: boolean) => void;
@@ -34,7 +36,6 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
   const map = useMap();
   const markerRefs = useRef<{ [key: string]: L.Marker }>({});
   const [showModal, setShowModal] = useState(false);
-  const [postContent, setPostContent] = useState("");
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const [submenuVisible, setSubmenuVisible] = useState<number | null>(null);
   const [showGameMenu, setShowGameMenu] = useState(false);
@@ -329,7 +330,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                           });
                         }}
                         className="group relative bg-gradient-to-br from-yellow-400 to-amber-500 text-white rounded-xl p-3 hover:scale-110 hover:-rotate-6 shadow-lg transition-all duration-300 flex-1"
-                        title="Vẫy tay"
+                        title="Wave Hello"
                       >
                         <Hand size={20} className="mx-auto group-hover:animate-bounce" />
                       </button>
@@ -341,7 +342,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                           setShowModal(true);
                         }}
                         className="group relative bg-gradient-to-br from-sky-400 to-blue-500 text-white rounded-xl p-3 hover:scale-110 hover:rotate-6 shadow-lg transition-all duration-300 flex-1"
-                        title="Tạo bài viết"
+                        title="Create Soul"
                       >
                         <Pencil size={20} className="mx-auto" />
                       </button>
@@ -355,7 +356,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                         }}
                         className={`group relative bg-gradient-to-br from-red-500 to-pink-500 text-white rounded-xl p-3 hover:scale-110 shadow-lg transition-all duration-300 flex-1 ${showGameMenu ? 'rotate-180' : 'hover:rotate-6'
                           }`}
-                        title="Mini Games"
+                        title="Fire Up"
                       >
                         <Gamepad size={20} className="mx-auto" />
                       </button>
@@ -423,79 +424,15 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                 )}
 
                 {/* Modal Đăng bài nâng cao */}
-                {showModal && (
-                  <div
-                    className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fadeIn"
-                    onClick={() => {
-                      setShowModal(false);
-                      setPostContent("");
-                    }}
-                  >
-                    <div
-                      onClick={(e) => e.stopPropagation()}
-                      className="bg-white rounded-3xl shadow-2xl p-8 w-[90%] max-w-md animate-slideUp relative"
-                    >
-                      <button
-                        onClick={() => {
-                          setShowModal(false);
-                          setPostContent("");
-                        }}
-                        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 hover:rotate-90 hover:scale-110 transition-all duration-200 p-1"
-                      >
-                        <X size={24} />
-                      </button>
-
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg ring-4 ring-purple-100">
-                          {myUserId.slice(0, 1)}
-                        </div>
-                        <div>
-                          <h2 className="text-2xl font-bold text-gray-800">Tạo bài viết</h2>
-                          <p className="text-sm text-gray-500">Chia sẻ khoảnh khắc của bạn</p>
-                        </div>
-                      </div>
-
-                      <textarea
-                        value={postContent}
-                        onChange={(e) => setPostContent(e.target.value)}
-                        className="w-full border-2 border-gray-200 rounded-2xl p-4 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none min-h-[120px]"
-                        placeholder="Bạn đang nghĩ gì? ✨"
-                        rows={5}
-                      />
-
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => {
-                            setShowModal(false);
-                            setPostContent("");
-                          }}
-                          className="flex-1 bg-gray-100 text-gray-700 font-semibold rounded-xl py-3 hover:bg-gray-200 transition-all duration-200"
-                        >
-                          Hủy
-                        </button>
-                        <button
-                          onClick={() => {
-                            // Xử lý đăng bài ở đây
-                            console.log("Posted:", postContent);
-                            setShowModal(false);
-                            setPostContent("");
-                          }}
-                          disabled={!postContent.trim()}
-                          className={`flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl py-3 transition-all duration-200 ${postContent.trim()
-                              ? 'hover:scale-105 hover:shadow-lg'
-                              : 'opacity-50 cursor-not-allowed'
-                            }`}
-                        >
-                          Đăng bài
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                <CreateSoulModal
+                  showModal={showModal}
+                  setShowModal={setShowModal}
+                  address={userLocation}
+                />
               </>
             ) : null}
 
-            <Popup eventHandlers={{ add: () => { if (isSelf) setShowPost(true) } }}>
+            <Popup>
               {!isSelf ? (
                 <OnlinePopup
                   user={user}
@@ -504,8 +441,14 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                   setShowChat={setShowChat}
                 />
               ) : (
-                <div>
-                  <UserProfilePopup address={userLocation} />
+                <div >
+                  {/* <UserProfilePopup address={userLocation} /> */}
+                  <UserPopup
+                  user={user}
+                  myUserId={myUserId}
+                  setRoomId={setRoomId}
+                  setShowChat={setShowChat}
+                />
                 </div>
               )}
             </Popup>

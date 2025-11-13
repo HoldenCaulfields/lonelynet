@@ -71,7 +71,7 @@ export default function Links({ marker }: { marker: { links?: Link[] } }) {
         <button
             ref={btnRef}
             onClick={() => setOpen(!open)}
-            className="flex items-center justify-center gap-1 flex-1 px-3 py-2 rounded-full bg-gray-800 text-white text-xs cursor-pointer hover:bg-gray-900 transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-1 relative"
+            className="flex items-center hover:scale-110 hover:-rotate-6 justify-center gap-1 flex-1 px-3 py-2 rounded-full bg-gray-800 text-white text-xs cursor-pointer hover:bg-gray-900 transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-1 relative"
         >
             <Globe className="w-4 h-4" />
 

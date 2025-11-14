@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { Music2 } from "lucide-react";
-import { socket } from "@/app/components/utils/socket";
 
 interface Props {
     setMusicUrl: (url: string | null) => void;

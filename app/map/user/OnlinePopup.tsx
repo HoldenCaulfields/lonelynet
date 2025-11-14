@@ -11,7 +11,6 @@ import {
     Eye,
     Sparkles,
     Send,
-    Users,
     Headphones
 } from "lucide-react";
 
@@ -273,7 +272,7 @@ export default function OnlinePopup({
                                     <span className="text-4xl">{selectedReaction}</span>
                                 </div>
                                 <p className="text-white font-medium">Reaction sent!</p>
-                                <p className="text-white/60 text-sm mt-1">They'll see it soon</p>
+                                <p className="text-white/60 text-sm mt-1">{`They'll see it soon`}</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-3 gap-3">

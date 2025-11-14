@@ -8,7 +8,7 @@ import userIconImg from "@/public/red-icon.png";
 import otherIconImg from "@/public/online.png";
 import OnlinePopup from "./OnlinePopup";
 import CreateSoulModal from "./CreateSoulModal";
-import { Hand, Pencil, Gamepad, Rocket, Star, Sword, Trophy, Zap, X, Sparkles } from "lucide-react";
+import { Hand, Pencil, Gamepad, Rocket, Star, Sword, Trophy, Zap, Sparkles } from "lucide-react";
 import UserPopup from "./UserPopup";
 import GroupList from "@/app/components/chatbox/GroupList";
 

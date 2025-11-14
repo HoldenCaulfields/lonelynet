@@ -36,7 +36,8 @@ export default function Lonelyland() {
       const data = res.data;
       setSouls(data);
       sessionStorage.setItem(cacheKey, JSON.stringify(data));
-    } catch (_err) {
+    } catch (err) {
+      console.log("Error fetching souls:", err);
       setError("Failed to connect to Lonelyland");
     } finally {
       setLoading(false);

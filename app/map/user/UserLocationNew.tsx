@@ -433,8 +433,10 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                 <OnlinePopup
                   user={user}
                   myUserId={myUserId}
+                  myLocation={userLocation}
                   setRoomId={setRoomId}
                   setShowChat={setShowChat}
+                  socket={socket}
                 />
               ) : (
                 <div >
@@ -442,6 +444,8 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                     user={user}
                     myUserId={myUserId}
                     setOpenChat={setOpenChat}
+                    socket={socket}
+                    onlineUsers={onlineUsers}
                   />
                 </div>
               )}

@@ -105,7 +105,7 @@ export default function GroupList({ visible, onClose, onSelectRoom }: GroupListP
   if (!visible) return null;
 
   return (
-    <div className="fixed w-full bg-amber-600 bottom-0 right-0 z-1000 flex flex-col justify-end sm:w-120">
+    <div className="fixed w-full bottom-0 right-0 z-1000 flex flex-col justify-end sm:w-120">
       {/* Overlay click close */}
       <div className="absolute inset-0" onClick={onClose} />
 

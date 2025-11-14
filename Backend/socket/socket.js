@@ -8,7 +8,7 @@ export default function initSocket(io) {
   io.on("connection", (socket) => {
     console.log("⚡ New client connected:", socket.id);
 
-  // 🟢 USER ONLINE
+    // 🟢 USER ONLINE
     socket.on("userOnline", (userId) => {
       if (!userId) return;
       onlineUsers[socket.id] = { userId, lat: 0, lng: 0, musicUrl: null }; // Thêm musicUrl
@@ -19,9 +19,9 @@ export default function initSocket(io) {
         Object.fromEntries(
           Object.entries(onlineUsers).map(([id, u]) => [
             id,
-            { 
-              userId: u.userId, 
-              lat: u.lat, 
+            {
+              userId: u.userId,
+              lat: u.lat,
               lng: u.lng,
               musicUrl: u.musicUrl // ✅ Thêm dòng này
             },
@@ -45,9 +45,9 @@ export default function initSocket(io) {
         Object.fromEntries(
           Object.entries(onlineUsers).map(([id, u]) => [
             id,
-            { 
-              userId: u.userId, 
-              lat: u.lat, 
+            {
+              userId: u.userId,
+              lat: u.lat,
               lng: u.lng,
               musicUrl: u.musicUrl // ✅ Thêm dòng này
             },
@@ -57,6 +57,71 @@ export default function initSocket(io) {
       console.log(`🎵 ${userId} is now playing: ${musicUrl}`);
     });
 
+    socket.on("update_status", ({ userId, userStatus }) => {
+      const user = onlineUsers[socket.id];
+      if (!user) return;
+
+      user.userStatus = userStatus;
+      io.emit(
+        "onlineUsers",
+        Object.fromEntries(
+          Object.entries(onlineUsers).map(([id, u]) => [
+            id,
+            {
+              userId: u.userId,
+              lat: u.lat,
+              lng: u.lng,
+              musicUrl: u.musicUrl,
+              userStatus: u.userStatus,
+              mood: u.mood
+            },
+          ])
+        )
+      );
+      console.log(`🎯 ${userId} status: ${userStatus}`);
+    });
+
+    socket.on("update_mood", ({ userId, mood }) => {
+      const user = onlineUsers[socket.id];
+      if (!user) return;
+
+      user.mood = mood;
+      io.emit(
+        "onlineUsers",
+        Object.fromEntries(
+          Object.entries(onlineUsers).map(([id, u]) => [
+            id,
+            {
+              userId: u.userId,
+              lat: u.lat,
+              lng: u.lng,
+              musicUrl: u.musicUrl,
+              userStatus: u.userStatus,
+              mood: u.mood
+            },
+          ])
+        )
+      );
+      console.log(`😊 ${userId} mood: ${mood}`);
+    });
+
+    socket.on("send_reaction", ({ from, to, reaction, timestamp }) => {
+      console.log(`💫 Reaction from ${from} to ${to}: ${reaction}`);
+
+      // Tìm socket của người nhận
+      const targetSocket = Object.entries(onlineUsers).find(
+        ([, user]) => user.userId === to
+      )?.[0];
+
+      if (targetSocket) {
+        io.to(targetSocket).emit("receive_reaction", {
+          from,
+          reaction,
+          timestamp
+        });
+        console.log(`✅ Reaction delivered to ${to}`);
+      }
+    });
     // ─────────────────────────────
     // 📍 UPDATE LOCATION
     // ─────────────────────────────

@@ -5,15 +5,13 @@ import Link from "next/link";
 import { Globe, HeartPlus } from "lucide-react";
 import SearchBox from "./SearchBox";
 import { Montserrat } from "next/font/google";
-import MusicBox from "../components/music/MusicBox";
 const montserrat = Montserrat({ subsets: ["latin"], weight: ["600", "700"] });
 
 interface NavbarProps {
   setSearchText: (text: string) => void;
-  setMusicUrl: (url: string | null) => void;
 }
 
-export default function Navbar({setSearchText, setMusicUrl }: NavbarProps) {
+export default function Navbar({setSearchText }: NavbarProps) {
   return (
     <nav className="sticky top-0 z-[1100] w-full bg-gradient-to-r from-slate-900 via-black to-slate-900 border-b border-white/10 backdrop-blur-xl px-4 sm:px-6 py-3 shadow-lg animate-in slide-in-from-top-2 duration-200">
       <div className={`${montserrat.className} max-w-7xl mx-auto flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between`}>
@@ -76,17 +74,9 @@ export default function Navbar({setSearchText, setMusicUrl }: NavbarProps) {
         {/* SearchBox */}
         <SearchBox setSearchText={setSearchText} />
 
-        
-
+  
         {/* Desktop: Right Links */}
         <div className="hidden lg:flex items-center gap-6 text-white font-semibold text-lg">
-          {/* <button
-            onClick={() => '() => setShowMusicPlayer(true)'}
-            className="hover:text-blue-400 transition-colors duration-200 cursor-pointer"
-          >
-            🎵 Music
-          </button> */}
-          <MusicBox setMusicUrl={setMusicUrl}/>
           
           <Link
             href="/lonelyland" target="_blank"

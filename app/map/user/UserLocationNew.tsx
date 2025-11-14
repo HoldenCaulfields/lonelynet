@@ -6,7 +6,6 @@ import L from "leaflet";
 import { socket, connectSocket } from "@/app/components/utils/socket";
 import userIconImg from "@/public/red-icon.png";
 import otherIconImg from "@/public/online.png";
-import UserProfilePopup from "./UserProfilePopup";
 import OnlinePopup from "./OnlinePopup";
 import CreateSoulModal from "./CreateSoulModal";
 import { Hand, Pencil, Gamepad, Rocket, Star, Sword, Trophy, Zap, X, Sparkles } from "lucide-react";
@@ -17,17 +16,15 @@ interface Props {
   setRoomId: (v: string) => void;
   showPost: boolean;
   setShowPost: (v: boolean) => void;
-  musicUrl: string | null;
 }
 
 interface UserData {
   userId: string;
   lat: number;
   lng: number;
-  musicUrl?: string | null;
 }
 
-export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, setShowPost, musicUrl }: Props) {
+export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, setShowPost }: Props) {
   const [onlineUsers, setOnlineUsers] = useState<Record<string, UserData>>({});
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [mySocketId, setMySocketId] = useState<string | null>(null);
@@ -160,10 +157,6 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
     return () => clearInterval(interval);
   }, [userLocation]);
 
-  useEffect(() => {
-    if (!musicUrl) return;
-    socket.emit("update_music", { userId: myUserId, musicUrl });
-  }, [musicUrl, myUserId]);
 
   // ====== CANVAS FIREWORKS ======
   function ensureCanvas(): HTMLCanvasElement {
@@ -271,7 +264,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
           ? `
                 <div class="absolute inset-0 flex items-center justify-center">
                   <span class="absolute text-2xl animate-wave">👋</span>
-                  <span class="absolute w-14 h-14 rounded-full border-2 border-yellow-400 animate-ping-slow"></span>
+                  <span class="absolute w-14 h-14 rounded-full border-2 border-red-400 animate-ping-slow"></span>
                 </div>
               `
           : ""
@@ -442,7 +435,6 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                 />
               ) : (
                 <div >
-                  {/* <UserProfilePopup address={userLocation} /> */}
                   <UserPopup
                   user={user}
                   myUserId={myUserId}

@@ -37,8 +37,8 @@ interface Props {
     };
     myUserId: string;
     setOpenChat: (v: boolean | null) => void;
-    socket?: any; // Socket từ parent
-    onlineUsers?: Record<string, any>; // Danh sách users từ parent
+    socket?: any;
+    onlineUsers?: Record<string, any>; // { socketId: userData }
 }
 
 export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineUsers = {} }: Props) {
@@ -55,9 +55,8 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
         topSongs: [] as any[]
     });
 
-    // Calculate distance between two coordinates (Haversine formula)
     const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-        const R = 6371; // Earth radius in km
+        const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
         const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -67,16 +66,16 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
         return R * c;
     };
 
-    // Calculate nearby stats from onlineUsers
     useEffect(() => {
         if (!onlineUsers || Object.keys(onlineUsers).length === 0) return;
 
-        const RADIUS_KM = 50; // 50km radius
+        const RADIUS_KM = 50;
         const statusCount: Record<string, number> = {};
         const songCount: Record<string, number> = {};
         let nearbyCount = 0;
 
-        Object.values(onlineUsers).forEach((otherUser: any) => {
+        // Iterate through socketId -> userData
+        Object.entries(onlineUsers).forEach(([socketId, otherUser]: [string, any]) => {
             if (otherUser.userId === myUserId) return;
 
             const distance = calculateDistance(
@@ -89,19 +88,16 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
             if (distance <= RADIUS_KM) {
                 nearbyCount++;
 
-                // Count statuses
                 if (otherUser.userStatus) {
                     statusCount[otherUser.userStatus] = (statusCount[otherUser.userStatus] || 0) + 1;
                 }
 
-                // Count music URLs (simplified - in real app you'd extract song titles)
                 if (otherUser.musicUrl) {
                     songCount[otherUser.musicUrl] = (songCount[otherUser.musicUrl] || 0) + 1;
                 }
             }
         });
 
-        // Format statuses
         const statusesArray = [
             { label: "Finding Lover", icon: <HeartHandshake className="w-4 h-4" />, color: "text-pink-400", count: statusCount["Finding Lover"] || 0 },
             { label: "Finding Job", icon: <Briefcase className="w-4 h-4" />, color: "text-blue-400", count: statusCount["Finding Job"] || 0 },
@@ -111,12 +107,11 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
             { label: "Chilling", icon: <Coffee className="w-4 h-4" />, color: "text-amber-400", count: statusCount["Chilling"] || 0 }
         ].filter(s => s.count > 0);
 
-        // Format top songs (simplified)
         const topSongs = Object.entries(songCount)
             .sort(([, a], [, b]) => (b as number) - (a as number))
             .slice(0, 3)
             .map(([url, count]) => ({
-                title: url.includes("youtube") ? "YouTube Video" : "Spotify Track",
+                title: url.includes("youtube") ? "YouTube Video" : url.includes("spotify") ? "Spotify Track" : "Media",
                 listeners: count,
                 url
             }));
@@ -148,7 +143,6 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
     const embedUrl = currentMediaUrl ? getEmbedUrl(currentMediaUrl) : null;
 
     const moods = [
-        { icon: <Smile className="w-5 h-5" />, label: "Happy", emoji: "😊" },
         { icon: <Heart className="w-5 h-5" />, label: "Love", emoji: "❤️" },
         { icon: <ThumbsUp className="w-5 h-5" />, label: "Cool", emoji: "😎" },
         { icon: <Zap className="w-5 h-5" />, label: "Energy", emoji: "⚡" },
@@ -226,11 +220,9 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
     }, [currentMediaUrl, myUserId, socket]);
 
     return (
-        <div className="relative">
-            {/* Main Popup */}
+        <>
             <div className="relative flex flex-col items-center bg-gradient-to-br from-neutral-900/95 via-neutral-900/90 to-neutral-800/95 text-white rounded-3xl backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] p-6 min-w-[340px]">
                 
-                {/* Status Badge */}
                 <div className="absolute top-4 left-4 flex items-center gap-2">
                     <div className={`w-3 h-3 rounded-full animate-pulse ${
                         user.status === "online" ? "bg-green-400 shadow-lg shadow-green-400/50" :
@@ -243,9 +235,8 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
                     </div>
                 </div>
 
-                {/* User Status Tag */}
                 {selectedStatus && (
-                    <div className="absolute top-4 left-30 px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-400/30 backdrop-blur-sm">
+                    <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-400/30 backdrop-blur-sm">
                         <div className="flex items-center gap-1.5">
                             <Radio className="w-3 h-3 text-purple-300 animate-pulse" />
                             <span className="text-xs font-medium text-purple-200">{selectedStatus}</span>
@@ -253,7 +244,6 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
                     </div>
                 )}
 
-                {/* Media Section */}
                 <div className="w-80 mt-10 rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-br from-neutral-800/60 to-neutral-900/60 backdrop-blur-md shadow-xl">
                     {embedUrl ? (
                         <div className={`relative ${currentMediaUrl?.includes("spotify.com") ? "h-24" : "h-48"}`}>
@@ -273,7 +263,6 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
                     )}
                 </div>
 
-                {/* Search Input */}
                 <div className="w-full mt-5 flex items-center gap-2">
                     <input
                         type="text"
@@ -292,7 +281,6 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
                     </button>
                 </div>
 
-                {/* Search Results */}
                 {searchResults.length > 0 && (
                     <div className="mt-3 w-full max-h-52 overflow-y-auto border border-white/10 rounded-xl bg-neutral-800/70 backdrop-blur-md">
                         {searchResults.map((v, index) => (
@@ -314,7 +302,6 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
                     </div>
                 )}
 
-                {/* Action Buttons */}
                 <div className="grid grid-cols-3 gap-3 w-full mt-6">
                     <button
                         onClick={() => setActiveModal("mood")}
@@ -346,7 +333,6 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
                     </button>
                 </div>
 
-                {/* Quick Mood Selector */}
                 <div className="flex flex-wrap justify-center gap-2 mt-5 pt-5 border-t border-white/5 w-full">
                     {moods.map((mood, idx) => (
                         <button
@@ -365,7 +351,6 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
                 </div>
             </div>
 
-            {/* Mood & Status Modal */}
             {activeModal === "mood" && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn" onClick={() => setActiveModal(null)}>
                     <div className="bg-gradient-to-br from-neutral-900 to-neutral-800 rounded-3xl p-6 w-96 border border-white/10 shadow-2xl animate-scaleIn" onClick={(e) => e.stopPropagation()}>
@@ -412,7 +397,6 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
                 </div>
             )}
 
-            {/* Information Modal */}
             {activeModal === "info" && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn" onClick={() => setActiveModal(null)}>
                     <div className="bg-gradient-to-br from-neutral-900 to-neutral-800 rounded-3xl p-6 w-[28rem] border border-white/10 shadow-2xl animate-scaleIn max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
@@ -437,7 +421,6 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
                             </div>
                         ) : (
                             <>
-                                {/* Total Users */}
                                 <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-400/30 rounded-2xl p-4 mb-6">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
@@ -453,7 +436,6 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
                                     </div>
                                 </div>
 
-                                {/* Status Breakdown */}
                                 {nearbyStats.statuses.length > 0 && (
                                     <div className="mb-6">
                                         <h4 className="text-sm font-semibold text-white/80 mb-3 flex items-center gap-2">
@@ -487,7 +469,6 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
                                     </div>
                                 )}
 
-                                {/* Top Songs */}
                                 {nearbyStats.topSongs.length > 0 && (
                                     <div>
                                         <h4 className="text-sm font-semibold text-white/80 mb-3 flex items-center gap-2">
@@ -533,6 +514,6 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
                 .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
                 .animate-scaleIn { animation: scaleIn 0.3s ease-out; }
             `}</style>
-        </div>
+        </>
     );
 }

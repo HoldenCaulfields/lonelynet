@@ -1,5 +1,5 @@
 export default function initSocket(io) {
-  // 🌐 ONLINE USERS: { socketId: { userId, lat, lng } }
+  // 🌐 ONLINE USERS: { socketId: { userId, lat, lng, musicUrl, mood, userStatus, status } }
   const onlineUsers = {};
 
   // 🏠 ROOM MEMBERS: { roomId: [ { userId, socketId } ] }
@@ -11,168 +11,134 @@ export default function initSocket(io) {
     // 🟢 USER ONLINE
     socket.on("userOnline", (userId) => {
       if (!userId) return;
-      onlineUsers[socket.id] = { userId, lat: 0, lng: 0, musicUrl: null }; // Thêm musicUrl
+      
+      // Initialize user with all fields
+      onlineUsers[socket.id] = { 
+        userId, 
+        lat: 0, 
+        lng: 0, 
+        musicUrl: null,
+        mood: null,
+        userStatus: null,
+        status: "online"
+      };
+      
       console.log(`🟢 ${userId} is now online (${socket.id})`);
 
-      io.emit(
-        "onlineUsers",
-        Object.fromEntries(
-          Object.entries(onlineUsers).map(([id, u]) => [
-            id,
-            {
-              userId: u.userId,
-              lat: u.lat,
-              lng: u.lng,
-              musicUrl: u.musicUrl // ✅ Thêm dòng này
-            },
-          ])
-        )
-      );
+      // Broadcast updated user list to ALL clients
+      io.emit("onlineUsers", onlineUsers);
     });
 
+    // 👋 WAVE
     socket.on("wave", ({ from, lat, lng }) => {
       console.log("👋 Wave from:", from);
-      io.emit("wave_signal", { from, lat, lng }); // broadcast tới mọi client
+      io.emit("wave_signal", { from, lat, lng });
     });
 
+    // 🎵 UPDATE MUSIC
     socket.on("update_music", ({ userId, musicUrl }) => {
       const user = onlineUsers[socket.id];
-      if (!user) return;
+      if (!user) {
+        console.log(`⚠️ User not found for socket ${socket.id}`);
+        return;
+      }
 
       user.musicUrl = musicUrl;
-      io.emit(
-        "onlineUsers",
-        Object.fromEntries(
-          Object.entries(onlineUsers).map(([id, u]) => [
-            id,
-            {
-              userId: u.userId,
-              lat: u.lat,
-              lng: u.lng,
-              musicUrl: u.musicUrl // ✅ Thêm dòng này
-            },
-          ])
-        )
-      );
       console.log(`🎵 ${userId} is now playing: ${musicUrl}`);
+      
+      // Broadcast updated user list
+      io.emit("onlineUsers", onlineUsers);
     });
 
-    socket.on("update_status", ({ userId, userStatus }) => {
-      const user = onlineUsers[socket.id];
-      if (!user) return;
-
-      user.userStatus = userStatus;
-      io.emit(
-        "onlineUsers",
-        Object.fromEntries(
-          Object.entries(onlineUsers).map(([id, u]) => [
-            id,
-            {
-              userId: u.userId,
-              lat: u.lat,
-              lng: u.lng,
-              musicUrl: u.musicUrl,
-              userStatus: u.userStatus,
-              mood: u.mood
-            },
-          ])
-        )
-      );
-      console.log(`🎯 ${userId} status: ${userStatus}`);
-    });
-
+    // 😊 UPDATE MOOD
     socket.on("update_mood", ({ userId, mood }) => {
       const user = onlineUsers[socket.id];
-      if (!user) return;
-
-      user.mood = mood;
-      io.emit(
-        "onlineUsers",
-        Object.fromEntries(
-          Object.entries(onlineUsers).map(([id, u]) => [
-            id,
-            {
-              userId: u.userId,
-              lat: u.lat,
-              lng: u.lng,
-              musicUrl: u.musicUrl,
-              userStatus: u.userStatus,
-              mood: u.mood
-            },
-          ])
-        )
-      );
-      console.log(`😊 ${userId} mood: ${mood}`);
-    });
-
-    socket.on("send_reaction", ({ from, to, reaction, timestamp }) => {
-      console.log(`💫 Reaction from ${from} to ${to}: ${reaction}`);
-
-      // Tìm socket của người nhận
-      const targetSocket = Object.entries(onlineUsers).find(
-        ([, user]) => user.userId === to
-      )?.[0];
-
-      if (targetSocket) {
-        io.to(targetSocket).emit("receive_reaction", {
-          from,
-          reaction,
-          timestamp
-        });
-        console.log(`✅ Reaction delivered to ${to}`);
+      if (!user) {
+        console.log(`⚠️ User not found for socket ${socket.id}`);
+        return;
       }
+      
+      user.mood = mood;
+      console.log(`😊 ${userId} mood: ${mood}`);
+      
+      // Broadcast updated user list
+      io.emit("onlineUsers", onlineUsers);
     });
-    // ─────────────────────────────
+
+    // 🎯 UPDATE STATUS
+    socket.on("update_status", ({ userId, userStatus }) => {
+      const user = onlineUsers[socket.id];
+      if (!user) {
+        console.log(`⚠️ User not found for socket ${socket.id}`);
+        return;
+      }
+      
+      user.userStatus = userStatus;
+      console.log(`🎯 ${userId} status: ${userStatus}`);
+      
+      // Broadcast updated user list
+      io.emit("onlineUsers", onlineUsers);
+    });
+
     // 📍 UPDATE LOCATION
-    // ─────────────────────────────
     socket.on("update_location", (coords) => {
       if (onlineUsers[socket.id]) {
         onlineUsers[socket.id].lat = coords.lat;
         onlineUsers[socket.id].lng = coords.lng;
 
-        io.emit(
-          "onlineUsers",
-          Object.fromEntries(
-            Object.entries(onlineUsers).map(([id, u]) => [
-              id,
-              { userId: u.userId, lat: u.lat, lng: u.lng, musicUrl: u.musicUrl },
-            ])
-          )
-        );
+        // Broadcast updated user list
+        io.emit("onlineUsers", onlineUsers);
       }
     });
 
-    // ─────────────────────────────
+    // 💫 SEND REACTION
+    socket.on("send_reaction", ({ from, to, reaction, timestamp }) => {
+      console.log(`💫 Reaction from ${from} to ${to}: ${reaction}`);
+      
+      // Tìm socket của người nhận dựa trên userId
+      const targetSocketId = Object.entries(onlineUsers).find(
+        ([socketId, user]) => user.userId === to
+      )?.[0];
+      
+      if (targetSocketId) {
+        io.to(targetSocketId).emit("receive_reaction", {
+          from,
+          reaction,
+          timestamp
+        });
+        console.log(`✅ Reaction delivered to ${to} (socket: ${targetSocketId})`);
+      } else {
+        console.log(`⚠️ Target user ${to} not found online`);
+      }
+    });
+
     // 💬 START CHAT (1 click)
-    // ─────────────────────────────
     socket.on("start_chat", ({ from, to }) => {
       if (!from || !to) return;
       const roomId = [from, to].sort().join("_");
 
-      // Người gửi join phòng
       socket.join(roomId);
       console.log(`💬 ${from} started chat with ${to} (room: ${roomId})`);
 
-      // Gửi lời mời cho người còn lại (nếu đang online)
-      const targetSocket = Object.entries(onlineUsers).find(
-        ([, user]) => user.userId === to
+      // Tìm socket của người nhận
+      const targetSocketId = Object.entries(onlineUsers).find(
+        ([socketId, user]) => user.userId === to
       )?.[0];
 
-      if (targetSocket) {
-        io.to(targetSocket).emit("chat_invite", { from, roomId });
-        console.log(`📨 Chat invite sent to ${to} (${targetSocket})`);
+      if (targetSocketId) {
+        io.to(targetSocketId).emit("chat_invite", { from, roomId });
+        console.log(`📨 Chat invite sent to ${to} (${targetSocketId})`);
       }
 
       // Lưu phòng
       if (!roomMembers[roomId]) roomMembers[roomId] = [];
       const alreadyInRoom = roomMembers[roomId].some((m) => m.userId === from);
-      if (!alreadyInRoom)
+      if (!alreadyInRoom) {
         roomMembers[roomId].push({ userId: from, socketId: socket.id });
+      }
     });
 
-    // ─────────────────────────────
-    // 💬 JOIN ROOM (auto or manual)
-    // ─────────────────────────────
+    // 💬 JOIN ROOM
     socket.on("joinRoom", ({ roomId, userId }) => {
       if (!roomId || !userId) return;
       socket.join(roomId);
@@ -180,15 +146,14 @@ export default function initSocket(io) {
 
       if (!roomMembers[roomId]) roomMembers[roomId] = [];
       const alreadyInRoom = roomMembers[roomId].some((m) => m.userId === userId);
-      if (!alreadyInRoom)
+      if (!alreadyInRoom) {
         roomMembers[roomId].push({ userId, socketId: socket.id });
+      }
 
       io.to(roomId).emit("roomMembers", roomMembers[roomId]);
     });
 
-    // ─────────────────────────────
     // 💬 NEW MESSAGE
-    // ─────────────────────────────
     socket.on("newMessage", ({ roomId, message }) => {
       if (!roomId || !message) return;
       console.log(`💬 Message sent to room ${roomId}:`, message.text);
@@ -199,9 +164,7 @@ export default function initSocket(io) {
       });
     });
 
-    // ─────────────────────────────
     // 🚪 LEAVE ROOM
-    // ─────────────────────────────
     socket.on("leaveRoom", ({ roomId, userId }) => {
       socket.leave(roomId);
       console.log(`🚪 ${userId} left room ${roomId}`);
@@ -214,25 +177,17 @@ export default function initSocket(io) {
       }
     });
 
-    // ─────────────────────────────
     // ❌ DISCONNECT
-    // ─────────────────────────────
     socket.on("disconnect", () => {
       console.log("❌ Client disconnected:", socket.id);
 
       const user = onlineUsers[socket.id];
       if (user) {
-        delete onlineUsers[socket.id];
         console.log(`🔴 ${user.userId} went offline`);
-        io.emit(
-          "onlineUsers",
-          Object.fromEntries(
-            Object.entries(onlineUsers).map(([id, u]) => [
-              id,
-              { userId: u.userId, lat: u.lat, lng: u.lng, musicUrl: u.musicUrl },
-            ])
-          )
-        );
+        delete onlineUsers[socket.id];
+        
+        // Broadcast updated user list
+        io.emit("onlineUsers", onlineUsers);
       }
 
       // Remove from all rooms

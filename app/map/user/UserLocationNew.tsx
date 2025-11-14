@@ -23,6 +23,10 @@ interface UserData {
   userId: string;
   lat: number;
   lng: number;
+  musicUrl?: string | null;
+  status?: "online" | "idle" | "offline";
+  mood?: string;
+  userStatus?: string;
 }
 
 export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, setShowPost }: Props) {

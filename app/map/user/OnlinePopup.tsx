@@ -4,21 +4,14 @@ import React, { useState, useEffect } from "react";
 import {
     MessageCircle,
     Music,
-    Smile,
-    Heart,
-    ThumbsUp,
     Hand,
     MapPin,
-    Clock,
-    Zap,
-    Star,
-    Send,
     X,
     Radio,
     Eye,
     Sparkles,
-    Gift,
-    Coffee,
+    Send,
+    Users,
     Headphones
 } from "lucide-react";
 
@@ -33,7 +26,7 @@ interface Props {
         userStatus?: string;
     };
     myUserId: string;
-    myLocation?: { lat: number; lng: number };
+    myLocation?: { lat: number; lng: number } | null;
     setRoomId: (id: string) => void;
     setShowChat: (v: boolean) => void;
     socket?: any;
@@ -52,10 +45,9 @@ export default function OnlinePopup({
     const [distance, setDistance] = useState<number | null>(null);
     const [showSuccess, setShowSuccess] = useState(false);
 
-    // Calculate distance
     useEffect(() => {
         if (!myLocation) return;
-        const R = 6371; // Earth radius in km
+        const R = 6371;
         const dLat = (user.lat - myLocation.lat) * Math.PI / 180;
         const dLon = (user.lng - myLocation.lng) * Math.PI / 180;
         const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -150,7 +142,6 @@ export default function OnlinePopup({
         <div className="relative">
             <div className="relative flex flex-col items-center bg-gradient-to-br from-neutral-900/95 via-neutral-900/90 to-neutral-800/95 text-white rounded-3xl backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] p-6 min-w-[340px]">
                 
-                {/* Status & Info Header */}
                 <div className="absolute top-4 left-4 flex flex-col gap-1">
                     <div className="flex items-center gap-2">
                         <div className={`w-3 h-3 rounded-full animate-pulse ${
@@ -168,7 +159,6 @@ export default function OnlinePopup({
                     )}
                 </div>
 
-                {/* Distance Badge */}
                 {distance !== null && (
                     <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gradient-to-r from-sky-500/20 to-blue-500/20 border border-sky-400/30 backdrop-blur-sm">
                         <div className="flex items-center gap-1.5">
@@ -178,7 +168,6 @@ export default function OnlinePopup({
                     </div>
                 )}
 
-                {/* User Status Tag */}
                 {user.userStatus && (
                     <div className={`mt-10 px-4 py-2 rounded-full bg-gradient-to-r ${getStatusColor(user.userStatus)} border backdrop-blur-sm`}>
                         <div className="flex items-center gap-2">
@@ -188,7 +177,6 @@ export default function OnlinePopup({
                     </div>
                 )}
 
-                {/* Media Section */}
                 <div className="w-80 mt-4 rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-br from-neutral-800/60 to-neutral-900/60 backdrop-blur-md shadow-xl">
                     {embedUrl ? (
                         <div className={`relative ${user.musicUrl?.includes("spotify.com") ? "h-24" : "h-48"}`}>
@@ -212,7 +200,6 @@ export default function OnlinePopup({
                     )}
                 </div>
 
-                {/* Quick Reactions */}
                 <div className="w-full mt-5 p-3 rounded-xl bg-white/5 border border-white/10">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-xs text-white/60 font-medium">Quick Reactions</span>
@@ -232,7 +219,6 @@ export default function OnlinePopup({
                     </div>
                 </div>
 
-                {/* Action Buttons */}
                 <div className="grid grid-cols-3 gap-3 w-full mt-5">
                     <button
                         onClick={() => setActiveModal("poke")}
@@ -259,14 +245,12 @@ export default function OnlinePopup({
                     </button>
                 </div>
 
-                {/* User ID */}
                 <div className="mt-4 text-xs text-white/40 flex items-center gap-1">
                     <span>ID:</span>
                     <code className="px-2 py-0.5 rounded bg-white/5 font-mono">{user.userId}</code>
                 </div>
             </div>
 
-            {/* Poke Modal */}
             {activeModal === "poke" && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn" onClick={() => setActiveModal(null)}>
                     <div className="bg-gradient-to-br from-neutral-900 to-neutral-800 rounded-3xl p-6 w-96 border border-white/10 shadow-2xl animate-scaleIn" onClick={(e) => e.stopPropagation()}>
@@ -309,7 +293,6 @@ export default function OnlinePopup({
                 </div>
             )}
 
-            {/* Info Modal */}
             {activeModal === "info" && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn" onClick={() => setActiveModal(null)}>
                     <div className="bg-gradient-to-br from-neutral-900 to-neutral-800 rounded-3xl p-6 w-96 border border-white/10 shadow-2xl animate-scaleIn" onClick={(e) => e.stopPropagation()}>
@@ -327,7 +310,6 @@ export default function OnlinePopup({
                         </div>
 
                         <div className="space-y-4">
-                            {/* Status */}
                             <div className="p-4 rounded-xl bg-white/5 border border-white/10">
                                 <div className="flex items-center gap-2 mb-2">
                                     <div className={`w-3 h-3 rounded-full ${
@@ -339,7 +321,6 @@ export default function OnlinePopup({
                                 <p className="text-white capitalize">{user.status || "Offline"}</p>
                             </div>
 
-                            {/* Distance */}
                             {distance !== null && (
                                 <div className="p-4 rounded-xl bg-gradient-to-r from-sky-500/10 to-blue-500/10 border border-sky-400/20">
                                     <div className="flex items-center gap-2 mb-2">
@@ -350,7 +331,6 @@ export default function OnlinePopup({
                                 </div>
                             )}
 
-                            {/* Current Activity */}
                             {user.userStatus && (
                                 <div className={`p-4 rounded-xl bg-gradient-to-r ${getStatusColor(user.userStatus)} border`}>
                                     <div className="flex items-center gap-2 mb-2">
@@ -361,7 +341,6 @@ export default function OnlinePopup({
                                 </div>
                             )}
 
-                            {/* Mood */}
                             {user.mood && (
                                 <div className="p-4 rounded-xl bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-400/20">
                                     <div className="flex items-center gap-2 mb-2">
@@ -374,20 +353,8 @@ export default function OnlinePopup({
                                     </div>
                                 </div>
                             )}
-
-                            {/* Coordinates */}
-                            <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <MapPin className="w-4 h-4 text-white/60" />
-                                    <span className="text-sm font-semibold text-white/80">Location</span>
-                                </div>
-                                <p className="text-white/60 text-xs font-mono">
-                                    {user.lat.toFixed(4)}, {user.lng.toFixed(4)}
-                                </p>
-                            </div>
                         </div>
 
-                        {/* Quick Actions */}
                         <div className="flex gap-2 mt-6">
                             <button
                                 onClick={() => {
@@ -400,9 +367,7 @@ export default function OnlinePopup({
                                 <span className="text-sm font-semibold">Start Chat</span>
                             </button>
                             <button
-                                onClick={() => {
-                                    setActiveModal("poke");
-                                }}
+                                onClick={() => setActiveModal("poke")}
                                 className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 transition-all shadow-lg"
                             >
                                 <Send className="w-4 h-4" />

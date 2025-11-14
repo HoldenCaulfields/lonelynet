@@ -319,7 +319,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
 
   return (
     <div
-      className={`chatbox-wrapper fixed inset-x-0 bottom-0 sm:top-auto sm:bottom-8 sm:right-8 z-[1200] flex justify-center sm:justify-end`}
+      className={` fixed w-full sm:w-120 bottom-0 sm:top-auto sm:bottom-8 sm:right-8 z-[1200] flex justify-center sm:justify-end`}
       role="dialog"
       aria-modal="true"
       aria-labelledby="chat-title"

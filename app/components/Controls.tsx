@@ -50,12 +50,12 @@ export default function Controls({ setRoomId, togglePost, showPost }: ControlsPr
         <>
             {/* ⚪ Floating Buttons */}
             {!showPost && (
-            <div className="fixed bottom-6 right-0 z-[1000] flex flex-col gap-4 md:bottom-8 md:right-8">
-                {buttons.map((btn) => (
-                    <button
-                        key={btn.id}
-                        onClick={btn.action}
-                        className={`
+                <div className="fixed bottom-6 right-0 z-[1000] flex flex-col gap-4 md:bottom-8 md:right-8">
+                    {buttons.map((btn) => (
+                        <button
+                            key={btn.id}
+                            onClick={btn.action}
+                            className={`
                             group flex items-center gap-3
                             bg-gradient-to-br ${btn.gradient} ${btn.text}
                             font-medium rounded-full
@@ -63,13 +63,13 @@ export default function Controls({ setRoomId, togglePost, showPost }: ControlsPr
                             transition-all duration-300 ease-in-out
                             hover:scale-105 active:scale-95 border border-gray-200/50
                         `}>
-                        {btn.icon}
-                        <span className="hidden sm:inline text-sm tracking-wide">
-                            {btn.label}
-                        </span>
-                    </button>
-                ))}
-            </div>)}
+                            {btn.icon}
+                            <span className="hidden sm:inline text-sm tracking-wide">
+                                {btn.label}
+                            </span>
+                        </button>
+                    ))}
+                </div>)}
 
             {/* ⚡ Panels */}
             <div className="fixed bottom-24 right-6 w-[90vw] max-w-sm md:max-w-md z-[1100]">
@@ -84,12 +84,9 @@ export default function Controls({ setRoomId, togglePost, showPost }: ControlsPr
 
                 {/* 📍 Location Info */}
                 {active === "location" && (
-                    <div
-                        className="fixed bottom-4 left-4 z-[100] flex flex-col gap-2"
-                        onClick={() => setActive(null)}
-                    >
-                        <UserLocationCard />
-                    </div>
+
+                    <UserLocationCard />
+
                 )}
             </div>
         </>

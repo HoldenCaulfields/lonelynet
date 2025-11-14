@@ -10,6 +10,7 @@ import OnlinePopup from "./OnlinePopup";
 import CreateSoulModal from "./CreateSoulModal";
 import { Hand, Pencil, Gamepad, Rocket, Star, Sword, Trophy, Zap, X, Sparkles } from "lucide-react";
 import UserPopup from "./UserPopup";
+import GroupList from "@/app/components/chatbox/GroupList";
 
 interface Props {
   setShowChat: (v: boolean) => void;
@@ -36,6 +37,8 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const [submenuVisible, setSubmenuVisible] = useState<number | null>(null);
   const [showGameMenu, setShowGameMenu] = useState(false);
+  const [openChat, setOpenChat] = useState<boolean | null>(null);
+
 
   // Ẩn menu khi click ra ngoài
   useEffect(() => {
@@ -436,14 +439,24 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
               ) : (
                 <div >
                   <UserPopup
-                  user={user}
-                  myUserId={myUserId}
-                  setRoomId={setRoomId}
-                  setShowChat={setShowChat}
-                />
+                    user={user}
+                    myUserId={myUserId}
+                    setOpenChat={setOpenChat}
+                  />
                 </div>
               )}
             </Popup>
+
+            {openChat && (
+              <GroupList
+                visible={true}
+                onClose={() => setOpenChat(null)}
+                onSelectRoom={(roomId) => {
+                  setRoomId(roomId);
+                  setShowChat(true);
+                }}
+              />
+            )}
           </Marker>
         );
       })}

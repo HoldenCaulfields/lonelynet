@@ -5,7 +5,6 @@ import MarkerContainer from "./marker/MarkerContainer";
 import Navbar from "../navbar/NavBar";
 import { useState } from "react";
 import ChatView from "../components/chatbox/ChatView";
-import Controls from "../components/Controls";
 import UserLocationNew from "./user/UserLocationNew";
 
 export default function Map() {
@@ -64,15 +63,6 @@ export default function Map() {
                     {/* <ThemeMarker theme="webdev" shape="circle" center={[37.7749, -122.4194]} /> */}
 
                 </MapContainer>
-
-                <Controls
-                    setRoomId={(id) => {
-                        setRoomId(id);
-                        setShowChat(true);
-                    }}
-                    togglePost={() => setShowPost((prev) => !prev)}
-                    showPost={showPost}
-                />
             </div>
 
             {/* CHAT BOX */}

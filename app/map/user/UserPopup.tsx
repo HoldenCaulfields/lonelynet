@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import {
     MessageCircle,
-    Smile,
     Heart,
     ThumbsUp,
     Zap,
@@ -12,7 +11,6 @@ import {
     Search,
     X,
     Users,
-    TrendingUp,
     MapPin,
     Briefcase,
     HeartHandshake,
@@ -24,6 +22,7 @@ import {
     Eye,
     Flame
 } from "lucide-react";
+import { useMap } from "react-leaflet";
 
 interface Props {
     user: {
@@ -49,6 +48,7 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
     const [currentMediaUrl, setCurrentMediaUrl] = useState<string | null>(user.musicUrl || null);
     const [loading, setLoading] = useState(false);
     const [activeModal, setActiveModal] = useState<"mood" | "info" | null>(null);
+    const map = useMap();
     const [nearbyStats, setNearbyStats] = useState({
         total: 0,
         statuses: [] as any[],
@@ -221,14 +221,19 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
 
     return (
         <>
-            <div className="relative flex flex-col items-center bg-gradient-to-br from-neutral-900/95 via-neutral-900/90 to-neutral-800/95 text-white rounded-3xl backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] p-6 min-w-[340px]">
+            <div className="relative min-w-85 flex flex-col items-center bg-gradient-to-br from-neutral-900/95 via-neutral-900/90 to-neutral-800/95 text-white rounded-3xl backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] p-6 ">
+                <button
+                    onClick={() => map.closePopup()}
+                    className="absolute top-3 right-3 z-50 bg-white/10 hover:rotate-90 hover:scale-110 transition-all duration-200 w-8 h-8 rounded-full flex items-center justify-center border border-white/20 backdrop-blur-md"
+                >
+                    <X className="w-4 h-4 text-white" />
+                </button>
                 
                 <div className="absolute top-4 left-4 flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full animate-pulse ${
-                        user.status === "online" ? "bg-green-400 shadow-lg shadow-green-400/50" :
-                        user.status === "idle" ? "bg-yellow-400 shadow-lg shadow-yellow-400/50" :
-                        "bg-gray-400"
-                    }`}></div>
+                    <div className={`w-3 h-3 rounded-full animate-pulse ${user.status === "online" ? "bg-green-400 shadow-lg shadow-green-400/50" :
+                            user.status === "idle" ? "bg-yellow-400 shadow-lg shadow-yellow-400/50" :
+                                "bg-gray-400"
+                        }`}></div>
                     <div className="flex items-center gap-1.5 text-xs font-medium text-white/80">
                         {selectedMood && <span>{moods.find(m => m.label === selectedMood)?.emoji}</span>}
                         <span>{selectedMood || "Select mood..."}</span>
@@ -236,7 +241,7 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
                 </div>
 
                 {selectedStatus && (
-                    <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-400/30 backdrop-blur-sm">
+                    <div className="absolute top-3  px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-400/30 backdrop-blur-sm">
                         <div className="flex items-center gap-1.5">
                             <Radio className="w-3 h-3 text-purple-300 animate-pulse" />
                             <span className="text-xs font-medium text-purple-200">{selectedStatus}</span>
@@ -338,11 +343,10 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
                         <button
                             key={idx}
                             onClick={() => handleSelectMood(mood.label)}
-                            className={`p-2.5 rounded-xl border backdrop-blur-sm transition-all duration-200 hover:scale-110 ${
-                                selectedMood === mood.label
+                            className={`p-2.5 rounded-xl border backdrop-blur-sm transition-all duration-200 hover:scale-110 ${selectedMood === mood.label
                                     ? "bg-white text-black border-white shadow-lg scale-110"
                                     : "border-white/20 text-white hover:bg-white/10 hover:border-white/40"
-                            }`}
+                                }`}
                             title={mood.label}
                         >
                             <span className="text-xl">{mood.emoji}</span>
@@ -352,7 +356,7 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
             </div>
 
             {activeModal === "mood" && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn" onClick={() => setActiveModal(null)}>
+                <div className="fixed inset-0 w-85 bg-black/60 backdrop-blur-sm rounded-2xl flex items-center justify-center z-50 animate-fadeIn" onClick={() => setActiveModal(null)}>
                     <div className="bg-gradient-to-br from-neutral-900 to-neutral-800 rounded-3xl p-6 w-96 border border-white/10 shadow-2xl animate-scaleIn" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -378,11 +382,10 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
                                         <button
                                             key={idx}
                                             onClick={() => handleSelectStatus(status.label)}
-                                            className={`flex items-center gap-2 p-3 rounded-xl bg-gradient-to-r ${status.color} hover:scale-105 transition-all border ${
-                                                selectedStatus === status.label
+                                            className={`flex items-center gap-2 p-3 rounded-xl bg-gradient-to-r ${status.color} hover:scale-105 transition-all border ${selectedStatus === status.label
                                                     ? "border-white shadow-lg ring-2 ring-white/50"
                                                     : "border-white/20"
-                                            }`}
+                                                }`}
                                         >
                                             {status.icon}
                                             <span className="text-xs font-medium text-white">
@@ -398,7 +401,7 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
             )}
 
             {activeModal === "info" && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn" onClick={() => setActiveModal(null)}>
+                <div className="fixed inset-0 w-85 rounded-2xl bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn" onClick={() => setActiveModal(null)}>
                     <div className="bg-gradient-to-br from-neutral-900 to-neutral-800 rounded-3xl p-6 w-[28rem] border border-white/10 shadow-2xl animate-scaleIn max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-xl font-bold text-white flex items-center gap-2">

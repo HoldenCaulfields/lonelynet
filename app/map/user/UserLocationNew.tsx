@@ -432,7 +432,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
               </>
             ) : null}
 
-            <Popup>
+            <Popup closeButton={false}>
               {!isSelf ? (
                 <OnlinePopup
                   user={user}
@@ -443,15 +443,13 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                   socket={socket}
                 />
               ) : (
-                <div >
-                  <UserPopup
-                    user={user}
-                    myUserId={myUserId}
-                    setOpenChat={setOpenChat}
-                    socket={socket}
-                    onlineUsers={onlineUsers}
-                  />
-                </div>
+                <UserPopup
+                  user={user}
+                  myUserId={myUserId}
+                  setOpenChat={setOpenChat}
+                  socket={socket}
+                  onlineUsers={onlineUsers}
+                />
               )}
             </Popup>
 

@@ -252,7 +252,7 @@ export default function OnlinePopup({
             </div>
 
             {activeModal === "poke" && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn" onClick={() => setActiveModal(null)}>
+                <div className="fixed inset-0 w-85 rounded-2xl bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn" onClick={() => setActiveModal(null)}>
                     <div className="bg-gradient-to-br from-neutral-900 to-neutral-800 rounded-3xl p-6 w-96 border border-white/10 shadow-2xl animate-scaleIn" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -294,8 +294,8 @@ export default function OnlinePopup({
             )}
 
             {activeModal === "info" && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn" onClick={() => setActiveModal(null)}>
-                    <div className="bg-gradient-to-br from-neutral-900 to-neutral-800 rounded-3xl p-6 w-96 border border-white/10 shadow-2xl animate-scaleIn" onClick={(e) => e.stopPropagation()}>
+                <div className="fixed inset-0 w-85 rounded-2xl bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn" onClick={() => setActiveModal(null)}>
+                    <div className="bg-gradient-to-br h-110 w-full overflow-y-scroll custom-scrollbar from-neutral-900 to-neutral-800 rounded-3xl p-6  border border-white/10 shadow-2xl animate-scaleIn" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-xl font-bold text-white flex items-center gap-2">
                                 <Eye className="w-6 h-6 text-green-400" />

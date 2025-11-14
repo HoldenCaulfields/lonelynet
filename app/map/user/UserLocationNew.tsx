@@ -8,7 +8,7 @@ import userIconImg from "@/public/red-icon.png";
 import otherIconImg from "@/public/online.png";
 import OnlinePopup from "./OnlinePopup";
 import CreateSoulModal from "./CreateSoulModal";
-import { Hand, Pencil, Gamepad, Rocket, Star, Sword, Trophy, Zap, Sparkles } from "lucide-react";
+import { Hand, Pencil, Gamepad, Sparkles, Briefcase, Palette, LineChart, HeartHandshake, Utensils } from "lucide-react";
 import UserPopup from "./UserPopup";
 import GroupList from "@/app/components/chatbox/GroupList";
 
@@ -291,11 +291,11 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
   if (!userLocation) return null;
 
   const games = [
-    { type: "Trophy", color: "from-green-500 to-emerald-500", label: "Tournament", icon: Trophy },
-    { type: "Sword", color: "from-blue-500 to-cyan-500", label: "Sword Fight", icon: Sword },
-    { type: "Star", color: "from-yellow-500 to-amber-500", label: "Star Quest", icon: Star },
-    { type: "Zap", color: "from-purple-500 to-pink-500", label: "Lightning", icon: Zap },
-    { type: "Rocket", color: "from-red-500 to-orange-500", label: "Rocket Race", icon: Rocket }
+    { type: "Trophy", color: "from-green-500 to-emerald-500", label: "Find Job", icon: Briefcase  },
+    { type: "Sword", color: "from-blue-500 to-cyan-500", label: "Art", icon: Palette  },
+    { type: "Star", color: "from-yellow-500 to-amber-500", label: "Bussiness", icon: LineChart  },
+    { type: "Zap", color: "from-purple-500 to-pink-500", label: "Lover", icon: HeartHandshake  },
+    { type: "Rocket", color: "from-red-500 to-orange-500", label: "Hungry", icon: Utensils  }
   ];
 
   return (
@@ -370,7 +370,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                     {games.map((item, idx) => {
                       const Icon = item.icon;
                       const angle = idx * 72 - 90;
-                      const radius = 110;
+                      const radius = 150;
                       const offsetX = radius * Math.cos((angle * Math.PI) / 180);
                       const offsetY = radius * Math.sin((angle * Math.PI) / 180);
 

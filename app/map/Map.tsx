@@ -6,6 +6,7 @@ import Navbar from "../navbar/NavBar";
 import { useState } from "react";
 import ChatView from "../components/chatbox/ChatView";
 import UserLocationNew from "./user/UserLocationNew";
+import ThemeMarker from "./topics/ThemeMarker";
 
 export default function Map() {
     const [searchText, setSearchText] = useState("");
@@ -32,7 +33,7 @@ export default function Map() {
             {/* Map chiếm toàn bộ phần còn lại */}
             <div className="flex-1 relative">
                 <MapContainer
-                    center={[16, 107]} 
+                    center={[16, 107]}
                     zoom={6}
                     minZoom={2}
                     style={{ height: "100%", width: "100%" }}
@@ -57,10 +58,15 @@ export default function Map() {
                         setRoomId={setRoomId}
                     />
 
-                    <UserLocationNew setShowChat={setShowChat} setRoomId={setRoomId} 
-                        showPost={showPost} setShowPost={setShowPost}/>
+                    <UserLocationNew setShowChat={setShowChat} setRoomId={setRoomId}
+                        showPost={showPost} setShowPost={setShowPost} />
 
-                    {/* <ThemeMarker theme="webdev" shape="circle" center={[37.7749, -122.4194]} /> */}
+                    <ThemeMarker theme="lover" center={[37.7749, -122.4194]} />
+                    {/* <ThemeMarker theme="lover" center={[10.0, 106.0]} />
+                    <ThemeMarker theme="findjob" center={[10.0, 106.1]} />
+                    <ThemeMarker theme="art" center={[10.0, 106.2]} />
+                    <ThemeMarker theme="business" center={[10.0, 106.3]} />
+                    <ThemeMarker theme="cooperate" center={[10.0, 106.4]} /> */}
 
                 </MapContainer>
             </div>

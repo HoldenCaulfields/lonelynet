@@ -305,7 +305,7 @@ export default function LonelylandPage() {
               )}
               {searchQuery && (
                 <span className="text-xs px-3 py-1 bg-white/10 rounded-full flex items-center gap-1">
-                  "{searchQuery}"
+                  &quot;{searchQuery}&quot;
                   <X className="w-3 h-3 cursor-pointer" onClick={() => { setSearchQuery(""); fetchSouls(); }} />
                 </span>
               )}

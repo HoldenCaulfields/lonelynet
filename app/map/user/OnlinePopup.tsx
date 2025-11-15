@@ -159,7 +159,7 @@ export default function OnlinePopup({
                 </div>
 
                 {distance !== null && (
-                    <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-gradient-to-r from-sky-500/20 to-blue-500/20 border border-sky-400/30 backdrop-blur-sm">
+                    <div className="absolute top-2 right-4 px-3 py-1.5 rounded-full bg-gradient-to-r from-sky-500/20 to-blue-500/20 border border-sky-400/30 backdrop-blur-sm">
                         <div className="flex items-center gap-1.5">
                             <MapPin className="w-3 h-3 text-sky-300" />
                             <span className="text-xs font-medium text-sky-200">{distance}km</span>

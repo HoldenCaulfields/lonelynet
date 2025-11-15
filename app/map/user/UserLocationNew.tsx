@@ -487,12 +487,12 @@ export default function UserOnlineMarkers({
                               animationDelay: `${idx * 0.05}s`,
                             }}
                             className={`group animate-popIn bg-gradient-to-br ${item.color} pointer-events-auto text-white rounded-2xl p-4 hover:scale-125 hover:rotate-12 shadow-2xl transition-all duration-300 border-2 ${
-                              isActive ? 'border-yellow-400 ring-4 ring-yellow-400/50' : 'border-white/30'
+                              isActive ? 'border-red-400 ring-4 ring-red-400/50' : 'border-white/30'
                             } relative`}
                           >
                             <Icon size={22} />
                             {isActive && (
-                              <div className="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                              <div className="absolute -top-2 -right-2 bg-red-400 text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                                 ✓
                               </div>
                             )}

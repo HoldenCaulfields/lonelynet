@@ -275,7 +275,7 @@ export default function UserPopup({ user, myUserId, setOpenChat, socket, onlineU
                         onChange={(e) => setSearchTerm(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                         placeholder="Search YouTube or paste link..."
-                        className="flex-1 px-4 text-sm py-2.5 rounded-xl bg-neutral-800/60 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500/50 transition-all"
+                        className="flex-1 px-4 text-[16px] md:text-sm py-2.5 rounded-xl bg-neutral-800/60 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500/50 transition-all"
                     />
                     <button
                         onClick={handleSearch}

@@ -6,7 +6,6 @@ import Navbar from "../navbar/NavBar";
 import { useState } from "react";
 import ChatView from "../components/chatbox/ChatView";
 import UserLocationNew from "./user/UserLocationNew";
-import ThemeMarker from "./topics/ThemeMarker";
 
 export default function Map() {
     const [searchText, setSearchText] = useState("");
@@ -62,11 +61,6 @@ export default function Map() {
                         showPost={showPost} setShowPost={setShowPost} />
 
                     {/* <ThemeMarker theme="business" center={[20, -20]} socket={roomId} currentUserId={userId} /> */}
-                    {/* <ThemeMarker theme="lover" center={[10.0, 106.0]} />
-                    <ThemeMarker theme="findjob" center={[10.0, 106.1]} />
-                    <ThemeMarker theme="art" center={[10.0, 106.2]} />
-                    <ThemeMarker theme="business" center={[10.0, 106.3]} />
-                    <ThemeMarker theme="cooperate" center={[10.0, 106.4]} /> */}
 
                 </MapContainer>
             </div>

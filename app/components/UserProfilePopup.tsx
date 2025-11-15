@@ -11,7 +11,7 @@ import {
 } from "react-icons/si";
 
 import { Phone, Globe, Camera, Loader2, Send, X, Sparkles } from "lucide-react";
-import Tags from "./Tags";
+import Tags from "../map/user/Tags";
 import axios from 'axios';
 
 const linkOptions = [

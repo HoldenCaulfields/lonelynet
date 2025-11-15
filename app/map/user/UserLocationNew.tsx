@@ -304,7 +304,7 @@ export default function UserOnlineMarkers({
     if (!userLocation) return [0, 0];
     
     const offsets: Record<string, [number, number]> = {
-      findjob: [20, -20],
+      findjob: [0, 0.5],
       art: [0, 0.5],
       business: [-0.5, 0],
       lover: [0, -0.5],
@@ -335,7 +335,7 @@ export default function UserOnlineMarkers({
           center={getThemePosition('findjob')} 
           socket={socket} 
           currentUserId={myUserId}
-          pixelSize={4}
+          pixelSize={0.5}
           setRoomId={setRoomId}
           setShowChat={setShowChat}
         />
@@ -347,7 +347,7 @@ export default function UserOnlineMarkers({
           center={getThemePosition('art')} 
           socket={socket} 
           currentUserId={myUserId}
-          pixelSize={4}
+          pixelSize={0.5}
           setRoomId={setRoomId}
           setShowChat={setShowChat}
         />
@@ -359,7 +359,7 @@ export default function UserOnlineMarkers({
           center={getThemePosition('business')} 
           socket={socket} 
           currentUserId={myUserId}
-          pixelSize={4}
+          pixelSize={0.5}
           setRoomId={setRoomId}
           setShowChat={setShowChat}
         />
@@ -371,7 +371,7 @@ export default function UserOnlineMarkers({
           center={getThemePosition('lover')} 
           socket={socket} 
           currentUserId={myUserId}
-          pixelSize={4}
+          pixelSize={0.5}
           setRoomId={setRoomId}
           setShowChat={setShowChat}
         />
@@ -393,7 +393,7 @@ export default function UserOnlineMarkers({
           center={getThemePosition('cooperate')} 
           socket={socket} 
           currentUserId={myUserId}
-          pixelSize={4}
+          pixelSize={0.5}
           setRoomId={setRoomId}
           setShowChat={setShowChat}
         />

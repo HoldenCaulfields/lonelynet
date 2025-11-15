@@ -61,7 +61,7 @@ export default function Map() {
                     <UserLocationNew setShowChat={setShowChat} setRoomId={setRoomId}
                         showPost={showPost} setShowPost={setShowPost} />
 
-                    <ThemeMarker theme="lover" center={[37.7749, -122.4194]} />
+                    {/* <ThemeMarker theme="business" center={[20, -20]} socket={roomId} currentUserId={userId} /> */}
                     {/* <ThemeMarker theme="lover" center={[10.0, 106.0]} />
                     <ThemeMarker theme="findjob" center={[10.0, 106.1]} />
                     <ThemeMarker theme="art" center={[10.0, 106.2]} />

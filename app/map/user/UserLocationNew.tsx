@@ -8,9 +8,10 @@ import userIconImg from "@/public/red-icon.png";
 import otherIconImg from "@/public/online.png";
 import OnlinePopup from "./OnlinePopup";
 import CreateSoulModal from "./CreateSoulModal";
-import { Hand, Pencil, Gamepad, Sparkles, Briefcase, Palette, LineChart, HeartHandshake, Utensils } from "lucide-react";
+import { Hand, Pencil, Gamepad, Briefcase, Palette, LineChart, HeartHandshake, Utensils } from "lucide-react";
 import UserPopup from "./UserPopup";
 import GroupList from "@/app/components/chatbox/GroupList";
+import ThemeMarker from "../topics/ThemeMarker";
 
 interface Props {
   setShowChat: (v: boolean) => void;
@@ -29,7 +30,12 @@ interface UserData {
   userStatus?: string;
 }
 
-export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, setShowPost }: Props) {
+export default function UserOnlineMarkers({ 
+  setShowChat, 
+  setRoomId, 
+  showPost, 
+  setShowPost
+}: Props) {
   const [onlineUsers, setOnlineUsers] = useState<Record<string, UserData>>({});
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [mySocketId, setMySocketId] = useState<string | null>(null);
@@ -42,9 +48,10 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
   const [submenuVisible, setSubmenuVisible] = useState<number | null>(null);
   const [showGameMenu, setShowGameMenu] = useState(false);
   const [openChat, setOpenChat] = useState<boolean | null>(null);
+  
+  // ✅ State để quản lý theme nào đang được hiển thị
+  const [activeThemes, setActiveThemes] = useState<Set<string>>(new Set());
 
-
-  // Ẩn menu khi click ra ngoài
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (tooltipRef.current && !tooltipRef.current.contains(e.target as Node)) {
@@ -56,11 +63,9 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  // canvas overlay cho pháo hoa
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animRef = useRef<number | null>(null);
 
-  // ====== GEOLOCATION ======
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -87,7 +92,6 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
     }
   }, [map]);
 
-  // ====== POPUP CONTROL FOR SHOWPOST ======
   useEffect(() => {
     if (!mySocketId) return;
     const marker = markerRefs.current[mySocketId];
@@ -109,7 +113,6 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
     };
   }, [showPost, mySocketId, setShowPost]);
 
-  // ====== SOCKET.IO ======
   useEffect(() => {
     connectSocket();
 
@@ -155,7 +158,6 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
     };
   }, [myUserId, userLocation, setRoomId, setShowChat, map]);
 
-  // gửi vị trí định kỳ
   useEffect(() => {
     if (!userLocation) return;
     const interval = setInterval(() => {
@@ -164,8 +166,6 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
     return () => clearInterval(interval);
   }, [userLocation]);
 
-
-  // ====== CANVAS FIREWORKS ======
   function ensureCanvas(): HTMLCanvasElement {
     if (canvasRef.current) return canvasRef.current;
     const container = map.getContainer();
@@ -253,7 +253,6 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
     animRef.current = requestAnimationFrame(frame);
   }
 
-  // ====== ICON MAKER ======
   const makeIcon = (isSelf: boolean, isWaving: boolean) => {
     const imgSrc = isSelf ? userIconImg.src : otherIconImg.src;
 
@@ -287,19 +286,120 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
     })
   };
 
-  // ====== RENDER MARKERS ======
+  // ✅ Hàm toggle theme
+  const toggleTheme = (themeName: string) => {
+    setActiveThemes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(themeName)) {
+        newSet.delete(themeName);
+      } else {
+        newSet.add(themeName);
+      }
+      return newSet;
+    });
+  };
+
+  // ✅ Tọa độ cho các theme (dựa trên vị trí user)
+  const getThemePosition = (theme: string): [number, number] => {
+    if (!userLocation) return [0, 0];
+    
+    const offsets: Record<string, [number, number]> = {
+      findjob: [20, -20],
+      art: [0, 0.5],
+      business: [-0.5, 0],
+      lover: [0, -0.5],
+      webdev: [0.35, 0.35],
+      cooperate: [-0.35, -0.35],
+    };
+    
+    const offset = offsets[theme] || [0, 0];
+    return [userLocation.lat + offset[0], userLocation.lng + offset[1]];
+  };
+
   if (!userLocation) return null;
 
   const games = [
-    { type: "Trophy", color: "from-green-500 to-emerald-500", label: "Find Job", icon: Briefcase  },
-    { type: "Sword", color: "from-blue-500 to-cyan-500", label: "Art", icon: Palette  },
-    { type: "Star", color: "from-yellow-500 to-amber-500", label: "Bussiness", icon: LineChart  },
-    { type: "Zap", color: "from-purple-500 to-pink-500", label: "Lover", icon: HeartHandshake  },
-    { type: "Rocket", color: "from-red-500 to-orange-500", label: "Hungry", icon: Utensils  }
+    { type: "Trophy", color: "from-green-500 to-emerald-500", label: "Find Job", icon: Briefcase, theme: "findjob" },
+    { type: "Sword", color: "from-blue-500 to-cyan-500", label: "Art", icon: Palette, theme: "art" },
+    { type: "Star", color: "from-yellow-500 to-amber-500", label: "Business", icon: LineChart, theme: "business" },
+    { type: "Zap", color: "from-purple-500 to-pink-500", label: "Lover", icon: HeartHandshake, theme: "lover" },
+    { type: "Rocket", color: "from-red-500 to-orange-500", label: "Cooperate", icon: Utensils, theme: "cooperate" }
   ];
 
   return (
     <>
+      {/* ✅ Render ThemeMarkers cho các theme đang active */}
+      {socket && activeThemes.has('findjob') && (
+        <ThemeMarker 
+          theme="findjob" 
+          center={getThemePosition('findjob')} 
+          socket={socket} 
+          currentUserId={myUserId}
+          pixelSize={4}
+          setRoomId={setRoomId}
+          setShowChat={setShowChat}
+        />
+      )}
+
+      {socket && activeThemes.has('art') && (
+        <ThemeMarker 
+          theme="art" 
+          center={getThemePosition('art')} 
+          socket={socket} 
+          currentUserId={myUserId}
+          pixelSize={4}
+          setRoomId={setRoomId}
+          setShowChat={setShowChat}
+        />
+      )}
+
+      {socket && activeThemes.has('business') && (
+        <ThemeMarker 
+          theme="business" 
+          center={getThemePosition('business')} 
+          socket={socket} 
+          currentUserId={myUserId}
+          pixelSize={4}
+          setRoomId={setRoomId}
+          setShowChat={setShowChat}
+        />
+      )}
+
+      {socket && activeThemes.has('lover') && (
+        <ThemeMarker 
+          theme="lover" 
+          center={getThemePosition('lover')} 
+          socket={socket} 
+          currentUserId={myUserId}
+          pixelSize={4}
+          setRoomId={setRoomId}
+          setShowChat={setShowChat}
+        />
+      )}
+
+      {/* {socket && activeThemes.has('webdev') && (
+        <ThemeMarker 
+          theme="webdev" 
+          center={getThemePosition('webdev')} 
+          socket={socket} 
+          currentUserId={myUserId}
+          pixelSize={0.01}
+        />
+      )} */}
+
+      {socket && activeThemes.has('cooperate') && (
+        <ThemeMarker 
+          theme="cooperate" 
+          center={getThemePosition('cooperate')} 
+          socket={socket} 
+          currentUserId={myUserId}
+          pixelSize={4}
+          setRoomId={setRoomId}
+          setShowChat={setShowChat}
+        />
+      )}
+
+      {/* User markers */}
       {Object.entries(onlineUsers).map(([socketId, user]) => {
         const isSelf = socketId === mySocketId;
         const isWaving = wavingUsers[user.userId];
@@ -317,7 +417,6 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                     className="flex flex-col gap-2 p-3 bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white rounded-2xl shadow-2xl w-48 select-none backdrop-blur-xl border border-white/10"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      {/* 👋 Vẫy tay */}
                       <button
                         onClick={() => {
                           if (!userLocation) return;
@@ -335,7 +434,6 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                         <Hand size={20} className="mx-auto group-hover:animate-bounce" />
                       </button>
 
-                      {/* 📝 Tạo bài */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -347,7 +445,6 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                         <Pencil size={20} className="mx-auto" />
                       </button>
 
-                      {/* 🎮 Game */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -364,7 +461,7 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                   </div>
                 </Tooltip>
 
-                {/* Menu Game vòng tròn */}
+                {/* ✅ Menu Game - Click để toggle theme */}
                 {showGameMenu && (
                   <div className="absolute z-[900] pointer-events-none">
                     {games.map((item, idx) => {
@@ -373,13 +470,14 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                       const radius = 150;
                       const offsetX = radius * Math.cos((angle * Math.PI) / 180);
                       const offsetY = radius * Math.sin((angle * Math.PI) / 180);
+                      const isActive = activeThemes.has(item.theme);
 
                       return (
                         <div key={item.type}>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              setSubmenuVisible(submenuVisible === idx ? null : idx);
+                              toggleTheme(item.theme);
                             }}
                             style={{
                               position: "absolute",
@@ -388,42 +486,26 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
                               transform: "translate(-50%, -50%)",
                               animationDelay: `${idx * 0.05}s`,
                             }}
-                            className={`group animate-popIn bg-gradient-to-br ${item.color} pointer-events-auto text-white rounded-2xl p-4 hover:scale-125 hover:rotate-12 shadow-2xl transition-all duration-300 border-2 border-white/30 relative`}
+                            className={`group animate-popIn bg-gradient-to-br ${item.color} pointer-events-auto text-white rounded-2xl p-4 hover:scale-125 hover:rotate-12 shadow-2xl transition-all duration-300 border-2 ${
+                              isActive ? 'border-yellow-400 ring-4 ring-yellow-400/50' : 'border-white/30'
+                            } relative`}
                           >
                             <Icon size={22} />
+                            {isActive && (
+                              <div className="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                ✓
+                              </div>
+                            )}
                             <span className="absolute -bottom-9 left-1/2 -translate-x-1/2 bg-black/90 text-xs px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap font-semibold shadow-lg">
                               {item.label}
                             </span>
                           </button>
-
-                          {/* Submenu cho mỗi game */}
-                          {submenuVisible === idx && (
-                            <div
-                              style={{
-                                position: "absolute",
-                                left: `calc(${map.latLngToContainerPoint([userLocation.lat, userLocation.lng]).x}px + ${offsetX}px)`,
-                                top: `calc(${map.latLngToContainerPoint([userLocation.lat, userLocation.lng]).y}px + ${offsetY}px + 60px)`,
-                                transform: "translate(-50%, 0)",
-                              }}
-                              className="pointer-events-auto bg-white text-gray-800 rounded-2xl shadow-2xl p-4 w-40 animate-slideUp border border-gray-200"
-                            >
-                              <div className="flex items-center gap-2 mb-3">
-                                <Icon size={16} className={`text-${item.color.split('-')[1]}-500`} />
-                                <div className="text-sm font-bold">{item.label}</div>
-                              </div>
-                              <button className={`w-full bg-gradient-to-r ${item.color} text-white text-sm font-semibold py-2.5 rounded-xl hover:scale-105 hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2`}>
-                                <Sparkles size={14} />
-                                Chơi ngay
-                              </button>
-                            </div>
-                          )}
                         </div>
                       );
                     })}
                   </div>
                 )}
 
-                {/* Modal Đăng bài nâng cao */}
                 <CreateSoulModal
                   showModal={showModal}
                   setShowModal={setShowModal}
@@ -466,7 +548,6 @@ export default function UserOnlineMarkers({ setShowChat, setRoomId, showPost, se
           </Marker>
         );
       })}
-
     </>
   );
 }

@@ -14,10 +14,13 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 //Middleware
-const allowedOrigins = ['https://lonelynet.vercel.app', 'https://lonelynet.onrender.com', 'http://localhost:3000', 'http://192.168.1.12:3000'];
-
 app.use(cors({
-    origin: allowedOrigins,
+  origin: [
+    "https://thelonelynet.com",
+    "https://www.thelonelynet.com", "http://localhost:3000", "https://lonelynet.vercel.app"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true
 }));
 app.use(express.json());
 

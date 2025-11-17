@@ -9,29 +9,35 @@ const router = express.Router();
 router.post("/", upload.single("image"), async (req, res) => {
   try {
     const { text, tags, position, links, icon } = req.body;
+    
+    // ✅ Parse position
     const parsedPos = JSON.parse(position);
+    
+    // ✅ Parse links một lần duy nhất
+    let parsedLinks = [];
+    if (links) {
+      parsedLinks = Array.isArray(links) ? links : JSON.parse(links);
+    }
+    
+    // ✅ Parse tags một lần duy nhất
+    let parsedTags = [];
+    if (tags) {
+      parsedTags = Array.isArray(tags) ? tags : tags.split(",").map((t) => t.trim());
+    }
 
-    // build update fields dynamically
+    // Build update fields dynamically
     const updateData = {};
     if (text) updateData.text = text;
-    if (tags) {
-      updateData.tags = Array.isArray(tags)
-        ? tags
-        : tags.split(",").map((t) => t.trim());
-    }
+    if (parsedTags.length > 0) updateData.tags = parsedTags;
     if (req.file) updateData.imageUrl = req.file.path;
-    if (links) {
-      const parsedLinks = Array.isArray(links) ? links : JSON.parse(links);
-      if (parsedLinks.length > 0) {
-        updateData.links = parsedLinks;
-      }
-    }
+    if (parsedLinks.length > 0) updateData.links = parsedLinks;
     if (icon) updateData.icon = icon;
 
+    // Check if soul exists at this position
     let soul = await Soul.findOne({ position: parsedPos });
 
     if (soul) {
-      // Merge update instead of replacing
+      // Update existing soul
       soul = await Soul.findOneAndUpdate(
         { position: parsedPos },
         { $set: updateData },
@@ -39,19 +45,20 @@ router.post("/", upload.single("image"), async (req, res) => {
       );
       return res.status(200).json({ message: "Updated existing post", soul });
     } else {
-      // Create new if not found
+      // Create new soul
       const newSoul = new Soul({
         text: text || "",
-        tags: updateData.tags || [],
+        tags: parsedTags,
         position: parsedPos,
         imageUrl: req.file ? req.file.path : null,
-        links: links ? JSON.parse(links) : [],
+        links: parsedLinks,
         icon: icon || "",
       });
       await newSoul.save();
       return res.status(201).json({ message: "Created new post", soul: newSoul });
     }
   } catch (error) {
+    console.error("❌ Error in POST /api/lonelyland:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -87,11 +94,10 @@ router.get('/', async (req, res) => {
     souls = await Soul.find().sort({ createdAt: -1 });
     return res.json(souls || []);
   } catch (error) {
-    console.error("🔥 Error in /api/lonelyland:", error.message);
+    console.error("🔥 Error in GET /api/lonelyland:", error.message);
     res.status(500).json({ error: error.message });
   }
 });
-
 
 router.put("/:id/love", async (req, res) => {
   try {
@@ -104,6 +110,7 @@ router.put("/:id/love", async (req, res) => {
 
     res.json(soul);
   } catch (err) {
+    console.error("❌ Error in PUT /api/lonelyland/:id/love:", err);
     res.status(500).json({ error: "Failed to update love" });
   }
 });
@@ -127,7 +134,7 @@ router.get("/:roomId", async (req, res) => {
     if (!soul) return res.status(404).json({ error: "Post not found" });
     res.json(soul);
   } catch (error) {
-    console.error("Error fetching soul:", error);
+    console.error("❌ Error in GET /api/lonelyland/:roomId:", error);
     res.status(500).json({ error: "Server error" });
   }
 });

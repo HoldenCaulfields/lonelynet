@@ -101,6 +101,11 @@ export default function CreateSoulModal({
     };
 
     const handleSubmit = async () => {
+        // Validate required fields
+        if (!text.trim()) {
+            alert("⚠️ Please share your story!");
+            return;
+        }
 
         const formData = new FormData();
         if (imageFile) formData.append("image", imageFile);
@@ -113,7 +118,25 @@ export default function CreateSoulModal({
         try {
             setLoading(true);
 
-            // 1. Gửi form data tới backend
+            // Debug: Log data trước khi gửi
+            console.log("Submitting data:", {
+                hasImage: !!imageFile,
+                imageSize: imageFile?.size,
+                text: text.substring(0, 50),
+                tags: selectedCategories,
+                linksCount: links.length,
+                position: [address.lat, address.lng],
+                icon: selectedIcon
+            });
+
+            // 1. Lưu vị trí vào sessionStorage TRƯỚC KHI gửi request
+            sessionStorage.setItem('flyToPosition', JSON.stringify({
+                lat: address.lat,
+                lng: address.lng,
+                timestamp: Date.now()
+            }));
+
+            // 2. Gửi form data tới backend
             const res = await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/api/lonelyland`,
                 formData,
@@ -122,23 +145,32 @@ export default function CreateSoulModal({
                 }
             );
 
-            if (res.status !== 200) throw new Error("Failed to save");
+            if (res.status !== 200 && res.status !== 201) {
+                throw new Error("Failed to save");
+            }
 
-            // 2. Reload page (chờ 100ms cho backend xử lý xong)
-            await new Promise((resolve) => setTimeout(resolve, 100));
+            // 3. Đợi backend xử lý xong (tăng lên 300ms để chắc chắn)
+            await new Promise((resolve) => setTimeout(resolve, 300));
+
+            // 4. Reload page
             window.location.reload();
 
-            // 3. Fly to vị trí mới sau khi page reload xong (sẽ tự động chạy sau reload)
-            // Lưu vị trí vào sessionStorage để fly to sau khi reload
-            sessionStorage.setItem('flyToPosition', JSON.stringify({
-                lat: address.lat,
-                lng: address.lng,
-                timestamp: Date.now()
-            }));
-
-        } catch (err) {
-            console.error(err);
-            alert("❌ Failed to save profile");
+        } catch (err: any) {
+            console.error("Submit error:", err);
+            
+            // Log chi tiết lỗi từ backend
+            if (err.response) {
+                console.error("Backend error status:", err.response.status);
+                console.error("Backend error data:", err.response.data);
+                alert(`❌ Server error: ${err.response.data?.message || err.response.data || 'Unknown error'}`);
+            } else if (err.request) {
+                console.error("No response from server:", err.request);
+                alert("❌ No response from server. Please check your connection!");
+            } else {
+                console.error("Error:", err.message);
+                alert(`❌ Error: ${err.message}`);
+            }
+            
             setLoading(false);
         }
     };

@@ -41,7 +41,7 @@ export default function SearchBox({setSearchText }: SearchBoxProps) {
                      border border-white/20 rounded-2xl text-white placeholder-gray-300
                      font-medium text-base sm:text-lg shadow-lg transition-all duration-300
                      focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400
-                     hover:bg-white/15 hover:shadow-blue-500/20"
+                     hover:bg-white/15 hover:shadow-blue-500/20 "
         />
 
         {/* Nút Search */}

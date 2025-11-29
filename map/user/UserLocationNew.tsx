@@ -3,14 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Marker, Popup, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
-import { socket, connectSocket } from "@/app/components/utils/socket";
+import { socket, connectSocket } from "@/components/utils/socket";
 import userIconImg from "@/public/red-icon.png";
 import otherIconImg from "@/public/online.png";
 import OnlinePopup from "./OnlinePopup";
 import CreateSoulModal from "./CreateSoulModal";
 import { Hand, Pencil, Gamepad, Briefcase, Palette, LineChart, HeartHandshake, Utensils } from "lucide-react";
 import UserPopup from "./UserPopup";
-import GroupList from "@/app/components/chatbox/GroupList";
+import GroupList from "@/components/chatbox/GroupList";
 import ThemeMarker from "../topics/ThemeMarker";
 
 interface Props {

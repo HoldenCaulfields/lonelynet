@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 
 // Dynamically import MapComponent (disable SSR)
-const Map = dynamic(() => import("./map/Map"), {
+const Map = dynamic(() => import("@/map/Map"), {
   ssr: false,
 });
 

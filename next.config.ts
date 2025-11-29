@@ -13,7 +13,8 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['framer-motion', 'react-leaflet']
   },
   allowedDevOrigins: [
-    'http://192.168.1.12:3000',"http://localhost:3000",
+    "http://192.168.1.12:3000",
+    "http://localhost:3000",
   ],
 };
 

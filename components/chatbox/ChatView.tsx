@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Socket } from "socket.io-client";
-import { socket as s } from "@/app/components/utils/socket";
+import { socket as s } from "@/components/utils/socket";
 import Image from "next/image";
 
 /* ---------------------------
@@ -319,7 +319,7 @@ export default function ChatView({ roomId, userId, onClose, showChat }: GroupCha
 
   return (
     <div
-      className={` fixed w-full sm:w-120 bottom-0 sm:top-auto sm:bottom-8 sm:right-8 z-[1200] flex justify-center sm:justify-end`}
+      className={` fixed w-full sm:w-120 bottom-0 sm:top-auto  sm:right-8 z-[1200] flex justify-center sm:justify-end`}
       role="dialog"
       aria-modal="true"
       aria-labelledby="chat-title"

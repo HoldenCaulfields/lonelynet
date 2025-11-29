@@ -2,7 +2,7 @@
 
 import { MapContainer, TileLayer, ZoomControl } from "react-leaflet";
 import MarkerContainer from "./marker/MarkerContainer";
-import Navbar from "../navbar/NavBar";
+import Navbar from "../components/navbar/NavBar";
 import { useState } from "react";
 import ChatView from "../components/chatbox/ChatView";
 import UserLocationNew from "./user/UserLocationNew";
@@ -15,10 +15,10 @@ export default function Map() {
 
     const [userId] = useState(() => {
         if (typeof window !== "undefined") {
-            const stored = localStorage.getItem("socigo_user_id");
+            const stored = localStorage.getItem("lonelynet_user_id");
             if (stored) return stored;
             const newId = Math.floor(Math.random() * 1_000_000).toString();
-            localStorage.setItem("socigo_user_id", newId);
+            localStorage.setItem("lonelynet_user_id", newId);
             return newId;
         }
         return "anonymous";
@@ -44,11 +44,14 @@ export default function Map() {
                     ]}
                     maxBoundsViscosity={1.0}
                 >
-                    <TileLayer
+                    {/* <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
+                    /> */}
+                    <TileLayer
+                        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
                     />
-
                     <ZoomControl position="bottomleft" />
 
                     <MarkerContainer

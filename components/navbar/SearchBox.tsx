@@ -37,7 +37,7 @@ export default function SearchBox({setSearchText }: SearchBoxProps) {
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyPress}
           placeholder="What's on your mind..."
-          className="w-full pl-12 pr-20 py-3 bg-white/10 backdrop-blur-2xl
+          className="w-full pl-6 pr-30 py-3 bg-white/10 backdrop-blur-2xl
                      border border-white/20 rounded-2xl text-white placeholder-gray-300
                      font-medium text-base sm:text-lg shadow-lg transition-all duration-300
                      focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400

@@ -503,6 +503,8 @@ interface SearchModalProps {
   query: string;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, query }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const physicsState = useRef<{ nodes: GraphNode[], links: GraphLink[] }>({
@@ -536,7 +538,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, query }) => 
   useEffect(() => {
     if (isOpen && query) {
       // Connect to backend
-      socketRef.current = io('http://localhost:5000');
+      socketRef.current = io(API_URL);
       socketRef.current.emit('join_universe', query);
 
       socketRef.current.on('init_data', (data: { nodes: GraphNode[], links: GraphLink[] }) => {

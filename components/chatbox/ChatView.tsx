@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Socket } from "socket.io-client";
-import { socket as s } from "@/components/utils/socket";
+import { socket as s } from "@/utils/socket";
 import Image from "next/image";
 
 /* ---------------------------

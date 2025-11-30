@@ -5,6 +5,9 @@ export default function initSocket(io) {
   // 🏠 ROOM MEMBERS: { roomId: [ { userId, socketId } ] }
   const roomMembers = {};
 
+  // Store for the knowledge graphs
+  const universeState = {};
+
   io.on("connection", (socket) => {
     console.log("⚡ New client connected:", socket.id);
 
@@ -177,6 +180,44 @@ export default function initSocket(io) {
       }
     });
 
+    // 🌌 JOIN UNIVERSE (New Feature)
+    socket.on('join_universe', (query) => {
+      if (!query) return;
+      
+      const universeId = query.toLowerCase().trim();
+      socket.join(universeId);
+      console.log(`🌌 ${socket.id} joined universe: ${universeId}`);
+
+      // Check if universe exists in memory, else create it
+      if (!universeState[universeId]) {
+        universeState[universeId] = generateUniverse(query);
+      }
+
+      // Send current state to the user
+      socket.emit('init_data', universeState[universeId]);
+    });
+
+    // 🕸️ MOVE NODE (New Feature)
+    socket.on('move_node', ({ query, nodeId, x, y }) => {
+      if (!query) return;
+      const universeId = query.toLowerCase().trim();
+      
+      // Update server state
+      if (universeState[universeId]) {
+        const node = universeState[universeId].nodes.find(n => n.id === nodeId);
+        if (node) {
+          node.x = x;
+          node.y = y;
+          // IMPORTANT: Reset velocity on server state so it doesn't fly away when next user joins
+          node.vx = 0;
+          node.vy = 0;
+        }
+      }
+
+      // Broadcast to everyone else in this universe
+      socket.to(universeId).emit('node_moved', { nodeId, x, y });
+    });
+
     // ❌ DISCONNECT
     socket.on("disconnect", () => {
       console.log("❌ Client disconnected:", socket.id);
@@ -203,3 +244,48 @@ export default function initSocket(io) {
     });
   });
 }
+
+// Helper to generate mock data if none exists
+const generateUniverse = (query) => {
+  const nodes = [];
+  const links = [];
+  
+  // Root Node
+  const rootId = 'root';
+  nodes.push({ id: rootId, type: 'ROOT', label: query, x: 0, y: 0, details: `The central concept of ${query}` });
+
+  // Generate 3-5 Clusters
+  const clusters = ['Concepts', 'People', 'History', 'Future'];
+  clusters.forEach((cluster, i) => {
+    const clusterId = `cluster_${i}`;
+    // Position clusters in a circle around root
+    const angle = (i / clusters.length) * Math.PI * 2;
+    const dist = 200;
+    
+    nodes.push({
+      id: clusterId,
+      type: 'GROUP',
+      label: cluster,
+      x: Math.cos(angle) * dist,
+      y: Math.sin(angle) * dist,
+      details: `Group of ${cluster} related to ${query}`
+    });
+    links.push({ source: rootId, target: clusterId });
+
+    // Generate Leaves for each cluster
+    for(let j=0; j<3; j++) {
+      const leafId = `leaf_${i}_${j}`;
+      nodes.push({
+        id: leafId,
+        type: 'ANSWER',
+        label: `${query} ${cluster} ${j+1}`,
+        x: Math.cos(angle) * (dist + 100) + (Math.random()-0.5)*50,
+        y: Math.sin(angle) * (dist + 100) + (Math.random()-0.5)*50,
+        details: `Specific detailed node about ${query}.`
+      });
+      links.push({ source: clusterId, target: leafId });
+    }
+  });
+
+  return { nodes, links };
+};

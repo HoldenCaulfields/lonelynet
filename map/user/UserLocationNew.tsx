@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Marker, Popup, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
-import { socket, connectSocket } from "@/components/utils/socket";
+import { socket, connectSocket } from "@/utils/socket";
 import userIconImg from "@/public/red-icon.png";
 import otherIconImg from "@/public/online.png";
 import OnlinePopup from "./OnlinePopup";
